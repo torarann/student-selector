@@ -283,7 +283,7 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
   <div class="pg">
     <div style="align-self:flex-start;margin-bottom:20px">
       <h2 style="font-size:21px;font-weight:700;letter-spacing:-.4px">手動入力</h2>
-      <p style="color:var(--t2);font-size:13px;margin-top:4px">名前を貼り付けてすぐ使えます</p>
+      <p style="color:var(--t2);font-size:13px;margin-top:4px">生徒名を入力してください</p>
     </div>
     <div class="card">
       <div class="field">
@@ -359,18 +359,18 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
           <div id="s-nm"></div>
           <div id="s-badge">
             <svg class="ck-svg" viewBox="0 0 24 24"><polyline class="ck-path" points="4,12 9,17 20,7"/></svg>
-            当たり！
+            当たり
           </div>
           <!-- States -->
-          <div id="s-idle"><div class="ico">🎯</div><p>ボタンを押して指名</p></div>
-          <div id="s-done"><div class="ico">🎉</div><p>全員指名完了！</p></div>
+          <div id="s-idle"><div class="ico">🎯</div><p>ボタンを押して生徒を指名</p></div>
+          <div id="s-done"><div class="ico">🎉</div><p>全員の指名が完了しました</p></div>
         </div>
 
         <!-- Pick button -->
         <div id="pick-w">
-          <button id="pick" onclick="pickStudent()">当てる！</button>
+          <button id="pick" onclick="pickStudent()">当てる</button>
         </div>
-        <button id="undo" class="btn btn-gst btn-sm" onclick="undoLast()">↩ 取り消し</button>
+        <button id="undo" class="btn btn-gst btn-sm" onclick="undoLast()">↩ 指名を取り消す</button>
       </div>
 
       <!-- Roster -->
@@ -379,7 +379,7 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
           <div class="r-stat"><div class="r-dot" style="background:var(--acc)"></div><span id="b-av"></span></div>
           <div class="r-stat"><div class="r-dot" style="background:var(--red)"></div><span id="b-ab"></span></div>
           <div class="r-stat"><div class="r-dot" style="background:var(--t3)"></div><span id="b-cl"></span></div>
-          <span class="r-hint">タップで欠席 / 復帰</span>
+          <span class="r-hint">タップで欠席・復帰の切り替え</span>
         </div>
         <div class="srch-w">
           <svg class="srch-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -404,12 +404,12 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
       <div class="ts">
         <div class="ts-ico">🎯</div>
         <div class="ts-h">ボタンで生徒を指名</div>
-        <div class="ts-p">「当てる！」を押すとランダムに指名されます。一度当たった生徒は自動的に除外されます。</div>
+        <div class="ts-p">「当てる」を押すとランダムに指名されます。一度指名された生徒は自動的に除外されます。</div>
       </div>
       <div class="ts">
         <div class="ts-ico">👆</div>
         <div class="ts-h">タップで欠席・復帰</div>
-        <div class="ts-p">名簿の名前をタップすると欠席になります。もう一度タップで出席に戻ります。指名済みの生徒も同様に復帰できます。</div>
+        <div class="ts-p">名簿の名前をタップすると欠席になります。もう一度タップすると出席に戻ります。指名済みの生徒も同様に復帰できます。</div>
       </div>
       <div class="ts">
         <div class="ts-ico">☁️</div>
@@ -418,8 +418,8 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
       </div>
       <div class="ts">
         <div class="ts-ico">🔍</div>
-        <div class="ts-h">集中モード & 検索</div>
-        <div class="ts-p">「集中」ボタンでセレクターのみ全画面表示。名簿は名前で検索できます。リセットでやり直せます。</div>
+        <div class="ts-h">集中モード・検索</div>
+        <div class="ts-p">「集中」ボタンでセレクターのみ全画面表示になります。名簿は名前で検索できます。リセットで最初からやり直せます。</div>
       </div>
     </div>
     <div id="tut-dots">
@@ -427,7 +427,7 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
     </div>
     <div id="tut-foot">
       <button class="btn btn-gst btn-sm" onclick="tutNext()" style="flex:1" id="tut-next">次へ</button>
-      <button class="btn btn-pri" onclick="tutClose()" style="flex:2;border-radius:9px">わかった！</button>
+      <button class="btn btn-pri" onclick="tutClose()" style="flex:2;border-radius:9px">閉じる</button>
     </div>
   </div>
 </div>
@@ -527,7 +527,7 @@ function signOut(){
    DRIVE STORAGE  (cross-device sync)
    Falls back to localStorage silently
 ════════════════════════════════ */
-function tok(){ return window.gapi.client.getToken()?.access_token; }
+function tok(){ try{ return window.gapi?.client?.getToken()?.access_token; }catch{ return null; } }
 function setSyn(s){ const d=$('sync-dot'); d.className=s; }
 
 async function loadFromDrive(){
@@ -661,7 +661,7 @@ function renderMain(){
 
   const btn=$('pick');
   btn.disabled=busy||allDone;
-  btn.textContent=allDone?'全員完了':'当てる！';
+  btn.textContent=allDone?'全員完了':'当てる';
   btn.classList.toggle('run', busy);
   if(!busy&&!allDone&&animOn) btn.style.animation='';
   else btn.style.animation='none';
@@ -750,7 +750,7 @@ function done(s){
 
   const btn=$('pick');
   btn.classList.remove('run');
-  btn.disabled=allDone; btn.textContent=allDone?'全員完了':'当てる！';
+  btn.disabled=allDone; btn.textContent=allDone?'全員完了':'当てる';
   btn.style.animation=(!allDone&&animOn)?'':'none';
   $('undo').style.display='inline-flex';
   renderChips();
@@ -763,8 +763,13 @@ function slot(pool,tick,fin){
     f++;
     const d=f<12?55:f<22?110:f<27?200:380;
     setTimeout(()=>{
-      const p=pool[Math.floor(Math.random()*pool.length)];
-      if(f<28){tick(p);go();}else fin(pool[Math.floor(Math.random()*pool.length)]);
+      try{
+        const p=pool[Math.floor(Math.random()*pool.length)];
+        if(f<28){tick(p);go();}else fin(pool[Math.floor(Math.random()*pool.length)]);
+      }catch(e){
+        console.error('slot error:',e);
+        try{ fin(pool[Math.floor(Math.random()*pool.length)]); }catch(e2){ console.error('fin error:',e2); busy=false; }
+      }
     },d);
   };
   go();
@@ -808,7 +813,7 @@ function chipTap(id){
   $('b-ab').textContent=`欠席 ${absent.size}`;
   $('b-cl').textContent=`指名済 ${called.size}`;
   const btn=$('pick');
-  btn.disabled=busy||allDone; btn.textContent=allDone?'全員完了':'当てる！';
+  btn.disabled=busy||allDone; btn.textContent=allDone?'全員完了':'当てる';
   renderChips();
 }
 
