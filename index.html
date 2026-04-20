@@ -435,8 +435,6 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
 <!-- Confetti layer -->
 <div id="conf"></div>
 
-<script src="https://apis.google.com/js/api.js" async onload="onGapiLoad()"></script>
-<script src="https://accounts.google.com/gsi/client" async onload="onGisLoad()"></script>
 <script>
 /* ════════════════════════════════
    CONFIG  ← ここだけ書き換える
@@ -923,5 +921,7 @@ function tutClose(){
 ════════════════════════════════ */
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
+<script src="https://apis.google.com/js/api.js" async onload="onGapiLoad()"></script>
+<script src="https://accounts.google.com/gsi/client" async onload="onGisLoad()"></script>
 </body>
 </html>
