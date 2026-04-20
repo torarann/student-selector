@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" />
 <style>
-/* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg:      #080c14;
@@ -23,491 +22,196 @@
   --sub:     #94a3b8;
   --ff:      'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;
 }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--ff);
-  min-height: 100vh;
-}
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0d1117; }
-::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+body { background:var(--bg); color:var(--text); font-family:var(--ff); min-height:100vh; }
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:#0d1117; }
+::-webkit-scrollbar-thumb { background:#334155; border-radius:3px; }
 
-/* ── Animations ── */
 @keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(99,102,241,.7); }
-  70%  { box-shadow: 0 0 0 18px rgba(99,102,241,0); }
-  100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+  0%   { box-shadow:0 0 0 0 rgba(99,102,241,.7); }
+  70%  { box-shadow:0 0 0 18px rgba(99,102,241,0); }
+  100% { box-shadow:0 0 0 0 rgba(99,102,241,0); }
 }
-@keyframes slot-flicker {
-  0%,100% { opacity:1; } 50% { opacity:.65; }
-}
+@keyframes slot-flicker { 0%,100%{opacity:1;} 50%{opacity:.65;} }
 @keyframes pop-in {
-  0%  { transform:scale(.5); opacity:0; }
-  70% { transform:scale(1.07); }
-  100%{ transform:scale(1); opacity:1; }
+  0%{transform:scale(.5);opacity:0;}
+  70%{transform:scale(1.07);}
+  100%{transform:scale(1);opacity:1;}
 }
 @keyframes float {
-  0%,100% { transform:translateY(0); }
-  50%     { transform:translateY(-7px); }
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-7px);}
 }
 @keyframes confetti-fall {
-  0%   { transform:translateY(-10px) rotate(0deg); opacity:1; }
-  100% { transform:translateY(90px) rotate(380deg); opacity:0; }
+  0%  {transform:translateY(-10px) rotate(0deg);opacity:1;}
+  100%{transform:translateY(90px) rotate(380deg);opacity:0;}
 }
-@keyframes fade-in {
-  from { opacity:0; transform:translateY(10px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-@keyframes shimmer {
-  0%   { background-position:-400px 0; }
-  100% { background-position:400px 0; }
-}
-.anim-fadein { animation: fade-in .35s ease both; }
+@keyframes fade-in { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
 
-/* ── Screens ── */
 .screen { display:none; }
-.screen.active { display:flex; flex-direction:column; min-height:100vh; animation: fade-in .3s ease; }
+.screen.active { display:flex; flex-direction:column; min-height:100vh; animation:fade-in .3s ease; }
 
-/* ── Shared layout helpers ── */
 .page-center {
   flex:1; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   padding:32px 20px; max-width:480px; margin:0 auto; width:100%;
 }
-.card {
-  background:var(--card);
-  border:1.5px solid var(--border);
-  border-radius:18px; padding:28px 24px;
-  width:100%;
-}
+.card { background:var(--card); border:1.5px solid var(--border); border-radius:18px; padding:28px 24px; width:100%; }
 .title { font-size:22px; font-weight:900; margin-bottom:6px; }
-.subtitle { font-size:14px; color:var(--sub); margin-bottom:24px; line-height:1.6; }
 label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--sub); margin-bottom:6px; }
 input, textarea {
-  width:100%; background:#0d1117;
-  border:1.5px solid var(--border);
-  border-radius:10px; padding:12px 14px;
-  font-size:14px; color:var(--text);
-  font-family:var(--ff); outline:none;
-  transition:border-color .2s;
+  width:100%; background:#0d1117; border:1.5px solid var(--border); border-radius:10px;
+  padding:12px 14px; font-size:14px; color:var(--text); font-family:var(--ff); outline:none; transition:border-color .2s;
 }
 input:focus, textarea:focus { border-color:var(--accentL); }
 textarea { resize:vertical; min-height:160px; line-height:1.9; }
 
-/* ── Buttons ── */
 .btn {
   display:inline-flex; align-items:center; justify-content:center;
-  gap:10px; border:none; border-radius:12px;
-  padding:13px 24px; font-size:15px; font-weight:700;
-  font-family:var(--ff); cursor:pointer;
-  transition:transform .1s, opacity .2s;
-  width:100%; margin-bottom:10px;
+  gap:10px; border:none; border-radius:12px; padding:13px 24px;
+  font-size:15px; font-weight:700; font-family:var(--ff); cursor:pointer;
+  transition:transform .1s, opacity .2s; width:100%; margin-bottom:10px;
 }
 .btn:active { transform:scale(.96); }
 .btn:disabled { opacity:.35; cursor:not-allowed; }
-.btn-primary {
-  background:linear-gradient(135deg, var(--accent), #8b5cf6);
-  color:white;
-  box-shadow:0 4px 20px rgba(99,102,241,.35);
-}
-.btn-outline {
-  background:var(--card);
-  border:1.5px solid var(--border) !important;
-  color:var(--text);
-}
-.btn-ghost {
-  background:none; color:var(--sub);
-  font-size:13px; padding:10px;
-}
-.btn-google {
-  background:white; color:#333;
-  border:2px solid #ddd !important;
-  font-size:15px;
-}
-.btn-danger { background:#7f1d1d; color:#fca5a5; border:1px solid var(--hot) !important; }
-.btn-sm {
-  padding:7px 14px; font-size:13px;
-  border-radius:8px; width:auto; margin-bottom:0;
-}
-.btn-icon {
-  width:auto; padding:8px 14px;
-  font-size:12px; border-radius:8px; margin-bottom:0;
-}
+.btn-primary { background:linear-gradient(135deg,var(--accent),#8b5cf6); color:white; box-shadow:0 4px 20px rgba(99,102,241,.35); }
+.btn-outline  { background:var(--card); border:1.5px solid var(--border)!important; color:var(--text); }
+.btn-ghost    { background:none; color:var(--sub); font-size:13px; padding:10px; }
+.btn-google   { background:white; color:#333; border:2px solid #ddd!important; }
+.btn-danger   { background:#7f1d1d; color:#fca5a5; border:1px solid var(--hot)!important; }
+.btn-sm       { padding:7px 14px; font-size:13px; border-radius:8px; width:auto; margin-bottom:0; }
+.btn-icon     { width:auto; padding:8px 14px; font-size:12px; border-radius:8px; margin-bottom:0; }
 
-/* ── Info box ── */
-.info-box {
-  background:#0d1829; border:1px solid #1e3a5f;
-  border-radius:12px; padding:16px;
-  font-size:13px; color:var(--sub);
-  line-height:1.7; margin-bottom:20px;
-}
-.info-box b { color:var(--accentL); }
-.info-box ol { padding-left:18px; margin-top:8px; }
-.info-box li { margin-bottom:4px; }
-code {
-  background:#0d1117; padding:2px 7px;
-  border-radius:5px; font-size:12px;
-  border:1px solid var(--border); color:var(--accentL);
-}
-
-/* ── Step indicator ── */
-.steps {
-  display:flex; gap:6px; margin-bottom:24px;
-  justify-content:center;
-}
-.step-dot {
-  width:8px; height:8px; border-radius:50%;
-  background:var(--border); transition:background .3s;
-}
-.step-dot.active { background:var(--accent); }
-.step-dot.done { background:var(--teal); }
-
-/* ── Header bar ── */
+/* ─── Header ─── */
 #header {
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  padding:12px 18px;
-  display:flex; justify-content:space-between; align-items:center;
-  flex-wrap:wrap; gap:8px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:12px 18px; display:flex; justify-content:space-between;
+  align-items:center; flex-wrap:wrap; gap:8px;
 }
 .header-class { font-size:16px; font-weight:900; }
-.header-sub { font-size:12px; color:var(--sub); margin-top:2px; }
+.header-sub   { font-size:12px; color:var(--sub); margin-top:2px; }
 .header-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 
-/* ── Progress bar ── */
-#progress-track {
-  height:7px; background:var(--card);
-  position:relative; overflow:hidden;
-}
-#progress-fill {
-  height:100%;
-  background:linear-gradient(90deg, var(--teal), var(--accent));
-  transition:width .6s ease;
-  border-radius:0 4px 4px 0;
+/* ─── Progress ─── */
+#progress-track { height:7px; background:var(--card); position:relative; overflow:hidden; }
+#progress-fill  {
+  height:100%; background:linear-gradient(90deg,var(--teal),var(--accent));
+  transition:width .6s ease; border-radius:0 4px 4px 0;
 }
 
-/* ── Main layout ── */
+/* ─── Main body ─── */
 #main-body { flex:1; display:flex; flex-direction:column; overflow:auto; }
 
-/* ── Stage ── */
-#selector-section {
-  display:flex; flex-direction:column;
-  align-items:center; padding:28px 20px 18px; gap:16px;
-}
+/* ─── Stage ─── */
+#selector-section { display:flex; flex-direction:column; align-items:center; padding:28px 20px 18px; gap:16px; }
 #stage {
-  background:var(--card);
-  border:2px solid var(--border);
-  border-radius:24px; padding:32px 52px;
-  min-width:280px; min-height:160px;
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  box-shadow:0 8px 40px rgba(0,0,0,.45);
-  transition:border-color .3s, box-shadow .3s;
-  text-align:center;
+  background:var(--card); border:2px solid var(--border); border-radius:24px;
+  padding:32px 52px; min-width:280px; min-height:160px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  box-shadow:0 8px 40px rgba(0,0,0,.45); transition:border-color .3s,box-shadow .3s; text-align:center;
 }
-#stage.animating {
-  border-color:var(--accentL);
-  box-shadow:0 8px 40px rgba(129,140,248,.3);
-}
-#stage.result {
-  border-color:var(--gold);
-  box-shadow:0 8px 50px rgba(245,158,11,.3);
-}
-#stage-avatar {
-  width:88px; height:88px; border-radius:50%;
-  object-fit:cover; margin-bottom:14px;
-  border:3px solid var(--accent); display:none;
-}
-#stage-initial {
-  width:88px; height:88px; border-radius:50%;
-  background:linear-gradient(135deg,var(--accent),#8b5cf6);
-  font-size:38px; font-weight:900; color:white;
-  display:none; align-items:center; justify-content:center;
-  margin-bottom:14px;
-}
-#stage-name {
-  font-size:28px; font-weight:900; letter-spacing:-.5px;
-  display:none;
-}
-#stage-badge {
-  margin-top:10px;
-  background:rgba(245,158,11,.15);
-  border:1px solid var(--gold); color:var(--gold);
-  padding:4px 16px; border-radius:20px;
-  font-size:13px; font-weight:700; display:none;
-}
-#stage-empty {
-  display:flex; flex-direction:column;
-  align-items:center; gap:12px; opacity:.5;
-}
+#stage.animating { border-color:var(--accentL); box-shadow:0 8px 40px rgba(129,140,248,.3); }
+#stage.result    { border-color:var(--gold);    box-shadow:0 8px 50px rgba(245,158,11,.3);  }
+#stage-avatar    { width:88px;height:88px;border-radius:50%;object-fit:cover;margin-bottom:14px;border:3px solid var(--accent);display:none; }
+#stage-initial   { width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#8b5cf6);font-size:38px;font-weight:900;color:white;display:none;align-items:center;justify-content:center;margin-bottom:14px; }
+#stage-name      { font-size:28px;font-weight:900;letter-spacing:-.5px;display:none; }
+#stage-badge     { margin-top:10px;background:rgba(245,158,11,.15);border:1px solid var(--gold);color:var(--gold);padding:4px 16px;border-radius:20px;font-size:13px;font-weight:700;display:none; }
+#stage-empty     { display:flex;flex-direction:column;align-items:center;gap:12px;opacity:.5; }
 #stage-empty .icon { font-size:48px; }
-#stage-empty p { font-size:15px; color:var(--sub); }
-#stage-alldone {
-  display:none; flex-direction:column;
-  align-items:center; gap:10px;
-}
-#stage-alldone .icon {
-  font-size:52px;
-  animation:float 2s ease-in-out infinite;
-}
-#stage-alldone p { color:var(--gold); font-weight:700; font-size:18px; }
+#stage-empty p   { font-size:15px;color:var(--sub); }
+#stage-alldone   { display:none;flex-direction:column;align-items:center;gap:10px; }
+#stage-alldone .icon { font-size:52px;animation:float 2s ease-in-out infinite; }
+#stage-alldone p { color:var(--gold);font-weight:700;font-size:18px; }
 
-/* ── Pick button ── */
+/* ─── Pick button ─── */
 #pick-btn {
-  background:linear-gradient(135deg, var(--accent), #8b5cf6);
-  color:white; border:none;
-  border-radius:50px; padding:18px 56px;
-  font-size:22px; font-weight:900;
-  cursor:pointer; font-family:var(--ff);
-  box-shadow:0 8px 30px rgba(99,102,241,.45);
-  transition:transform .1s, opacity .2s;
-  letter-spacing:1px;
-  animation:pulse-ring 2s infinite;
+  background:linear-gradient(135deg,var(--accent),#8b5cf6);
+  color:white; border:none; border-radius:50px; padding:18px 56px;
+  font-size:22px; font-weight:900; cursor:pointer; font-family:var(--ff);
+  box-shadow:0 8px 30px rgba(99,102,241,.45); transition:transform .1s,opacity .2s;
+  letter-spacing:1px; animation:pulse-ring 2s infinite;
 }
-#pick-btn:active { transform:scale(.95); }
-#pick-btn.spinning { animation:none; }
-#pick-btn:disabled { opacity:.35; cursor:not-allowed; animation:none; }
-#undo-btn { display:none; }
+#pick-btn:active  { transform:scale(.95); }
+#pick-btn.spinning{ animation:none; }
+#pick-btn:disabled{ opacity:.35;cursor:not-allowed;animation:none; }
+#undo-btn         { display:none; }
 
-/* ── Controls row ── */
-.controls-row {
-  display:flex; gap:10px; align-items:center;
-  margin-bottom:4px; flex-wrap:wrap;
-  justify-content:center;
-}
+.controls-row { display:flex;gap:10px;align-items:center;margin-bottom:4px;flex-wrap:wrap;justify-content:center; }
 
-/* ── Toggle switch ── */
-.toggle-wrap {
-  display:flex; align-items:center; gap:8px;
-  font-size:12px; color:var(--sub); font-weight:700;
-}
-.toggle {
-  position:relative; width:40px; height:22px;
-}
-.toggle input { opacity:0; width:0; height:0; }
-.toggle-slider {
-  position:absolute; cursor:pointer;
-  inset:0; background:#334155; border-radius:22px;
-  transition:.3s;
-}
-.toggle-slider::before {
-  content:""; position:absolute;
-  width:16px; height:16px; left:3px; bottom:3px;
-  background:white; border-radius:50%;
-  transition:.3s;
-}
+/* ─── Toggle ─── */
+.toggle-wrap { display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);font-weight:700; }
+.toggle { position:relative;width:40px;height:22px; }
+.toggle input { opacity:0;width:0;height:0; }
+.toggle-slider { position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:22px;transition:.3s; }
+.toggle-slider::before { content:"";position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s; }
 .toggle input:checked + .toggle-slider { background:var(--accent); }
 .toggle input:checked + .toggle-slider::before { transform:translateX(18px); }
 
-/* ── Roster ── */
+/* ─── Roster ─── */
 #roster-section { padding:0 16px 28px; }
-.roster-header {
-  display:flex; gap:16px; margin-bottom:12px;
-  padding-bottom:10px;
-  border-bottom:1px solid var(--border);
-  flex-wrap:wrap;
-}
-.roster-badge {
-  display:flex; align-items:center; gap:6px;
-  font-size:12px; color:var(--sub); font-weight:600;
-}
-.roster-badge-dot { width:8px; height:8px; border-radius:50%; }
-#chip-grid { display:flex; flex-wrap:wrap; gap:8px; }
+.roster-header  { display:flex;gap:16px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);flex-wrap:wrap; }
+.roster-badge   { display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);font-weight:600; }
+.roster-badge-dot { width:8px;height:8px;border-radius:50%; }
+#chip-grid { display:flex;flex-wrap:wrap;gap:8px; }
 .chip {
-  background:var(--card);
-  border:1.5px solid var(--border);
-  border-radius:20px; padding:6px 8px 6px 14px;
-  display:flex; align-items:center; gap:6px;
-  transition:all .2s; cursor:default;
+  background:var(--card); border:1.5px solid var(--border); border-radius:20px;
+  padding:6px 8px 6px 14px; display:flex; align-items:center; gap:6px; transition:all .2s;
 }
-.chip.absent { background:rgba(127,29,29,.35); border-color:#7f1d1d; }
-.chip.called { background:rgba(6,78,59,.35); border-color:#064e3b; }
-.chip.current {
-  background:rgba(245,158,11,.15);
-  border-color:var(--gold);
-  box-shadow:0 2px 12px rgba(245,158,11,.3);
-}
-.chip-name { font-size:13px; font-weight:700; transition:opacity .2s; }
-.chip.called .chip-name { text-decoration:line-through; opacity:.55; }
+.chip.absent  { background:rgba(127,29,29,.35);border-color:#7f1d1d; }
+.chip.called  { background:rgba(6,78,59,.35);border-color:#064e3b; }
+.chip.current { background:rgba(245,158,11,.15);border-color:var(--gold);box-shadow:0 2px 12px rgba(245,158,11,.3); }
+.chip-name    { font-size:13px;font-weight:700;transition:opacity .2s; }
+.chip.called .chip-name { text-decoration:line-through;opacity:.55; }
 .chip.absent .chip-name { opacity:.55; }
-.absent-btn {
-  background:none; border:none;
-  color:var(--sub); font-size:12px;
-  cursor:pointer; padding:2px 5px;
-  border-radius:4px; line-height:1;
-  transition:color .15s;
-}
+.absent-btn { background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;padding:2px 5px;border-radius:4px;line-height:1;transition:color .15s; }
 .absent-btn:hover { color:var(--hot); }
 
-/* ── Course grid ── */
-#course-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(150px,1fr));
-  gap:12px; width:100%;
-}
+/* ─── Course grid ─── */
+#course-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;width:100%; }
 .course-card {
-  background:#0f172a;
-  border:1.5px solid var(--border);
-  border-radius:16px; padding:20px 16px;
-  cursor:pointer; text-align:center;
-  transition:all .2s; font-family:var(--ff);
-  color:var(--text);
+  background:#0f172a; border:1.5px solid var(--border); border-radius:16px; padding:20px 16px;
+  cursor:pointer; text-align:center; transition:all .2s; font-family:var(--ff); color:var(--text);
 }
-.course-card:hover {
-  background:#1e3a5f;
-  transform:translateY(-2px);
-  border-color:var(--accentL);
-}
-.course-card .course-icon { font-size:30px; margin-bottom:8px; }
-.course-card .course-name { font-size:14px; font-weight:700; line-height:1.4; }
-.course-card .course-section { font-size:12px; color:var(--sub); margin-top:4px; }
+.course-card:hover { background:#1e3a5f;transform:translateY(-2px);border-color:var(--accentL); }
+.course-card .course-icon { font-size:30px;margin-bottom:8px; }
+.course-card .course-name { font-size:14px;font-weight:700;line-height:1.4; }
+.course-card .course-section { font-size:12px;color:var(--sub);margin-top:4px; }
 
-/* ── Confetti ── */
-#confetti-layer {
-  position:fixed; inset:0;
-  pointer-events:none; z-index:999;
-  overflow:hidden;
-}
-.confetti-piece {
-  position:absolute; top:38%;
-  animation:confetti-fall 1.5s ease-in forwards;
-}
+/* ─── Confetti ─── */
+#confetti-layer { position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden; }
+.confetti-piece { position:absolute;top:38%;animation:confetti-fall 1.5s ease-in forwards; }
 
-/* ── User info strip ── */
-#user-strip {
-  display:none;
-  align-items:center; gap:10px;
-  padding:8px 18px;
-  background:#0d1117;
-  border-bottom:1px solid var(--border);
-  font-size:12px; color:var(--sub);
-}
-#user-avatar {
-  width:26px; height:26px; border-radius:50%;
-  object-fit:cover;
-}
-#user-name { font-weight:700; color:var(--text); }
-#signout-btn {
-  margin-left:auto; background:none;
-  border:1px solid var(--border); border-radius:6px;
-  color:var(--sub); font-size:11px; padding:4px 10px;
-  cursor:pointer; font-family:var(--ff);
-  transition:color .2s;
-}
+/* ─── User strip ─── */
+#user-strip { display:none;align-items:center;gap:10px;padding:8px 18px;background:#0d1117;border-bottom:1px solid var(--border);font-size:12px;color:var(--sub); }
+#user-avatar { width:26px;height:26px;border-radius:50%;object-fit:cover; }
+#user-name { font-weight:700;color:var(--text); }
+#signout-btn { margin-left:auto;background:none;border:1px solid var(--border);border-radius:6px;color:var(--sub);font-size:11px;padding:4px 10px;cursor:pointer;font-family:var(--ff);transition:color .2s; }
 #signout-btn:hover { color:var(--hot); }
 
-/* ── Reset confirm ── */
-#reset-confirm { display:none; gap:6px; }
+#reset-confirm { display:none;gap:6px; }
 
-/* ── Responsive ── */
 @media(max-width:480px) {
-  #stage { padding:24px 28px; min-width:0; width:100%; }
+  #stage { padding:24px 28px;min-width:0;width:100%; }
   #stage-name { font-size:22px; }
-  #pick-btn { font-size:18px; padding:16px 40px; }
+  #pick-btn { font-size:18px;padding:16px 40px; }
 }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     SCREEN: SETUP (初回設定)
-════════════════════════════════════════════ -->
-<div id="screen-setup" class="screen active">
+<!-- ══════════════
+     SCREEN: LOGIN
+══════════════ -->
+<div id="screen-login" class="screen active">
   <div class="page-center">
     <div style="font-size:64px;margin-bottom:16px;filter:drop-shadow(0 0 24px rgba(99,102,241,.6))">🎯</div>
     <div class="title" style="text-align:center;font-size:28px">生徒セレクター</div>
-    <div class="subtitle" style="text-align:center;margin-bottom:28px">先生向け・Google Classroom 連携</div>
+    <p style="color:var(--sub);font-size:14px;text-align:center;margin-bottom:28px">先生向け・Google Classroom 連携</p>
 
     <div class="card">
-      <div class="steps" id="setup-steps">
-        <div class="step-dot active" id="dot0"></div>
-        <div class="step-dot" id="dot1"></div>
-        <div class="step-dot" id="dot2"></div>
-      </div>
-
-      <!-- Step 0: 概要 -->
-      <div id="step-0">
-        <div class="title" style="font-size:18px;margin-bottom:8px">👋 はじめに</div>
-        <div class="info-box">
-          このアプリは <b>Google Classroom</b> と連携して生徒を自動で取得・ランダム指名します。<br><br>
-          初回のみ <b>Google Cloud Console</b> での5分間の設定が必要です。
-          以下の手順に沿ってすすめましょう。
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:4px">
-          <button class="btn btn-primary" onclick="nextStep(1)">🚀 セットアップをはじめる</button>
-          <button class="btn btn-outline" onclick="showScreen('screen-manual')">✏️ 手動入力で使う（設定不要）</button>
-        </div>
-        <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:12px">
-          ※ 一度設定すれば次回からはすぐ使えます
-        </p>
-      </div>
-
-      <!-- Step 1: Google Cloud -->
-      <div id="step-1" style="display:none">
-        <div class="title" style="font-size:17px;margin-bottom:12px">① Google Cloud の設定</div>
-        <div class="info-box">
-          <b>Google Cloud Console で行う操作</b>
-          <ol>
-            <li><a href="https://console.cloud.google.com/" target="_blank" style="color:var(--accentL)">console.cloud.google.com</a> を開く</li>
-            <li>上部「プロジェクトを選択」→「新しいプロジェクト」を作成（名前は何でもOK）</li>
-            <li>左メニュー →「APIとサービス」→「ライブラリ」</li>
-            <li>「<b>Google Classroom API</b>」を検索して <b>有効にする</b></li>
-            <li>「APIとサービス」→「認証情報」→「＋認証情報を作成」→「<b>OAuth 2.0 クライアント ID</b>」</li>
-            <li>アプリの種類：<b>ウェブアプリケーション</b></li>
-            <li>「承認済みの JavaScript 生成元」に以下を追加：<br>
-              <code id="origin-hint">（次のステップで入力）</code>
-            </li>
-            <li>「作成」→ クライアントIDをコピー</li>
-          </ol>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost btn-sm" onclick="nextStep(0)" style="width:auto">← 戻る</button>
-          <button class="btn btn-primary" style="flex:1;margin-bottom:0" onclick="nextStep(2)">次へ →</button>
-        </div>
-      </div>
-
-      <!-- Step 2: Client ID 入力 -->
-      <div id="step-2" style="display:none">
-        <div class="title" style="font-size:17px;margin-bottom:12px">② クライアントIDを入力</div>
-        <div class="info-box">
-          「承認済みの JavaScript 生成元」には、<br>
-          このサイトのURLを入力してください：<br>
-          <code id="current-origin" style="display:block;margin-top:8px;word-break:break-all"></code>
-        </div>
-        <div style="margin-bottom:14px">
-          <label>OAuth 2.0 クライアント ID</label>
-          <input type="text" id="client-id-input" placeholder="xxxxxxxx.apps.googleusercontent.com"
-            oninput="validateClientId()" />
-          <p id="client-id-hint" style="font-size:11px;color:var(--sub);margin-top:6px"></p>
-        </div>
-        <button class="btn btn-primary" id="save-client-btn" disabled onclick="saveClientId()">
-          ✅ 保存してログインへ
-        </button>
-        <button class="btn btn-ghost" onclick="nextStep(1)">← 戻る</button>
-      </div>
-    </div>
-
-    <!-- 保存済みの場合は即ログイン -->
-    <div id="saved-client-section" style="display:none;width:100%;margin-top:16px">
-      <div class="card" style="text-align:center;padding:20px">
-        <p style="font-size:13px;color:var(--sub);margin-bottom:12px">前回の設定が保存されています</p>
-        <button class="btn btn-primary" onclick="proceedToLogin()">🔑 Googleでログイン</button>
-        <button class="btn btn-ghost" onclick="clearSavedClientId()" style="font-size:12px;color:var(--hot)">設定をクリア</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     SCREEN: GOOGLE LOGIN
-════════════════════════════════════════════ -->
-<div id="screen-login" class="screen">
-  <div class="page-center">
-    <div style="font-size:56px;margin-bottom:16px">🏫</div>
-    <div class="title" style="text-align:center">Googleでログイン</div>
-    <p class="subtitle" style="text-align:center">Classroomの生徒情報にアクセスするため<br>Googleアカウントで認証してください</p>
-    <div class="card">
+      <p style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:20px;line-height:1.7">
+        Googleアカウントでログインするだけで<br>Classroomの生徒情報を自動で取得します
+      </p>
       <button class="btn btn-google" onclick="doGoogleLogin()">
         <svg width="20" height="20" viewBox="0 0 48 48">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -518,14 +222,18 @@ code {
         Googleでログイン
       </button>
       <p id="login-error" style="color:var(--hot);font-size:13px;text-align:center;display:none;margin-top:8px"></p>
-      <button class="btn btn-ghost" onclick="showScreen('screen-setup')">← 戻る</button>
+      <div style="border-top:1px solid var(--border);margin:16px 0 14px"></div>
+      <p style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:12px">Classroomを使っていない場合</p>
+      <button class="btn btn-outline" onclick="showScreen('screen-manual')" style="font-size:14px">
+        ✏️ 名前を手動で入力する
+      </button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
+<!-- ══════════════
      SCREEN: COURSES
-════════════════════════════════════════════ -->
+══════════════ -->
 <div id="screen-courses" class="screen">
   <div class="page-center" style="max-width:600px">
     <div class="title" style="margin-bottom:6px;align-self:flex-start">📚 クラスを選択</div>
@@ -536,13 +244,13 @@ code {
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     SCREEN: MANUAL INPUT
-════════════════════════════════════════════ -->
+<!-- ══════════════
+     SCREEN: MANUAL
+══════════════ -->
 <div id="screen-manual" class="screen">
   <div class="page-center">
     <div class="title">✏️ 手動で名前を入力</div>
-    <p class="subtitle">クラス名と生徒名を入力してすぐ使えます</p>
+    <p style="color:var(--sub);font-size:13px;margin-bottom:24px">クラス名と生徒名を入力してすぐ使えます</p>
     <div class="card">
       <div style="margin-bottom:14px">
         <label>クラス名</label>
@@ -553,31 +261,26 @@ code {
         <textarea id="manual-names" placeholder="山田 太郎&#10;田中 花子&#10;佐藤 次郎"></textarea>
       </div>
       <button class="btn btn-primary" onclick="startManual()">🚀 開始する</button>
-      <button class="btn btn-ghost" onclick="showScreen('screen-setup')">← 戻る</button>
+      <button class="btn btn-ghost" onclick="showScreen('screen-login')">← 戻る</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     SCREEN: MAIN SELECTOR
-════════════════════════════════════════════ -->
+<!-- ══════════════
+     SCREEN: MAIN
+══════════════ -->
 <div id="screen-main" class="screen">
-
-  <!-- User strip -->
   <div id="user-strip">
     <img id="user-avatar" src="" alt="" />
     <span id="user-name"></span>
     <button id="signout-btn" onclick="doSignOut()">サインアウト</button>
   </div>
-
-  <!-- Header -->
   <div id="header">
     <div>
       <div class="header-class" id="header-class"></div>
-      <div class="header-sub" id="header-sub"></div>
+      <div class="header-sub"   id="header-sub"></div>
     </div>
     <div class="header-actions">
-      <!-- Animation toggle -->
       <div class="toggle-wrap">
         <span>演出</span>
         <label class="toggle">
@@ -593,39 +296,22 @@ code {
       <button class="btn btn-outline btn-icon" id="reset-btn" onclick="confirmReset()" style="color:#f87171">🗑️ リセット</button>
     </div>
   </div>
-
-  <!-- Progress bar -->
-  <div id="progress-track">
-    <div id="progress-fill" style="width:0%"></div>
-  </div>
-
+  <div id="progress-track"><div id="progress-fill" style="width:0%"></div></div>
   <div id="main-body">
-    <!-- Selector section -->
     <div id="selector-section">
       <div id="stage">
-        <div id="stage-empty">
-          <div class="icon">🎯</div>
-          <p>ボタンを押して指名</p>
-        </div>
-        <div id="stage-alldone">
-          <div class="icon">🎉</div>
-          <p>全員指名完了！</p>
-        </div>
+        <div id="stage-empty"><div class="icon">🎯</div><p>ボタンを押して指名</p></div>
+        <div id="stage-alldone"><div class="icon">🎉</div><p>全員指名完了！</p></div>
         <img id="stage-avatar" src="" alt="" />
         <div id="stage-initial"></div>
         <div id="stage-name"></div>
         <div id="stage-badge">🎯 当たり！</div>
       </div>
-
       <div class="controls-row">
         <button id="pick-btn" onclick="pickStudent()">🎯 当てる！</button>
       </div>
-      <button id="undo-btn" class="btn btn-outline btn-sm" onclick="undoLast()" style="display:none">
-        ↩️ 取り消し
-      </button>
+      <button id="undo-btn" class="btn btn-outline btn-sm" onclick="undoLast()" style="display:none">↩️ 取り消し</button>
     </div>
-
-    <!-- Roster section -->
     <div id="roster-section">
       <div class="roster-header">
         <div class="roster-badge"><div class="roster-badge-dot" style="background:var(--teal)"></div><span id="badge-avail"></span></div>
@@ -637,289 +323,140 @@ code {
   </div>
 </div>
 
-<!-- Confetti layer -->
 <div id="confetti-layer"></div>
 
-<!-- ══════════════════════════════════════════
-     SCRIPTS
-════════════════════════════════════════════ -->
-<script src="https://apis.google.com/js/api.js" async onload="onGapiLoad()"></script>
-<script src="https://accounts.google.com/gsi/client" async onload="onGisLoad()"></script>
+<script src="https://apis.google.com/js/api.js"          async onload="onGapiLoad()"></script>
+<script src="https://accounts.google.com/gsi/client"     async onload="onGisLoad()"></script>
 <script>
-/* ══════════════════════════════════════════
-   STATE
-══════════════════════════════════════════ */
-const SCOPES = [
-  "https://www.googleapis.com/auth/classroom.courses.readonly",
-  "https://www.googleapis.com/auth/classroom.rosters.readonly",
-  "https://www.googleapis.com/auth/userinfo.profile",
-].join(" ");
-const DISCOVERY = "https://classroom.googleapis.com/$discovery/rest?version=v1";
 
-let gapiReady = false;
-let gisReady  = false;
-let tokenClient = null;
-let userProfile  = null;
+const CLIENT_ID = '448776260349-7lb41ijeh6sl133e6ucnsa8qu5e4i8dv.apps.googleusercontent.com';
 
-let students   = [];   // [{id,name,photo}]
-let absentIds  = new Set();
-let calledIds  = new Set();
-let currentStudent = null;
-let isAnimating = false;
-let animEnabled = true;
-let classId   = "";
-let className = "";
-let isManual  = false;
+const SCOPES    = 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.rosters.readonly https://www.googleapis.com/auth/userinfo.profile';
+const DISCOVERY = 'https://classroom.googleapis.com/$discovery/rest?version=v1';
 
-/* ══════════════════════════════════════════
-   SCREEN MANAGEMENT
-══════════════════════════════════════════ */
+let gapiReady = false, gisReady = false, tokenClient = null, userProfile = null;
+let students = [], absentIds = new Set(), calledIds = new Set();
+let currentStudent = null, isAnimating = false, animEnabled = true;
+let classId = '', className = '', isManual = false;
+
+/* ── Screen ── */
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-/* ══════════════════════════════════════════
-   SETUP FLOW
-══════════════════════════════════════════ */
-let currentStep = 0;
+/* ── Google init ── */
+function onGapiLoad() { window.gapi.load('client', () => { gapiReady = true; tryInit(); }); }
+function onGisLoad()  { gisReady = true; tryInit(); }
 
-function nextStep(n) {
-  document.getElementById(`step-${currentStep}`).style.display = 'none';
-  currentStep = n;
-  document.getElementById(`step-${n}`).style.display = 'block';
-  // update dots
-  [0,1,2].forEach(i => {
-    const d = document.getElementById(`dot${i}`);
-    d.className = 'step-dot' + (i === n ? ' active' : (i < n ? ' done' : ''));
-  });
-  if (n === 2) {
-    const o = location.origin;
-    document.getElementById('current-origin').textContent = o;
-    document.getElementById('origin-hint').textContent = o;
-  }
-}
-
-function validateClientId() {
-  const v = document.getElementById('client-id-input').value.trim();
-  const ok = v.endsWith('.apps.googleusercontent.com') && v.length > 20;
-  document.getElementById('save-client-btn').disabled = !ok;
-  document.getElementById('client-id-hint').textContent =
-    v.length > 5 && !ok ? '※ xxxxx.apps.googleusercontent.com の形式で入力してください' : '';
-}
-
-function saveClientId() {
-  const v = document.getElementById('client-id-input').value.trim();
-  localStorage.setItem('gSelector_clientId', v);
-  proceedToLogin();
-}
-
-function clearSavedClientId() {
-  localStorage.removeItem('gSelector_clientId');
-  document.getElementById('saved-client-section').style.display = 'none';
-  nextStep(0);
-}
-
-function checkSavedClientId() {
-  const saved = localStorage.getItem('gSelector_clientId');
-  if (saved) {
-    document.getElementById('saved-client-section').style.display = 'block';
-    // hide the stepper card
-    document.querySelector('#screen-setup .card').style.display = 'none';
-  }
-}
-
-function proceedToLogin() {
-  showScreen('screen-login');
-  initGoogleIfReady();
-}
-
-/* ══════════════════════════════════════════
-   GOOGLE AUTH
-══════════════════════════════════════════ */
-function onGapiLoad() {
-  window.gapi.load('client', () => { gapiReady = true; initGoogleIfReady(); });
-}
-function onGisLoad()  { gisReady = true; initGoogleIfReady(); }
-
-async function initGoogleIfReady() {
-  const clientId = localStorage.getItem('gSelector_clientId');
-  if (!gapiReady || !gisReady || !clientId) return;
+async function tryInit() {
+  if (!gapiReady || !gisReady) return;
   try {
     await window.gapi.client.init({ discoveryDocs: [DISCOVERY] });
     tokenClient = window.google.accounts.oauth2.initTokenClient({
-      client_id: clientId,
-      scope: SCOPES,
-      callback: handleTokenResponse,
+      client_id: CLIENT_ID, scope: SCOPES, callback: handleToken,
     });
-  } catch(e) { console.error('GAPI init error', e); }
+  } catch(e) { console.error('GAPI init:', e); }
 }
 
 function doGoogleLogin() {
   const err = document.getElementById('login-error');
   err.style.display = 'none';
-  if (!tokenClient) {
-    err.textContent = 'まだ初期化中です。少し待ってから再試行してください。';
-    err.style.display = 'block';
-    return;
-  }
+  if (!tokenClient) { err.textContent = 'まだ初期化中です。少し待ってから再試行してください。'; err.style.display='block'; return; }
   tokenClient.requestAccessToken({ prompt: '' });
 }
 
-async function handleTokenResponse(resp) {
-  if (resp.error) {
-    document.getElementById('login-error').textContent = 'ログインエラー: ' + resp.error;
-    document.getElementById('login-error').style.display = 'block';
-    return;
-  }
+async function handleToken(resp) {
+  if (resp.error) { showLoginError('ログインエラー: ' + resp.error); return; }
   try {
-    // fetch profile
     const pr = await window.gapi.client.request({ path: 'https://www.googleapis.com/oauth2/v1/userinfo' });
     userProfile = pr.result;
-    showUserStrip();
-    // fetch courses
     const r = await window.gapi.client.classroom.courses.list({ courseStates: ['ACTIVE'], pageSize: 30 });
     renderCourses(r.result.courses || []);
     showScreen('screen-courses');
-  } catch(e) {
-    document.getElementById('login-error').textContent = '取得エラー: ' + e.message;
-    document.getElementById('login-error').style.display = 'block';
-  }
+  } catch(e) { showLoginError('取得エラー: ' + e.message); }
 }
 
-function showUserStrip() {
-  if (!userProfile) return;
-  const strip = document.getElementById('user-strip');
-  strip.style.display = 'flex';
-  document.getElementById('user-name').textContent = userProfile.name;
-  if (userProfile.picture) document.getElementById('user-avatar').src = userProfile.picture;
-}
+function showLoginError(msg) { const e=document.getElementById('login-error'); e.textContent=msg; e.style.display='block'; }
 
 function doSignOut() {
-  window.google?.accounts.oauth2.revoke(
-    window.gapi.client.getToken()?.access_token ?? '', () => {}
-  );
-  window.gapi.client.setToken(null);
-  userProfile = null;
-  students = []; absentIds = new Set(); calledIds = new Set();
-  currentStudent = null;
+  try { window.google?.accounts.oauth2.revoke(window.gapi.client.getToken()?.access_token??'',()=>{}); window.gapi.client.setToken(null); } catch{}
+  userProfile = null; students = []; absentIds = new Set(); calledIds = new Set(); currentStudent = null;
+  document.getElementById('user-strip').style.display = 'none';
   showScreen('screen-login');
 }
 
-/* ══════════════════════════════════════════
-   COURSES
-══════════════════════════════════════════ */
+/* ── Courses ── */
 function renderCourses(list) {
   const grid = document.getElementById('course-grid');
   grid.innerHTML = '';
-  if (!list.length) { document.getElementById('no-courses').style.display = 'block'; return; }
+  if (!list.length) { document.getElementById('no-courses').style.display='block'; return; }
   list.forEach(c => {
     const btn = document.createElement('button');
     btn.className = 'course-card';
-    btn.innerHTML = `
-      <div class="course-icon">📋</div>
-      <div class="course-name">${escHtml(c.name)}</div>
-      ${c.section ? `<div class="course-section">${escHtml(c.section)}</div>` : ''}
-    `;
-    btn.onclick = () => loadCourseStudents(c);
+    btn.innerHTML = `<div class="course-icon">📋</div><div class="course-name">${esc(c.name)}</div>${c.section?`<div class="course-section">${esc(c.section)}</div>`:''}`;
+    btn.onclick = () => loadCourse(c);
     grid.appendChild(btn);
   });
 }
 
-async function loadCourseStudents(course) {
+async function loadCourse(course) {
   try {
-    const r = await window.gapi.client.classroom.courses.students.list({
-      courseId: course.id, pageSize: 200,
-    });
-    const list = (r.result.students || []).map(s => ({
-      id: s.userId,
-      name: s.profile.name.fullName,
-      photo: s.profile.photoUrl || null,
-    }));
+    const r = await window.gapi.client.classroom.courses.students.list({ courseId: course.id, pageSize: 200 });
+    const list = (r.result.students||[]).map(s => ({ id:s.userId, name:s.profile.name.fullName, photo:s.profile.photoUrl||null }));
     isManual = false;
     await openClass(course.id, course.name, list);
-  } catch(e) { alert('生徒取得エラー: ' + e.message); }
+  } catch(e) { alert('生徒取得エラー: '+e.message); }
 }
 
-/* ══════════════════════════════════════════
-   MANUAL INPUT
-══════════════════════════════════════════ */
+/* ── Manual ── */
 function startManual() {
-  const names = document.getElementById('manual-names').value
-    .split('\n').map(n => n.trim()).filter(Boolean);
+  const names = document.getElementById('manual-names').value.split('\n').map(n=>n.trim()).filter(Boolean);
   if (!names.length) { alert('生徒名を1行に1名ずつ入力してください'); return; }
   const cname = document.getElementById('manual-classname').value.trim() || 'クラス';
-  const list = names.map((name, i) => ({ id: `m${i}`, name, photo: null }));
   isManual = true;
-  openClass('manual_' + Date.now(), cname, list);
+  openClass('manual_'+Date.now(), cname, names.map((name,i)=>({id:'m'+i,name,photo:null})));
 }
 
-/* ══════════════════════════════════════════
-   OPEN CLASS
-══════════════════════════════════════════ */
+/* ── Open class ── */
 async function openClass(id, name, list) {
-  classId   = id;
-  className = name;
-  students  = list;
-  absentIds = new Set();
-  currentStudent = null;
-  isAnimating = false;
-
-  // load saved called list
-  try {
-    const saved = await window.storage.get('called_' + id);
-    calledIds = saved ? new Set(JSON.parse(saved.value)) : new Set();
-  } catch { calledIds = new Set(); }
-
-  // show user strip if google
-  if (!isManual) showUserStrip();
-  else document.getElementById('user-strip').style.display = 'none';
-
+  classId=id; className=name; students=list;
+  absentIds=new Set(); currentStudent=null; isAnimating=false;
+  try { const s=await window.storage.get('called_'+id); calledIds=s?new Set(JSON.parse(s.value)):new Set(); }
+  catch { calledIds=new Set(); }
+  if (!isManual && userProfile) {
+    const strip = document.getElementById('user-strip');
+    strip.style.display = 'flex';
+    document.getElementById('user-name').textContent = userProfile.name;
+    if (userProfile.picture) document.getElementById('user-avatar').src = userProfile.picture;
+  } else { document.getElementById('user-strip').style.display='none'; }
   renderMain();
   showScreen('screen-main');
 }
 
-/* ══════════════════════════════════════════
-   MAIN RENDER
-══════════════════════════════════════════ */
+/* ── Render main ── */
 function renderMain() {
   const avail  = getAvail();
   const total  = students.length - absentIds.size;
-  const pct    = total > 0 ? Math.round(calledIds.size / total * 100) : 0;
-  const allDone = avail.length === 0 && students.length > 0;
-
-  // header
+  const pct    = total>0 ? Math.round(calledIds.size/total*100) : 0;
+  const allDone= avail.length===0 && students.length>0;
   document.getElementById('header-class').textContent = className;
-  document.getElementById('header-sub').textContent =
-    `残り ${avail.length}名 ／ 全${total}名指名`;
-
-  // progress
-  document.getElementById('progress-fill').style.width = pct + '%';
-
-  // stage
-  updateStageIdle(allDone);
-
-  // pick btn
-  const btn = document.getElementById('pick-btn');
-  btn.disabled = isAnimating || allDone;
-  btn.textContent = allDone ? '✅ 全員完了' : '🎯 当てる！';
-  if (!isAnimating && !allDone) {
-    btn.style.animation = animEnabled ? 'pulse-ring 2s infinite' : 'none';
-  }
-
-  // badges
+  document.getElementById('header-sub').textContent   = `残り ${avail.length}名 ／ 全${total}名指名`;
+  document.getElementById('progress-fill').style.width= pct+'%';
   document.getElementById('badge-avail').textContent  = `出席 ${avail.length}`;
   document.getElementById('badge-absent').textContent = `欠席 ${absentIds.size}`;
   document.getElementById('badge-called').textContent = `指名済 ${calledIds.size}`;
-
-  // chips
+  if (!currentStudent) updateStageIdle(allDone);
+  const btn = document.getElementById('pick-btn');
+  btn.disabled = isAnimating || allDone;
+  btn.textContent = allDone ? '✅ 全員完了' : '🎯 当てる！';
+  btn.style.animation = (!isAnimating && !allDone && animEnabled) ? 'pulse-ring 2s infinite' : 'none';
   renderChips();
 }
 
 function updateStageIdle(allDone) {
-  if (currentStudent) return;  // keep current shown
-  document.getElementById('stage-empty').style.display   = allDone ? 'none'  : 'flex';
-  document.getElementById('stage-alldone').style.display = allDone ? 'flex'  : 'none';
+  document.getElementById('stage-empty').style.display   = allDone ? 'none' : 'flex';
+  document.getElementById('stage-alldone').style.display = allDone ? 'flex' : 'none';
   document.getElementById('stage-avatar').style.display  = 'none';
   document.getElementById('stage-initial').style.display = 'none';
   document.getElementById('stage-name').style.display    = 'none';
@@ -927,12 +464,10 @@ function updateStageIdle(allDone) {
   document.getElementById('stage').className             = '';
 }
 
-function showStudentOnStage(s, isResult) {
-  document.getElementById('stage-empty').style.display   = 'none';
-  document.getElementById('stage-alldone').style.display = 'none';
-  document.getElementById('stage-name').style.display    = 'block';
-  document.getElementById('stage-name').textContent      = s.name;
-
+function showOnStage(s, isResult) {
+  ['stage-empty','stage-alldone'].forEach(id => document.getElementById(id).style.display='none');
+  document.getElementById('stage-name').style.display = 'block';
+  document.getElementById('stage-name').textContent   = s.name;
   if (s.photo) {
     document.getElementById('stage-avatar').src            = s.photo;
     document.getElementById('stage-avatar').style.display  = 'block';
@@ -942,243 +477,134 @@ function showStudentOnStage(s, isResult) {
     document.getElementById('stage-initial').style.display    = 'flex';
     document.getElementById('stage-avatar').style.display     = 'none';
   }
-
   if (isResult && !isAnimating) {
     document.getElementById('stage-badge').style.display = 'block';
     document.getElementById('stage').className = 'result';
-    if (animEnabled) {
-      document.getElementById('stage-name').style.animation = 'pop-in .4s ease';
-    }
+    if (animEnabled) document.getElementById('stage-name').style.animation = 'pop-in .4s ease';
   } else {
     document.getElementById('stage-badge').style.display = 'none';
     document.getElementById('stage').className = isAnimating ? 'animating' : '';
-    if (animEnabled && isAnimating) {
-      document.getElementById('stage-name').style.animation = 'slot-flicker .12s infinite';
-    } else {
-      document.getElementById('stage-name').style.animation = 'none';
-    }
+    document.getElementById('stage-name').style.animation = (animEnabled && isAnimating) ? 'slot-flicker .12s infinite' : 'none';
   }
 }
 
-/* ══════════════════════════════════════════
-   PICK
-══════════════════════════════════════════ */
-function getAvail() {
-  return students.filter(s => !absentIds.has(s.id) && !calledIds.has(s.id));
-}
+/* ── Pick ── */
+function getAvail() { return students.filter(s => !absentIds.has(s.id) && !calledIds.has(s.id)); }
 
 function pickStudent() {
   if (isAnimating) return;
-  const avail = getAvail();
-  if (!avail.length) return;
-
-  isAnimating = true;
-  currentStudent = null;
+  const avail = getAvail(); if (!avail.length) return;
+  isAnimating = true; currentStudent = null;
   document.getElementById('undo-btn').style.display = 'none';
-  document.getElementById('pick-btn').textContent = '🎲 選択中…';
-  document.getElementById('pick-btn').disabled = true;
-  document.getElementById('pick-btn').style.animation = 'none';
+  const btn = document.getElementById('pick-btn');
+  btn.textContent = '🎲 選択中…'; btn.disabled = true; btn.style.animation = 'none';
   document.getElementById('stage').className = 'animating';
-
-  if (animEnabled) {
-    runSlot(avail, onTick, onDone);
-  } else {
-    // instant
-    onDone(avail[Math.floor(Math.random() * avail.length)]);
-  }
-}
-
-function onTick(s) {
-  showStudentOnStage(s, false);
+  if (animEnabled) runSlot(avail, showOnStage, onDone);
+  else onDone(avail[Math.floor(Math.random()*avail.length)]);
 }
 
 function onDone(s) {
-  isAnimating = false;
-  currentStudent = s;
-  showStudentOnStage(s, true);
-  renderChips();
-
-  // update called
+  isAnimating = false; currentStudent = s;
+  showOnStage(s, true);
   calledIds.add(s.id);
-  window.storage.set('called_' + classId, JSON.stringify([...calledIds])).catch(() => {});
-
-  // pick button
-  const btn = document.getElementById('pick-btn');
-  const allDone = getAvail().length === 0;
-  btn.disabled = allDone;
-  btn.textContent = allDone ? '✅ 全員完了' : '🎯 当てる！';
-  btn.style.animation = (!allDone && animEnabled) ? 'pulse-ring 2s infinite' : 'none';
-
-  // undo
-  document.getElementById('undo-btn').style.display = 'inline-flex';
-
-  // badges
-  const total = students.length - absentIds.size;
-  const pct   = total > 0 ? Math.round(calledIds.size / total * 100) : 0;
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('header-sub').textContent =
-    `残り ${getAvail().length}名 ／ 全${total}名指名`;
-  document.getElementById('badge-avail').textContent  = `出席 ${getAvail().length}`;
+  window.storage.set('called_'+classId, JSON.stringify([...calledIds])).catch(()=>{});
+  const avail = getAvail(), total = students.length - absentIds.size;
+  const allDone = avail.length===0; const pct = total>0?Math.round(calledIds.size/total*100):0;
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('header-sub').textContent   = `残り ${avail.length}名 ／ 全${total}名指名`;
+  document.getElementById('badge-avail').textContent  = `出席 ${avail.length}`;
   document.getElementById('badge-called').textContent = `指名済 ${calledIds.size}`;
-
+  const btn = document.getElementById('pick-btn');
+  btn.disabled = allDone; btn.textContent = allDone ? '✅ 全員完了' : '🎯 当てる！';
+  btn.style.animation = (!allDone && animEnabled) ? 'pulse-ring 2s infinite' : 'none';
+  document.getElementById('undo-btn').style.display = 'inline-flex';
+  renderChips();
   if (animEnabled) launchConfetti();
 }
 
-/* ── Slot machine animation ── */
 function runSlot(pool, onTick, onDone) {
-  let frame = 0;
-  const total = 28;
-  const go = () => {
-    frame++;
-    const delay = frame < 12 ? 55 : frame < 22 ? 110 : frame < 27 ? 200 : 380;
-    setTimeout(() => {
-      const pick = pool[Math.floor(Math.random() * pool.length)];
-      if (frame < total) { onTick(pick); go(); }
-      else onDone(pool[Math.floor(Math.random() * pool.length)]);
-    }, delay);
+  let f=0; const total=28;
+  const go=()=>{
+    f++;
+    const d=f<12?55:f<22?110:f<27?200:380;
+    setTimeout(()=>{
+      const p=pool[Math.floor(Math.random()*pool.length)];
+      if(f<total){onTick(p,false);go();}
+      else onDone(pool[Math.floor(Math.random()*pool.length)]);
+    },d);
   };
   go();
 }
 
-/* ══════════════════════════════════════════
-   UNDO
-══════════════════════════════════════════ */
+/* ── Undo ── */
 function undoLast() {
   if (!currentStudent || isAnimating) return;
   calledIds.delete(currentStudent.id);
-  window.storage.set('called_' + classId, JSON.stringify([...calledIds])).catch(() => {});
+  window.storage.set('called_'+classId, JSON.stringify([...calledIds])).catch(()=>{});
   currentStudent = null;
   document.getElementById('undo-btn').style.display = 'none';
   renderMain();
 }
 
-/* ══════════════════════════════════════════
-   ABSENT TOGGLE
-══════════════════════════════════════════ */
+/* ── Absent ── */
 function toggleAbsent(id) {
-  if (absentIds.has(id)) absentIds.delete(id);
-  else absentIds.add(id);
+  absentIds.has(id) ? absentIds.delete(id) : absentIds.add(id);
+  const avail=getAvail(), total=students.length-absentIds.size, pct=total>0?Math.round(calledIds.size/total*100):0;
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('header-sub').textContent=`残り ${avail.length}名 ／ 全${total}名指名`;
+  document.getElementById('badge-avail').textContent=`出席 ${avail.length}`;
+  document.getElementById('badge-absent').textContent=`欠席 ${absentIds.size}`;
+  const btn=document.getElementById('pick-btn'); const allDone=avail.length===0&&students.length>0;
+  btn.disabled=allDone||isAnimating; btn.textContent=allDone?'✅ 全員完了':'🎯 当てる！';
   renderChips();
-  const avail  = getAvail();
-  const total  = students.length - absentIds.size;
-  const pct    = total > 0 ? Math.round(calledIds.size / total * 100) : 0;
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('header-sub').textContent =
-    `残り ${avail.length}名 ／ 全${total}名指名`;
-  document.getElementById('badge-avail').textContent  = `出席 ${avail.length}`;
-  document.getElementById('badge-absent').textContent = `欠席 ${absentIds.size}`;
-
-  const btn = document.getElementById('pick-btn');
-  const allDone = avail.length === 0 && students.length > 0;
-  btn.disabled = allDone || isAnimating;
-  btn.textContent = allDone ? '✅ 全員完了' : '🎯 当てる！';
 }
 
-/* ══════════════════════════════════════════
-   RENDER CHIPS
-══════════════════════════════════════════ */
+/* ── Chips ── */
 function renderChips() {
-  const grid = document.getElementById('chip-grid');
-  grid.innerHTML = '';
+  const grid = document.getElementById('chip-grid'); grid.innerHTML='';
   students.forEach(s => {
-    const isAbsent  = absentIds.has(s.id);
-    const isCalled  = calledIds.has(s.id);
-    const isCurrent = currentStudent?.id === s.id && !isAnimating;
-
-    const chip = document.createElement('div');
-    chip.className = 'chip' +
-      (isAbsent ? ' absent' : isCalled ? ' called' : '') +
-      (isCurrent ? ' current' : '');
-
-    const prefix = isAbsent ? '🚫 ' : isCalled ? '✅ ' : '';
-    chip.innerHTML = `
-      <span class="chip-name">${prefix}${escHtml(s.name)}</span>
-      <button class="absent-btn" title="${isAbsent ? '出席に戻す' : '欠席にする'}"
-        onclick="toggleAbsent('${s.id}')">${isAbsent ? '↩' : '✕'}</button>
-    `;
+    const isAbsent=absentIds.has(s.id), isCalled=calledIds.has(s.id), isCurrent=currentStudent?.id===s.id&&!isAnimating;
+    const chip=document.createElement('div');
+    chip.className='chip'+(isAbsent?' absent':isCalled?' called':'')+(isCurrent?' current':'');
+    chip.innerHTML=`<span class="chip-name">${isAbsent?'🚫 ':isCalled?'✅ ':''}${esc(s.name)}</span><button class="absent-btn" title="${isAbsent?'出席に戻す':'欠席にする'}" onclick="toggleAbsent('${s.id}')">${isAbsent?'↩':'✕'}</button>`;
     grid.appendChild(chip);
   });
 }
 
-/* ══════════════════════════════════════════
-   RESET
-══════════════════════════════════════════ */
-function confirmReset() {
-  document.getElementById('reset-btn').style.display = 'none';
-  document.getElementById('reset-confirm').style.display = 'flex';
-}
-function cancelReset() {
-  document.getElementById('reset-btn').style.display = '';
-  document.getElementById('reset-confirm').style.display = 'none';
-}
+/* ── Reset ── */
+function confirmReset() { document.getElementById('reset-btn').style.display='none'; document.getElementById('reset-confirm').style.display='flex'; }
+function cancelReset()  { document.getElementById('reset-btn').style.display=''; document.getElementById('reset-confirm').style.display='none'; }
 function doReset() {
-  calledIds  = new Set();
-  absentIds  = new Set();
-  currentStudent = null;
-  isAnimating = false;
-  window.storage.delete('called_' + classId).catch(() => {});
-  cancelReset();
-  renderMain();
-  // clear stage
-  updateStageIdle(false);
-  document.getElementById('undo-btn').style.display = 'none';
+  calledIds=new Set(); absentIds=new Set(); currentStudent=null; isAnimating=false;
+  window.storage.delete('called_'+classId).catch(()=>{});
+  cancelReset(); renderMain(); updateStageIdle(false);
+  document.getElementById('undo-btn').style.display='none';
 }
 
-/* ══════════════════════════════════════════
-   CLASS CHANGE
-══════════════════════════════════════════ */
-function changeClass() {
-  if (isManual) showScreen('screen-manual');
-  else showScreen('screen-courses');
-}
+/* ── Class change ── */
+function changeClass() { showScreen(isManual ? 'screen-manual' : 'screen-courses'); }
 
-/* ══════════════════════════════════════════
-   ANIMATION TOGGLE
-══════════════════════════════════════════ */
+/* ── Anim toggle ── */
 function toggleAnim(on) {
-  animEnabled = on;
-  const btn = document.getElementById('pick-btn');
-  if (!btn.disabled) {
-    btn.style.animation = on ? 'pulse-ring 2s infinite' : 'none';
-  }
+  animEnabled=on;
+  const btn=document.getElementById('pick-btn');
+  if (!btn.disabled) btn.style.animation=on?'pulse-ring 2s infinite':'none';
 }
 
-/* ══════════════════════════════════════════
-   CONFETTI
-══════════════════════════════════════════ */
+/* ── Confetti ── */
 function launchConfetti() {
-  const layer = document.getElementById('confetti-layer');
-  layer.innerHTML = '';
-  for (let i = 0; i < 22; i++) {
-    const el = document.createElement('div');
-    el.className = 'confetti-piece';
-    const size = 6 + Math.random() * 9;
-    const hue  = Math.floor(Math.random() * 360);
-    el.style.cssText = `
-      left:${25 + Math.random()*50}%;
-      width:${size}px; height:${size}px;
-      background:hsl(${hue},90%,60%);
-      border-radius:${Math.random()>.5?'50%':'3px'};
-      animation-delay:${(Math.random()*.5).toFixed(2)}s;
-    `;
+  const layer=document.getElementById('confetti-layer'); layer.innerHTML='';
+  for(let i=0;i<22;i++){
+    const el=document.createElement('div'); el.className='confetti-piece';
+    const size=6+Math.random()*9, hue=Math.floor(Math.random()*360);
+    el.style.cssText=`left:${25+Math.random()*50}%;width:${size}px;height:${size}px;background:hsl(${hue},90%,60%);border-radius:${Math.random()>.5?'50%':'3px'};animation-delay:${(Math.random()*.5).toFixed(2)}s;`;
     layer.appendChild(el);
   }
-  setTimeout(() => { layer.innerHTML = ''; }, 2200);
+  setTimeout(()=>{ layer.innerHTML=''; },2200);
 }
 
-/* ══════════════════════════════════════════
-   UTILS
-══════════════════════════════════════════ */
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ══════════════════════════════════════════
-   INIT
-══════════════════════════════════════════ */
-window.addEventListener('DOMContentLoaded', () => {
-  checkSavedClientId();
-});
+/* ── Util ── */
+function esc(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
