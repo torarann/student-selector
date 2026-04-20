@@ -1,631 +1,921 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>生徒セレクター</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg:      #0f0f0f;
-  --surface: #1a1a1a;
-  --card:    #222222;
-  --border:  #2e2e2e;
-  --accent:  #4f6ef7;
-  --text:    #f0f0f0;
-  --sub:     #888;
-  --sub2:    #555;
-  --teal:    #2dd4bf;
-  --red:     #f25c5c;
-  --gold:    #f5a623;
-  --green:   #3ecf8e;
-  --ff:      'Inter', 'Noto Sans JP', sans-serif;
-  --radius:  12px;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;--s1:#111;--s2:#1a1a1a;--s3:#222;
+  --bd:#2c2c2c;--bd2:#383838;
+  --t1:#f0ede8;--t2:#888;--t3:#444;
+  --acc:#6366f1;--accL:#818cf8;--accD:#4f51c7;
+  --grn:#34d399;--red:#f87171;--gld:#fbbf24;
+  --ff:'DM Sans','Noto Sans JP',sans-serif;
+  --r:14px;
 }
-body { background:var(--bg); color:var(--text); font-family:var(--ff); min-height:100vh; font-size:14px; }
-::-webkit-scrollbar { width:5px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+html{height:100%;overflow:hidden}
+body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--ff);-webkit-tap-highlight-color:transparent;overscroll-behavior:none;touch-action:manipulation}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 
-@keyframes spin-tick  { 0%,100%{opacity:1;} 50%{opacity:.5;} }
-@keyframes pop-in     { 0%{transform:scale(.85);opacity:0;} 60%{transform:scale(1.04);} 100%{transform:scale(1);opacity:1;} }
-@keyframes float      { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
-@keyframes fade-up    { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:translateY(0);} }
-@keyframes confetti   { 0%{transform:translateY(-8px) rotate(0deg);opacity:1;} 100%{transform:translateY(100px) rotate(400deg);opacity:0;} }
-@keyframes glow-pulse {
-  0%  { box-shadow: 0 0 0 0 rgba(79,110,247,.5); }
-  70% { box-shadow: 0 0 0 14px rgba(79,110,247,0); }
-  100%{ box-shadow: 0 0 0 0 rgba(79,110,247,0); }
-}
+/* ── Keyframes ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{0%{transform:scale(.75);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes flicker{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes confDrop{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(140px) rotate(500deg);opacity:0}}
+@keyframes spinCw{to{transform:rotate(360deg)}}
+@keyframes pulseDot{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.4);opacity:.4}}
+@keyframes ringOut{0%{r:30;stroke-opacity:.9}100%{r:120;stroke-opacity:0}}
+@keyframes checkDraw{from{stroke-dashoffset:40}to{stroke-dashoffset:0}}
+@keyframes btnRipple{0%{outline-offset:2px;outline-width:3px;outline-color:rgba(99,102,241,.6)}100%{outline-offset:18px;outline-width:1px;outline-color:rgba(99,102,241,0)}}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 
 /* ── Screens ── */
-.screen { display:none; }
-.screen.active { display:flex; flex-direction:column; min-height:100vh; animation:fade-up .25s ease; }
+.sc{display:none}
+.sc.on{display:flex;flex-direction:column;height:100vh;height:100dvh;animation:fadeUp .28s ease}
 
-/* ── Layout ── */
-.center-page {
-  flex:1; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  padding:40px 20px; max-width:440px; margin:0 auto; width:100%;
-}
-.logo   { font-size:48px; margin-bottom:20px; }
-h1      { font-size:24px; font-weight:700; letter-spacing:-.5px; margin-bottom:6px; }
-.lead   { color:var(--sub); font-size:13px; margin-bottom:32px; line-height:1.6; }
+/* ── Page center ── */
+.pg{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 20px;max-width:400px;margin:0 auto;width:100%;overflow-y:auto}
+.pg-wide{max-width:520px}
 
-/* ── Card ── */
-.card   { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; width:100%; }
-.card + .card { margin-top:12px; }
-.divider{ border:none; border-top:1px solid var(--border); margin:16px 0; }
+/* ── Cards ── */
+.card{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:22px;width:100%}
 
 /* ── Form ── */
-.field  { margin-bottom:16px; }
-.field:last-child { margin-bottom:0; }
-label   { display:block; font-size:11px; font-weight:600; color:var(--sub); letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
-input, textarea {
-  width:100%; background:var(--surface); border:1px solid var(--border);
-  border-radius:8px; padding:10px 12px; font-size:14px; color:var(--text);
-  font-family:var(--ff); outline:none; transition:border-color .15s;
-}
-input:focus, textarea:focus { border-color:var(--accent); }
-textarea { resize:vertical; min-height:150px; line-height:1.8; }
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+lbl,label.lbl{display:block;font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px}
+.inp{width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:11px 13px;font-size:15px;color:var(--t1);font-family:var(--ff);outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
+.inp:focus{border-color:var(--acc)}
+textarea.inp{resize:vertical;min-height:130px;line-height:1.8}
+.sep{border:none;border-top:1px solid var(--bd);margin:16px 0}
 
 /* ── Buttons ── */
-.btn {
-  display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  border:none; border-radius:8px; padding:10px 18px;
-  font-size:14px; font-weight:600; font-family:var(--ff);
-  cursor:pointer; transition:opacity .15s, transform .1s;
-  white-space:nowrap;
-}
-.btn:active  { transform:scale(.97); }
-.btn:disabled{ opacity:.35; cursor:not-allowed; }
-.btn-full    { width:100%; justify-content:center; }
-.btn-primary { background:var(--accent); color:#fff; }
-.btn-primary:hover { opacity:.9; }
-.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
-.btn-outline:hover { border-color:var(--sub); }
-.btn-ghost   { background:transparent; color:var(--sub); }
-.btn-ghost:hover { color:var(--text); }
-.btn-google  { background:#fff; color:#333; border:1px solid #ddd; }
-.btn-danger  { background:#3a1515; color:var(--red); border:1px solid #5a2020; }
-.btn-sm      { padding:7px 12px; font-size:13px; border-radius:7px; }
-.btn-stack   { display:flex; flex-direction:column; gap:8px; width:100%; }
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:9px;padding:12px 20px;font-size:15px;font-weight:600;font-family:var(--ff);cursor:pointer;transition:opacity .15s,transform .1s;user-select:none;letter-spacing:-.1px}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-w{width:100%}
+.btn-pri{background:var(--acc);color:#fff}
+.btn-pri:hover{opacity:.9}
+.btn-out{background:transparent;border:1px solid var(--bd);color:var(--t1)}
+.btn-out:hover{border-color:var(--bd2)}
+.btn-gst{background:transparent;color:var(--t2)}
+.btn-gst:hover{color:var(--t1)}
+.btn-ggl{background:#fff;color:#1a1a1a;border:1px solid #e0e0e0}
+.btn-dng{background:#1e0c0c;color:var(--red);border:1px solid #3a1818}
+.btn-sm{padding:8px 13px;font-size:13px;border-radius:8px}
+.stk{display:flex;flex-direction:column;gap:8px;width:100%}
 
-/* ── Top bar ── */
-#topbar {
-  display:none; align-items:center; gap:10px;
-  padding:10px 16px; background:var(--surface);
-  border-bottom:1px solid var(--border);
-  font-size:13px;
-}
-#topbar-avatar { width:24px; height:24px; border-radius:50%; object-fit:cover; }
-#topbar-name   { font-weight:600; }
-#topbar-right  { margin-left:auto; display:flex; align-items:center; gap:8px; }
+/* ── Strip (user info) ── */
+#strip{display:none;align-items:center;gap:10px;padding:9px 16px;background:var(--s1);border-bottom:1px solid var(--bd);font-size:13px;flex-shrink:0}
+#strip-av{width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(--s3);flex-shrink:0}
+#strip-nm{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#strip-r{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+#sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:all .3s;opacity:0}
+#sync-dot.sync{opacity:1;background:transparent;border:1.5px solid var(--acc);border-top-color:transparent;animation:spinCw .7s linear infinite;width:12px;height:12px}
+#sync-dot.ok{opacity:1;background:var(--grn);animation:pulseDot .5s ease;width:8px;height:8px;border:none}
 
 /* ── Header ── */
-#header {
-  background:var(--surface); border-bottom:1px solid var(--border);
-  padding:12px 16px; display:flex; align-items:center;
-  justify-content:space-between; gap:8px; flex-wrap:wrap;
-}
-.hd-class { font-size:15px; font-weight:700; }
-.hd-sub   { font-size:12px; color:var(--sub); margin-top:2px; }
-.hd-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#hdr{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;flex-wrap:wrap;min-height:50px}
+#hdr-l h2{font-size:15px;font-weight:700;letter-spacing:-.3px;line-height:1.3}
+#hdr-l p{font-size:12px;color:var(--t2);margin-top:2px}
+#hdr-r{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 
 /* ── Toggle ── */
-.tog-wrap { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--sub); font-weight:600; }
-.tog      { position:relative; width:36px; height:20px; }
-.tog input{ opacity:0; width:0; height:0; }
-.tog-sl   { position:absolute; cursor:pointer; inset:0; background:var(--sub2); border-radius:20px; transition:.25s; }
-.tog-sl::before { content:""; position:absolute; width:14px; height:14px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.25s; }
-.tog input:checked + .tog-sl               { background:var(--accent); }
-.tog input:checked + .tog-sl::before       { transform:translateX(16px); }
+.tog-w{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);font-weight:600;cursor:pointer}
+.tog{position:relative;width:36px;height:20px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.tog-sl{position:absolute;cursor:pointer;inset:0;background:var(--s3);border-radius:20px;transition:.2s}
+.tog-sl::before{content:"";position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+.tog input:checked+.tog-sl{background:var(--acc)}
+.tog input:checked+.tog-sl::before{transform:translateX(16px)}
 
 /* ── Progress ── */
-#prog-track { height:3px; background:var(--border); }
-#prog-fill  { height:100%; background:var(--accent); transition:width .5s ease; }
+#prog{height:2px;background:var(--s3);flex-shrink:0}
+#prog-f{height:100%;background:var(--acc);transition:width .7s ease}
 
 /* ── Main body ── */
-#main-body { flex:1; display:flex; flex-direction:column; overflow:auto; }
+#mbody{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#scroll-area{flex:1;overflow-y:auto;display:flex;flex-direction:column}
 
-/* ── Stage ── */
-#stage-wrap { display:flex; flex-direction:column; align-items:center; padding:32px 20px 20px; gap:16px; }
-#stage {
-  background:var(--card); border:1px solid var(--border);
-  border-radius:18px; padding:36px 48px;
-  min-width:260px; min-height:150px;
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  text-align:center; transition:border-color .2s;
+/* ── Stage area ── */
+#stage-area{display:flex;flex-direction:column;align-items:center;padding:24px 20px 18px;gap:18px;flex-shrink:0}
+
+/* ── Stage card ── */
+#stage{
+  position:relative;overflow:hidden;
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:20px;padding:clamp(24px,5vw,40px) clamp(28px,8vw,60px);
+  min-width:min(280px,88vw);min-height:min(150px,28vh);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  transition:border-color .3s;
 }
-#stage.animating { border-color:var(--accent); }
-#stage.result    { border-color:var(--green); }
+#stage.anim{border-color:var(--acc)}
+#stage.res {
+  border-color:var(--grn);
+  background:linear-gradient(160deg,var(--s2) 60%,rgba(52,211,153,.04));
+}
+/* Burst ring inside stage */
+#stage-ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+#burst-c{fill:none;stroke:var(--grn);stroke-width:1.5;opacity:0}
+#burst-c.pop{animation:ringOut .55s ease-out forwards}
 
-#s-empty   { display:flex; flex-direction:column; align-items:center; gap:8px; }
-#s-empty .icon { font-size:36px; opacity:.3; }
-#s-empty p { font-size:13px; color:var(--sub); }
-#s-done    { display:none; flex-direction:column; align-items:center; gap:8px; }
-#s-done .icon { font-size:40px; animation:float 2s ease-in-out infinite; }
-#s-done p  { font-size:16px; font-weight:700; color:var(--gold); }
-
-#s-avatar  { width:72px; height:72px; border-radius:50%; object-fit:cover; margin-bottom:12px; border:2px solid var(--border); display:none; }
-#s-initial { width:72px; height:72px; border-radius:50%; background:var(--surface); border:2px solid var(--border); font-size:28px; font-weight:700; display:none; align-items:center; justify-content:center; margin-bottom:12px; }
-#s-name    { font-size:26px; font-weight:700; letter-spacing:-.5px; display:none; }
-#s-badge   { margin-top:10px; font-size:12px; font-weight:600; color:var(--green); display:none; }
+/* Student content */
+#s-photo{width:68px;height:68px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:2px solid var(--bd);display:none;flex-shrink:0}
+#s-init{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--s3),var(--bd));border:2px solid var(--bd);font-size:26px;font-weight:700;display:none;align-items:center;justify-content:center;margin-bottom:12px;flex-shrink:0}
+#s-nm{font-size:clamp(22px,5.5vw,30px);font-weight:700;letter-spacing:-.5px;display:none;line-height:1.2}
+#s-badge{display:none;align-items:center;gap:6px;font-size:13px;color:var(--grn);font-weight:600;margin-top:10px}
+.ck-svg{width:18px;height:18px}
+.ck-path{fill:none;stroke:var(--grn);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40}
+/* Idle / done states */
+#s-idle{display:flex;flex-direction:column;align-items:center;gap:9px;opacity:.3}
+#s-idle .ico{font-size:38px}
+#s-idle p{font-size:13px;color:var(--t2)}
+#s-done{display:none;flex-direction:column;align-items:center;gap:9px}
+#s-done .ico{font-size:44px;animation:floatY 2.2s ease-in-out infinite}
+#s-done p{font-size:16px;font-weight:700;color:var(--gld)}
 
 /* ── Pick button ── */
-#pick-btn {
-  background:var(--accent); color:#fff;
-  border:none; border-radius:50px; padding:16px 48px;
-  font-size:20px; font-weight:700; cursor:pointer; font-family:var(--ff);
-  transition:transform .1s, opacity .15s;
-  animation:glow-pulse 2.5s infinite;
+#pick-w{position:relative;display:flex;align-items:center;justify-content:center}
+#pick-w::after{content:'';position:absolute;inset:-6px;border-radius:50px;animation:btnRipple 2.5s ease-out infinite;outline:3px solid rgba(99,102,241,.5)}
+#pick{
+  position:relative;background:var(--acc);color:#fff;border:none;
+  border-radius:50px;padding:17px clamp(36px,10vw,56px);
+  font-size:clamp(18px,4vw,21px);font-weight:700;cursor:pointer;
+  font-family:var(--ff);transition:transform .1s,opacity .15s;
+  letter-spacing:-.2px;min-height:58px;min-width:160px;
 }
-#pick-btn:active   { transform:scale(.96); }
-#pick-btn:disabled { opacity:.3; cursor:not-allowed; animation:none; }
-#pick-btn.spinning { animation:none; }
+#pick:active{transform:scale(.95)}
+#pick:disabled{opacity:.3;cursor:not-allowed}
+#pick:disabled + * ,#pick:disabled ~ *{pointer-events:none}
+#pick.run::after{display:none}
+#undo{display:none}
 
 /* ── Roster ── */
-#roster { padding:0 16px 28px; }
-.r-head { display:flex; gap:14px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
-.r-badge{ display:flex; align-items:center; gap:5px; font-size:12px; color:var(--sub); font-weight:500; }
-.r-dot  { width:7px; height:7px; border-radius:50%; }
-#chips  { display:flex; flex-wrap:wrap; gap:6px; }
-
-.chip {
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:20px; padding:5px 8px 5px 12px;
-  display:flex; align-items:center; gap:5px;
-  font-size:13px; font-weight:500; transition:all .15s;
+#roster{padding:4px 14px 28px;display:flex;flex-direction:column;gap:12px}
+.r-stats{display:flex;gap:14px;padding-bottom:10px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.r-stat{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);font-weight:500}
+.r-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.r-hint{margin-left:auto;font-size:11px;color:var(--t3)}
+/* Search */
+.srch-w{position:relative}
+.srch-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
+#srch{padding-left:34px}
+/* Chips */
+#chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:50px;padding:8px 14px;
+  font-size:13px;font-weight:500;color:var(--t1);
+  cursor:pointer;transition:all .15s;user-select:none;
+  min-height:36px;display:flex;align-items:center;
 }
-.chip.absent  { background:#1f1010; border-color:#3a1515; color:var(--sub); }
-.chip.called  { background:#0f1f18; border-color:#1a3a2a; }
-.chip.called .chip-name { text-decoration:line-through; opacity:.5; }
-.chip.absent .chip-name { opacity:.5; }
-.chip.current { border-color:var(--gold); background:#1f1a0f; }
-.chip-name { font-size:13px; }
-.x-btn {
-  background:none; border:none; color:var(--sub2);
-  font-size:12px; cursor:pointer; padding:1px 4px;
-  border-radius:4px; line-height:1; transition:color .15s;
-}
-.x-btn:hover { color:var(--red); }
+.chip:active{transform:scale(.94)}
+.chip.abs{background:#1e0e0e;border-color:#3a1c1c;color:var(--red);text-decoration:line-through;opacity:.7}
+.chip.done{background:#0d1d14;border-color:#1c3525;color:var(--t3);text-decoration:line-through}
+.chip.cur{border-color:var(--gld);background:#1b1708;color:var(--t1)}
+.chip.hide{display:none}
 
 /* ── Course grid ── */
-#course-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; width:100%; }
-.c-card {
-  background:var(--card); border:1px solid var(--border);
-  border-radius:12px; padding:18px 14px; cursor:pointer;
-  text-align:center; transition:all .15s; font-family:var(--ff); color:var(--text);
-}
-.c-card:hover { border-color:var(--accent); background:var(--surface); }
-.c-icon  { font-size:26px; margin-bottom:8px; }
-.c-name  { font-size:13px; font-weight:600; line-height:1.4; }
-.c-sec   { font-size:11px; color:var(--sub); margin-top:3px; }
+#cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;width:100%}
+.cc{background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center;font-family:var(--ff);color:var(--t1);transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.cc:active{background:var(--s3)}
+.cc .ci{font-size:26px;margin-bottom:7px}
+.cc .cn{font-size:13px;font-weight:600;line-height:1.4}
+.cc .cs{font-size:11px;color:var(--t2);margin-top:3px}
+
+/* ── Focus mode ── */
+#fbtn{position:fixed;bottom:18px;right:18px;z-index:200;display:none;
+  background:var(--s2);border:1px solid var(--bd);border-radius:50%;
+  width:42px;height:42px;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .15s;box-shadow:0 4px 20px rgba(0,0,0,.5);color:var(--t2)}
+#fbtn:hover{border-color:var(--acc);color:var(--acc)}
+body.foc #strip,body.foc #hdr,body.foc #roster{display:none!important}
+body.foc #scroll-area{justify-content:center}
+body.foc #stage-area{flex:1;justify-content:center;padding:20px}
+body.foc #stage{padding:clamp(32px,8vw,56px) clamp(40px,12vw,80px)}
+body.foc #s-nm{font-size:clamp(28px,8vw,40px)}
+body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
+
+/* ── Tutorial sheet ── */
+#tut{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
+#tut.on{display:flex}
+#tut-sheet{background:var(--s1);border-radius:22px 22px 0 0;border-top:1px solid var(--bd);width:100%;max-width:420px;animation:slideUp .32s ease;padding-bottom:env(safe-area-inset-bottom,12px)}
+#tut-slides{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#tut-slides::-webkit-scrollbar{display:none}
+.ts{flex-shrink:0;width:100%;scroll-snap-align:start;padding:28px 28px 12px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.ts-ico{font-size:52px;filter:drop-shadow(0 4px 16px rgba(99,102,241,.3))}
+.ts-h{font-size:19px;font-weight:700;letter-spacing:-.4px}
+.ts-p{font-size:14px;color:var(--t2);line-height:1.7;max-width:300px}
+#tut-dots{display:flex;justify-content:center;gap:6px;padding:14px 0 8px}
+.td{width:6px;height:6px;border-radius:50%;background:var(--bd);transition:all .2s}
+.td.on{background:var(--acc);width:20px;border-radius:3px}
+#tut-foot{padding:0 20px 16px;display:flex;gap:8px}
 
 /* ── Confetti ── */
-#confetti-layer { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
-.c-piece { position:absolute; top:35%; animation:confetti 1.4s ease-in forwards; }
+#conf{position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden}
+.cp{position:absolute;top:28%;animation:confDrop 1.5s ease-in forwards}
 
-@media(max-width:440px) {
-  #stage { padding:28px 24px; min-width:0; width:100%; }
-  #s-name { font-size:22px; }
-  #pick-btn { font-size:18px; padding:14px 36px; }
+/* ── Login page decorations ── */
+.logo-wrap{position:relative;margin-bottom:22px}
+.logo-ring{position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(99,102,241,.2);animation:btnRipple 3s ease-out infinite}
+.logo-ico{font-size:60px;display:block;text-align:center;position:relative;z-index:1;filter:drop-shadow(0 0 20px rgba(99,102,241,.5))}
+
+/* ── Responsive ── */
+@media(max-width:360px){
+  #stage{padding:22px 18px}
+  #pick{font-size:17px;padding:15px 32px;min-height:52px}
+  .pg{padding:24px 16px}
+}
+@media(min-height:800px){
+  #stage-area{padding:32px 20px 20px;gap:22px}
 }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="screen-login" class="screen active">
-  <div class="center-page">
-    <div class="logo">🎯</div>
-    <h1>生徒セレクター</h1>
-    <p class="lead" style="text-align:center">Google Classroomと連携して<br>ランダムに生徒を指名します</p>
-    <div class="card">
-      <div class="btn-stack">
-        <button class="btn btn-google btn-full" onclick="doGoogleLogin()">
-          <svg width="18" height="18" viewBox="0 0 48 48">
-            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-          </svg>
-          Googleでログイン
-        </button>
-        <p id="login-error" style="color:var(--red);font-size:12px;text-align:center;display:none"></p>
-        <hr class="divider" />
-        <button class="btn btn-ghost btn-full" onclick="showScreen('screen-manual')" style="font-size:13px">
-          手動で名前を入力する
-        </button>
-      </div>
+<!-- ═══ LOGIN ═══ -->
+<div id="s-login" class="sc on">
+  <div class="pg">
+    <div class="logo-wrap">
+      <div class="logo-ring"></div>
+      <span class="logo-ico">🎯</span>
+    </div>
+    <h1 style="font-size:26px;font-weight:700;text-align:center;letter-spacing:-.5px;margin-bottom:8px">生徒セレクター</h1>
+    <p style="color:var(--t2);text-align:center;font-size:14px;margin-bottom:28px;line-height:1.65">Google Classroomと連携して<br>生徒をランダムに指名します</p>
+    <div class="card stk">
+      <button class="btn btn-ggl btn-w" onclick="googleLogin()">
+        <svg width="18" height="18" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Googleでログイン
+      </button>
+      <p id="lerr" style="color:var(--red);font-size:12px;text-align:center;display:none;line-height:1.5"></p>
+      <hr class="sep">
+      <button class="btn btn-gst btn-w" onclick="show('s-manual')" style="font-size:13px">手動で名前を入力する</button>
     </div>
   </div>
 </div>
 
-<!-- COURSES -->
-<div id="screen-courses" class="screen">
-  <div class="center-page" style="max-width:560px">
-    <h1 style="align-self:flex-start;margin-bottom:6px">クラスを選択</h1>
-    <p class="lead" style="align-self:flex-start;margin-bottom:20px">授業で使うクラスを選んでください</p>
-    <div id="course-grid"></div>
-    <p id="no-courses" style="color:var(--sub);display:none;margin-top:16px">クラスが見つかりませんでした</p>
-    <button class="btn btn-ghost" onclick="doSignOut()" style="margin-top:24px">サインアウト</button>
+<!-- ═══ COURSES ═══ -->
+<div id="s-courses" class="sc">
+  <div class="pg pg-wide">
+    <div style="align-self:flex-start;margin-bottom:20px">
+      <h2 style="font-size:21px;font-weight:700;letter-spacing:-.4px">クラスを選択</h2>
+      <p style="color:var(--t2);font-size:13px;margin-top:4px">今日の授業のクラスを選んでください</p>
+    </div>
+    <div id="cg"></div>
+    <p id="no-c" style="color:var(--t2);display:none;margin-top:16px;font-size:13px">クラスが見つかりませんでした</p>
+    <button class="btn btn-gst" onclick="signOut()" style="margin-top:24px;font-size:13px">サインアウト</button>
   </div>
 </div>
 
-<!-- MANUAL -->
-<div id="screen-manual" class="screen">
-  <div class="center-page">
-    <h1 style="margin-bottom:6px">手動入力</h1>
-    <p class="lead" style="text-align:center;margin-bottom:24px">生徒名を貼り付けてすぐ使えます</p>
+<!-- ═══ MANUAL ═══ -->
+<div id="s-manual" class="sc">
+  <div class="pg">
+    <div style="align-self:flex-start;margin-bottom:20px">
+      <h2 style="font-size:21px;font-weight:700;letter-spacing:-.4px">手動入力</h2>
+      <p style="color:var(--t2);font-size:13px;margin-top:4px">名前を貼り付けてすぐ使えます</p>
+    </div>
     <div class="card">
       <div class="field">
-        <label>クラス名</label>
-        <input type="text" id="manual-classname" placeholder="例：3年1組" />
+        <label class="lbl">クラス名</label>
+        <input class="inp" type="text" id="m-cn" placeholder="例：3年1組">
       </div>
       <div class="field">
-        <label>生徒名（1行に1名）</label>
-        <textarea id="manual-names" placeholder="山田 太郎&#10;田中 花子&#10;佐藤 次郎"></textarea>
+        <label class="lbl">生徒名（1行に1名）</label>
+        <textarea class="inp" id="m-nm" placeholder="山田 太郎&#10;田中 花子&#10;佐藤 次郎"></textarea>
       </div>
-      <div class="btn-stack" style="margin-top:16px">
-        <button class="btn btn-primary btn-full" onclick="startManual()">開始する</button>
-        <button class="btn btn-ghost btn-full" onclick="showScreen('screen-login')">戻る</button>
+      <div class="stk" style="margin-top:16px">
+        <button class="btn btn-pri btn-w" onclick="startManual()">開始する</button>
+        <button class="btn btn-gst btn-w" onclick="show('s-login')">戻る</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MAIN -->
-<div id="screen-main" class="screen">
-  <div id="topbar">
-    <img id="topbar-avatar" src="" alt="" />
-    <span id="topbar-name"></span>
-    <div id="topbar-right">
-      <button class="btn btn-ghost btn-sm" onclick="doSignOut()">サインアウト</button>
+<!-- ═══ MAIN ═══ -->
+<div id="s-main" class="sc">
+
+  <!-- User strip -->
+  <div id="strip">
+    <img id="strip-av" src="" alt="">
+    <span id="strip-nm"></span>
+    <div id="strip-r">
+      <div id="sync-dot"></div>
+      <button class="btn btn-gst btn-sm" onclick="signOut()" style="font-size:12px">サインアウト</button>
     </div>
   </div>
 
-  <div id="header">
-    <div>
-      <div class="hd-class" id="hd-class"></div>
-      <div class="hd-sub"   id="hd-sub"></div>
+  <!-- Header -->
+  <div id="hdr">
+    <div id="hdr-l">
+      <h2 id="h-cl"></h2>
+      <p id="h-sb"></p>
     </div>
-    <div class="hd-right">
-      <div class="tog-wrap">
+    <div id="hdr-r">
+      <label class="tog-w" style="gap:5px">
         <span>演出</span>
-        <label class="tog">
-          <input type="checkbox" id="anim-tog" checked onchange="toggleAnim(this.checked)" />
-          <span class="tog-sl"></span>
-        </label>
+        <div class="tog"><input type="checkbox" id="atog" checked onchange="setAnim(this.checked)"><div class="tog-sl"></div></div>
+      </label>
+      <button class="btn btn-out btn-sm" onclick="focusTog()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+        集中
+      </button>
+      <button class="btn btn-out btn-sm" onclick="chgClass()">変更</button>
+      <div id="rst-c" style="display:none;gap:6px">
+        <button class="btn btn-dng btn-sm" onclick="doReset()">確定</button>
+        <button class="btn btn-out btn-sm" onclick="cancelRst()">✕</button>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="changeClass()">クラス変更</button>
-      <div id="reset-confirm" style="display:none; gap:6px; display:none">
-        <button class="btn btn-danger btn-sm" onclick="doReset()">リセット確定</button>
-        <button class="btn btn-outline btn-sm" onclick="cancelReset()">キャンセル</button>
-      </div>
-      <button class="btn btn-ghost btn-sm" id="reset-btn" onclick="confirmReset()" style="color:var(--sub)">リセット</button>
+      <button class="btn btn-gst btn-sm" id="rst-b" onclick="confirmRst()" style="color:var(--t3);font-size:12px">リセット</button>
     </div>
   </div>
 
-  <div id="prog-track"><div id="prog-fill" style="width:0%"></div></div>
+  <!-- Progress -->
+  <div id="prog"><div id="prog-f" style="width:0%"></div></div>
 
-  <div id="main-body">
-    <div id="stage-wrap">
-      <div id="stage">
-        <div id="s-empty"><div class="icon">🎯</div><p>ボタンを押して指名</p></div>
-        <div id="s-done" style="display:none"><div class="icon">🎉</div><p>全員指名完了！</p></div>
-        <img id="s-avatar" src="" alt="" />
-        <div id="s-initial"></div>
-        <div id="s-name"></div>
-        <div id="s-badge">✓ 当たり！</div>
+  <!-- Body -->
+  <div id="mbody">
+    <div id="scroll-area">
+
+      <!-- Stage -->
+      <div id="stage-area">
+        <div id="stage">
+          <!-- Burst ring SVG -->
+          <svg id="stage-ring" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible">
+            <circle id="burst-c" cx="100" cy="100" r="30"/>
+          </svg>
+          <!-- Student -->
+          <img id="s-photo" src="" alt="">
+          <div id="s-init"></div>
+          <div id="s-nm"></div>
+          <div id="s-badge">
+            <svg class="ck-svg" viewBox="0 0 24 24"><polyline class="ck-path" points="4,12 9,17 20,7"/></svg>
+            当たり！
+          </div>
+          <!-- States -->
+          <div id="s-idle"><div class="ico">🎯</div><p>ボタンを押して指名</p></div>
+          <div id="s-done"><div class="ico">🎉</div><p>全員指名完了！</p></div>
+        </div>
+
+        <!-- Pick button -->
+        <div id="pick-w">
+          <button id="pick" onclick="pickStudent()">当てる！</button>
+        </div>
+        <button id="undo" class="btn btn-gst btn-sm" onclick="undoLast()">↩ 取り消し</button>
       </div>
 
-      <button id="pick-btn" onclick="pickStudent()">当てる！</button>
-      <button id="undo-btn" class="btn btn-ghost btn-sm" onclick="undoLast()" style="display:none">↩ 取り消し</button>
-    </div>
-
-    <div id="roster">
-      <div class="r-head">
-        <div class="r-badge"><div class="r-dot" style="background:var(--teal)"></div><span id="b-avail"></span></div>
-        <div class="r-badge"><div class="r-dot" style="background:var(--red)"></div><span id="b-absent"></span></div>
-        <div class="r-badge"><div class="r-dot" style="background:var(--sub2)"></div><span id="b-called"></span></div>
+      <!-- Roster -->
+      <div id="roster">
+        <div class="r-stats">
+          <div class="r-stat"><div class="r-dot" style="background:var(--acc)"></div><span id="b-av"></span></div>
+          <div class="r-stat"><div class="r-dot" style="background:var(--red)"></div><span id="b-ab"></span></div>
+          <div class="r-stat"><div class="r-dot" style="background:var(--t3)"></div><span id="b-cl"></span></div>
+          <span class="r-hint">タップで欠席 / 復帰</span>
+        </div>
+        <div class="srch-w">
+          <svg class="srch-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="inp srch" type="search" id="srch" placeholder="名前で検索…" oninput="filterChips(this.value)" autocomplete="off">
+        </div>
+        <div id="chips"></div>
       </div>
-      <div id="chips"></div>
+
     </div>
   </div>
 </div>
 
-<div id="confetti-layer"></div>
+<!-- Focus exit button (floating) -->
+<button id="fbtn" onclick="focusTog()" title="集中モード">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+</button>
 
-<script src="https://apis.google.com/js/api.js"       async onload="onGapiLoad()"></script>
-<script src="https://accounts.google.com/gsi/client"  async onload="onGisLoad()"></script>
+<!-- Tutorial -->
+<div id="tut">
+  <div id="tut-sheet">
+    <div id="tut-slides">
+      <div class="ts">
+        <div class="ts-ico">🎯</div>
+        <div class="ts-h">ボタンで生徒を指名</div>
+        <div class="ts-p">「当てる！」を押すとランダムに指名されます。一度当たった生徒は自動的に除外されます。</div>
+      </div>
+      <div class="ts">
+        <div class="ts-ico">👆</div>
+        <div class="ts-h">タップで欠席・復帰</div>
+        <div class="ts-p">名簿の名前をタップすると欠席になります。もう一度タップで出席に戻ります。指名済みの生徒も同様に復帰できます。</div>
+      </div>
+      <div class="ts">
+        <div class="ts-ico">☁️</div>
+        <div class="ts-h">どの端末でも同期</div>
+        <div class="ts-p">進行状況はGoogleアカウントに保存されます。スマホ・タブレット・PCで同じ続きから使えます。</div>
+      </div>
+      <div class="ts">
+        <div class="ts-ico">🔍</div>
+        <div class="ts-h">集中モード & 検索</div>
+        <div class="ts-p">「集中」ボタンでセレクターのみ全画面表示。名簿は名前で検索できます。リセットでやり直せます。</div>
+      </div>
+    </div>
+    <div id="tut-dots">
+      <div class="td on"></div><div class="td"></div><div class="td"></div><div class="td"></div>
+    </div>
+    <div id="tut-foot">
+      <button class="btn btn-gst btn-sm" onclick="tutNext()" style="flex:1" id="tut-next">次へ</button>
+      <button class="btn btn-pri" onclick="tutClose()" style="flex:2;border-radius:9px">わかった！</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confetti layer -->
+<div id="conf"></div>
+
+<script src="https://apis.google.com/js/api.js" async onload="onGapiLoad()"></script>
+<script src="https://accounts.google.com/gsi/client" async onload="onGisLoad()"></script>
 <script>
-/* ── ▼ここだけ書き換えてデプロイ▼ ── */
+/* ════════════════════════════════
+   CONFIG  ← ここだけ書き換える
+════════════════════════════════ */
 const CLIENT_ID = '448776260349-7lb41ijeh6sl133e6ucnsa8qu5e4i8dv.apps.googleusercontent.com';
-/* ── ▲ここだけ▲ ── */
 
-/* ── Storage（Claude artifact / localStorage 両対応） ── */
-const store = {
-  get: async (k) => {
-    try {
-      if (window.storage) return await window.storage.get(k);
-      const v = localStorage.getItem(k);
-      return v ? { value: v } : null;
-    } catch { return null; }
-  },
-  set: async (k, v) => {
-    try {
-      if (window.storage) await window.storage.set(k, v);
-      else localStorage.setItem(k, v);
-    } catch {}
-  },
-  del: async (k) => {
-    try {
-      if (window.storage) await window.storage.delete(k);
-      else localStorage.removeItem(k);
-    } catch {}
-  },
-};
+/* ════════════════════════════════
+   CONSTANTS
+════════════════════════════════ */
+const SCOPES = [
+  'https://www.googleapis.com/auth/classroom.courses.readonly',
+  'https://www.googleapis.com/auth/classroom.rosters.readonly',
+  'https://www.googleapis.com/auth/userinfo.profile',
+  'https://www.googleapis.com/auth/drive.appdata',
+].join(' ');
+const DISC     = 'https://classroom.googleapis.com/$discovery/rest?version=v1';
+const DF       = 'sel_data_v2.json';    // Drive file name
+const LS_KEY   = 'sel_data_v2';
 
-/* ── State ── */
-const SCOPES    = 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.rosters.readonly https://www.googleapis.com/auth/userinfo.profile';
-const DISCOVERY = 'https://classroom.googleapis.com/$discovery/rest?version=v1';
-let gapiReady=false, gisReady=false, tokenClient=null, userProfile=null;
-let students=[], absentIds=new Set(), calledIds=new Set();
-let current=null, animating=false, animOn=true, classId='', className='', isManual=false;
+/* ════════════════════════════════
+   STATE
+════════════════════════════════ */
+let gapiOk=false, gisOk=false, tc=null, prof=null;
+let students=[], absent=new Set(), called=new Set();
+let curr=null, busy=false, animOn=true, focMode=false;
+let cid='', cname='', isManual=false;
+let dfid=null, allData={};       // Drive file id + all course data
 
-/* ── Screen ── */
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+/* ════════════════════════════════
+   DOM UTILS
+════════════════════════════════ */
+const $  = id => document.getElementById(id);
+const el = id => document.getElementById(id);
+
+function show(id) {
+  document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
+  $(id).classList.add('on');
+  $('fbtn').style.display = (id === 's-main') ? 'flex' : 'none';
+  // reset focus mode when changing screens
+  if (id !== 's-main' && focMode) { focMode=false; document.body.classList.remove('foc'); }
 }
 
-/* ── Google ── */
-function onGapiLoad() { window.gapi.load('client', ()=>{ gapiReady=true; tryInit(); }); }
-function onGisLoad()  { gisReady=true; tryInit(); }
-async function tryInit() {
-  if (!gapiReady||!gisReady) return;
-  try {
-    await window.gapi.client.init({ discoveryDocs:[DISCOVERY] });
-    tokenClient = window.google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID, scope: SCOPES, callback: handleToken,
+/* ════════════════════════════════
+   GOOGLE AUTH
+════════════════════════════════ */
+function onGapiLoad(){ window.gapi.load('client',()=>{ gapiOk=true; tryInit(); }); }
+function onGisLoad() { gisOk=true; tryInit(); }
+
+async function tryInit(){
+  if(!gapiOk||!gisOk) return;
+  try{
+    await window.gapi.client.init({discoveryDocs:[DISC]});
+    tc = window.google.accounts.oauth2.initTokenClient({
+      client_id:CLIENT_ID, scope:SCOPES, callback:handleToken
     });
-  } catch(e) { console.error(e); }
+  }catch(e){ console.error('init',e); }
 }
 
-function doGoogleLogin() {
-  const el = document.getElementById('login-error'); el.style.display='none';
-  if (!tokenClient) { el.textContent='初期化中です。少し待ってから再試行してください。'; el.style.display='block'; return; }
-  tokenClient.requestAccessToken({ prompt:'' });
+function googleLogin(){
+  const e=$('lerr'); e.style.display='none';
+  if(!tc){ e.textContent='初期化中です。数秒後に再試行してください。'; e.style.display='block'; return; }
+  tc.requestAccessToken({prompt:''});
 }
 
-async function handleToken(resp) {
-  if (resp.error) { showLoginErr('ログインエラー: '+resp.error); return; }
-  try {
-    const pr = await window.gapi.client.request({ path:'https://www.googleapis.com/oauth2/v1/userinfo' });
-    userProfile = pr.result;
-    const r = await window.gapi.client.classroom.courses.list({ courseStates:['ACTIVE'], pageSize:30 });
+async function handleToken(resp){
+  if(resp.error){ loginErr('ログインエラー: '+resp.error); return; }
+  try{
+    const pr = await window.gapi.client.request({path:'https://www.googleapis.com/oauth2/v1/userinfo'});
+    prof = pr.result;
+    await loadFromDrive();
+    const r = await window.gapi.client.classroom.courses.list({courseStates:['ACTIVE'],pageSize:30});
     renderCourses(r.result.courses||[]);
-    showScreen('screen-courses');
-  } catch(e) { showLoginErr('取得エラー: '+e.message); }
+    show('s-courses');
+  }catch(e){ loginErr('エラー: '+e.message); }
 }
 
-function showLoginErr(msg) { const e=document.getElementById('login-error'); e.textContent=msg; e.style.display='block'; }
+function loginErr(m){ const e=$('lerr'); e.textContent=m; e.style.display='block'; }
 
-function doSignOut() {
-  try { window.google?.accounts.oauth2.revoke(window.gapi.client.getToken()?.access_token??'',()=>{}); window.gapi.client.setToken(null); } catch{}
-  userProfile=null; students=[]; absentIds=new Set(); calledIds=new Set(); current=null;
-  document.getElementById('topbar').style.display='none';
-  showScreen('screen-login');
+function signOut(){
+  try{ window.google?.accounts.oauth2.revoke(window.gapi.client.getToken()?.access_token??'',()=>{}); window.gapi.client.setToken(null); }catch{}
+  prof=null; students=[]; absent=new Set(); called=new Set(); curr=null;
+  allData={}; dfid=null;
+  $('strip').style.display='none';
+  show('s-login');
 }
 
-/* ── Courses ── */
-function renderCourses(list) {
-  const g=document.getElementById('course-grid'); g.innerHTML='';
-  document.getElementById('no-courses').style.display = list.length?'none':'block';
+/* ════════════════════════════════
+   DRIVE STORAGE  (cross-device sync)
+   Falls back to localStorage silently
+════════════════════════════════ */
+function tok(){ return window.gapi.client.getToken()?.access_token; }
+function setSyn(s){ const d=$('sync-dot'); d.className=s; }
+
+async function loadFromDrive(){
+  const t=tok();
+  if(!t){ allData=lsGet(); return; }
+  setSyn('sync');
+  try{
+    const r=await fetch(
+      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27${DF}%27%20and%20trashed%3Dfalse&fields=files(id)`,
+      {headers:{Authorization:'Bearer '+t}}
+    );
+    if(!r.ok) throw new Error(r.status);
+    const d=await r.json();
+    if(d.files?.length){
+      dfid=d.files[0].id;
+      const r2=await fetch(
+        `https://www.googleapis.com/drive/v3/files/${dfid}?alt=media`,
+        {headers:{Authorization:'Bearer '+t}}
+      );
+      if(r2.ok) allData=await r2.json();
+      else allData=lsGet();
+    }else{ allData=lsGet(); dfid=null; }
+    setSyn('ok'); setTimeout(()=>setSyn(''),2500);
+  }catch(e){
+    console.warn('Drive load:',e);
+    allData=lsGet(); setSyn('');
+  }
+}
+
+async function saveToDrive(){
+  lsSet(allData);
+  const t=tok();
+  if(!t||isManual) return;
+  setSyn('sync');
+  const body=JSON.stringify(allData);
+  try{
+    if(dfid){
+      await fetch(
+        `https://www.googleapis.com/upload/drive/v3/files/${dfid}?uploadType=media`,
+        {method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body}
+      );
+    }else{
+      const b='__sel_b__';
+      const meta=JSON.stringify({name:DF,parents:['appDataFolder']});
+      const mb=`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${b}--`;
+      const r=await fetch(
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
+        {method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':`multipart/related; boundary="${b}"`},body:mb}
+      );
+      if(r.ok) dfid=(await r.json()).id;
+    }
+    setSyn('ok'); setTimeout(()=>setSyn(''),2500);
+  }catch(e){
+    console.warn('Drive save:',e); setSyn('');
+  }
+}
+
+function lsGet(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch{ return {}; } }
+function lsSet(d){ try{ localStorage.setItem(LS_KEY,JSON.stringify(d)); }catch{} }
+
+/* ════════════════════════════════
+   COURSES
+════════════════════════════════ */
+function renderCourses(list){
+  const g=$('cg'); g.innerHTML='';
+  $('no-c').style.display=list.length?'none':'block';
   list.forEach(c=>{
-    const btn=document.createElement('button'); btn.className='c-card';
-    btn.innerHTML=`<div class="c-icon">📋</div><div class="c-name">${esc(c.name)}</div>${c.section?`<div class="c-sec">${esc(c.section)}</div>`:''}`;
-    btn.onclick=()=>loadCourse(c); g.appendChild(btn);
+    const b=document.createElement('button');
+    b.className='cc';
+    b.innerHTML=`<div class="ci">📋</div><div class="cn">${esc(c.name)}</div>${c.section?`<div class="cs">${esc(c.section)}</div>`:''}`;
+    b.onclick=()=>loadCourse(c);
+    g.appendChild(b);
   });
 }
-async function loadCourse(c) {
-  try {
+
+async function loadCourse(c){
+  try{
     const r=await window.gapi.client.classroom.courses.students.list({courseId:c.id,pageSize:200});
     const list=(r.result.students||[]).map(s=>({id:s.userId,name:s.profile.name.fullName,photo:s.profile.photoUrl||null}));
-    isManual=false; await openClass(c.id,c.name,list);
-  } catch(e) { alert('生徒取得エラー: '+e.message); }
+    isManual=false; openClass(c.id,c.name,list);
+  }catch(e){ alert('生徒取得エラー: '+e.message); }
 }
 
-/* ── Manual ── */
-function startManual() {
-  const names=document.getElementById('manual-names').value.split('\n').map(n=>n.trim()).filter(Boolean);
-  if (!names.length) { alert('生徒名を入力してください'); return; }
-  const cname=document.getElementById('manual-classname').value.trim()||'クラス';
-  isManual=true; openClass('manual_'+Date.now(), cname, names.map((n,i)=>({id:'m'+i,name:n,photo:null})));
+/* ════════════════════════════════
+   MANUAL
+════════════════════════════════ */
+function startManual(){
+  const names=$('m-nm').value.split('\n').map(n=>n.trim()).filter(Boolean);
+  if(!names.length){ alert('生徒名を入力してください'); return; }
+  const cn=$('m-cn').value.trim()||'クラス';
+  isManual=true;
+  openClass('manual_'+Date.now(),cn,names.map((n,i)=>({id:'m'+i,name:n,photo:null})));
 }
 
-/* ── Open class ── */
-async function openClass(id, name, list) {
-  classId=id; className=name; students=list;
-  absentIds=new Set(); current=null; animating=false;
-  const saved = await store.get('called_'+id);
-  calledIds = saved ? new Set(JSON.parse(saved.value)) : new Set();
-  if (!isManual && userProfile) {
-    const tb=document.getElementById('topbar'); tb.style.display='flex';
-    document.getElementById('topbar-name').textContent=userProfile.name;
-    if (userProfile.picture) document.getElementById('topbar-avatar').src=userProfile.picture;
-  } else { document.getElementById('topbar').style.display='none'; }
-  renderMain(); showScreen('screen-main');
+/* ════════════════════════════════
+   OPEN CLASS
+════════════════════════════════ */
+function openClass(id,name,list){
+  cid=id; cname=name; students=list;
+  absent=new Set(); curr=null; busy=false;
+  called=new Set(allData[id]||[]);
+
+  if(!isManual&&prof){
+    const st=$('strip'); st.style.display='flex';
+    $('strip-nm').textContent=prof.name;
+    if(prof.picture) $('strip-av').src=prof.picture;
+  }else{ $('strip').style.display='none'; }
+
+  renderMain(); show('s-main');
+  if(!localStorage.getItem('sel_tut')) setTimeout(showTut,700);
 }
 
-/* ── Render ── */
-function renderMain() {
-  const avail=getAvail(), total=students.length-absentIds.size;
-  const pct=total>0?Math.round(calledIds.size/total*100):0, allDone=avail.length===0&&students.length>0;
-  document.getElementById('hd-class').textContent = className;
-  document.getElementById('hd-sub').textContent   = `残り ${avail.length}名 ／ 全${total}名指名`;
-  document.getElementById('prog-fill').style.width= pct+'%';
-  document.getElementById('b-avail').textContent  = `出席 ${avail.length}`;
-  document.getElementById('b-absent').textContent = `欠席 ${absentIds.size}`;
-  document.getElementById('b-called').textContent = `指名済 ${calledIds.size}`;
-  if (!current) setStageIdle(allDone);
-  const btn=document.getElementById('pick-btn');
-  btn.disabled=animating||allDone; btn.textContent=allDone?'全員完了':'当てる！';
-  btn.style.animation=(!animating&&!allDone&&animOn)?'glow-pulse 2.5s infinite':'none';
+/* ════════════════════════════════
+   RENDER MAIN
+════════════════════════════════ */
+function avail(){ return students.filter(s=>!absent.has(s.id)&&!called.has(s.id)); }
+
+function renderMain(){
+  const av=avail(), tot=students.length-absent.size;
+  const pct=tot>0?Math.round(called.size/tot*100):0;
+  const allDone=av.length===0&&students.length>0;
+
+  $('h-cl').textContent=cname;
+  $('h-sb').textContent=`残り ${av.length}名 ／ ${tot}名中 ${called.size}名指名済`;
+  $('prog-f').style.width=pct+'%';
+  $('b-av').textContent=`出席 ${av.length}`;
+  $('b-ab').textContent=`欠席 ${absent.size}`;
+  $('b-cl').textContent=`指名済 ${called.size}`;
+
+  if(!curr) setIdle(allDone);
+
+  const btn=$('pick');
+  btn.disabled=busy||allDone;
+  btn.textContent=allDone?'全員完了':'当てる！';
+  btn.classList.toggle('run', busy);
+  if(!busy&&!allDone&&animOn) btn.style.animation='';
+  else btn.style.animation='none';
+
   renderChips();
 }
 
-function setStageIdle(allDone) {
-  document.getElementById('s-empty').style.display  =allDone?'none':'flex';
-  document.getElementById('s-done').style.display   =allDone?'flex':'none';
-  document.getElementById('s-avatar').style.display ='none';
-  document.getElementById('s-initial').style.display='none';
-  document.getElementById('s-name').style.display   ='none';
-  document.getElementById('s-badge').style.display  ='none';
-  document.getElementById('stage').className        ='';
+function setIdle(allDone){
+  $('s-idle').style.display=allDone?'none':'flex';
+  $('s-done').style.display=allDone?'flex':'none';
+  $('s-photo').style.display='none';
+  $('s-init').style.display='none';
+  $('s-nm').style.display='none';
+  $('s-badge').style.display='none';
+  const st=$('stage'); st.className='';
 }
 
-function showOnStage(s, isResult) {
-  ['s-empty','s-done'].forEach(id=>document.getElementById(id).style.display='none');
-  document.getElementById('s-name').style.display=document.getElementById('s-name').textContent=s.name,'block';
-  document.getElementById('s-name').textContent=s.name;
-  document.getElementById('s-name').style.display='block';
-  if (s.photo) {
-    document.getElementById('s-avatar').src=s.photo;
-    document.getElementById('s-avatar').style.display='block';
-    document.getElementById('s-initial').style.display='none';
-  } else {
-    document.getElementById('s-initial').textContent=s.name.charAt(0);
-    document.getElementById('s-initial').style.display='flex';
-    document.getElementById('s-avatar').style.display='none';
+function showStudent(s,isRes){
+  $('s-idle').style.display='none';
+  $('s-done').style.display='none';
+  $('s-nm').style.display='block';
+  $('s-nm').textContent=s.name;
+
+  if(s.photo){
+    $('s-photo').src=s.photo; $('s-photo').style.display='block';
+    $('s-init').style.display='none';
+  }else{
+    $('s-init').textContent=s.name.charAt(0);
+    $('s-init').style.display='flex';
+    $('s-photo').style.display='none';
   }
-  if (isResult&&!animating) {
-    document.getElementById('s-badge').style.display='block';
-    document.getElementById('stage').className='result';
-    if(animOn) document.getElementById('s-name').style.animation='pop-in .35s ease';
-  } else {
-    document.getElementById('s-badge').style.display='none';
-    document.getElementById('stage').className=animating?'animating':'';
-    document.getElementById('s-name').style.animation=(animOn&&animating)?'spin-tick .15s infinite':'none';
+
+  const st=$('stage');
+  if(isRes&&!busy){
+    $('s-badge').style.display='flex';
+    // Animate check mark
+    const ck=document.querySelector('.ck-path');
+    if(ck){ ck.style.animation='none'; void ck.offsetWidth; ck.style.animation='checkDraw .35s .1s ease forwards'; }
+    // Stage burst ring
+    const bc=$('burst-c');
+    bc.style.animation='none'; void bc.offsetWidth;
+    bc.style.opacity='1';
+    bc.style.animation='ringOut .6s ease-out forwards';
+    setTimeout(()=>{ bc.style.opacity='0'; bc.style.animation='none'; },700);
+    // Stage class
+    st.className=''; void st.offsetWidth; st.className='res';
+    if(animOn) { $('s-nm').style.animation='none'; void $('s-nm').offsetWidth; $('s-nm').style.animation='scaleIn .35s ease'; }
+  }else{
+    $('s-badge').style.display='none';
+    st.className=busy?'anim':'';
+    $('s-nm').style.animation=(animOn&&busy)?'flicker .15s infinite':'none';
   }
 }
 
-/* ── Pick ── */
-function getAvail() { return students.filter(s=>!absentIds.has(s.id)&&!calledIds.has(s.id)); }
-
-function pickStudent() {
-  if (animating) return;
-  const avail=getAvail(); if(!avail.length) return;
-  animating=true; current=null;
-  document.getElementById('undo-btn').style.display='none';
-  document.getElementById('s-badge').style.display='none';
-  const btn=document.getElementById('pick-btn');
+/* ════════════════════════════════
+   PICK
+════════════════════════════════ */
+function pickStudent(){
+  if(busy) return;
+  const av=avail(); if(!av.length) return;
+  busy=true; curr=null;
+  $('undo').style.display='none';
+  const btn=$('pick');
   btn.textContent='選択中…'; btn.disabled=true; btn.style.animation='none';
-  document.getElementById('stage').className='animating';
-  if (animOn) runSlot(avail, s=>showOnStage(s,false), onDone);
-  else onDone(avail[Math.floor(Math.random()*avail.length)]);
+  btn.classList.add('run');
+  $('s-badge').style.display='none';
+  $('stage').className='anim';
+
+  if(animOn) slot(av, s=>showStudent(s,false), done);
+  else done(av[Math.floor(Math.random()*av.length)]);
 }
 
-function onDone(s) {
-  animating=false; current=s;
-  showOnStage(s,true);
-  calledIds.add(s.id);
-  store.set('called_'+classId, JSON.stringify([...calledIds]));
-  const avail=getAvail(), total=students.length-absentIds.size;
-  const allDone=avail.length===0, pct=total>0?Math.round(calledIds.size/total*100):0;
-  document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('hd-sub').textContent=`残り ${avail.length}名 ／ 全${total}名指名`;
-  document.getElementById('b-avail').textContent=`出席 ${avail.length}`;
-  document.getElementById('b-called').textContent=`指名済 ${calledIds.size}`;
-  const btn=document.getElementById('pick-btn');
+function done(s){
+  busy=false; curr=s;
+  showStudent(s,true);
+  called.add(s.id);
+  allData[cid]=[...called];
+  saveToDrive();
+
+  const av=avail(), tot=students.length-absent.size;
+  const allDone=av.length===0, pct=tot>0?Math.round(called.size/tot*100):0;
+  $('prog-f').style.width=pct+'%';
+  $('h-sb').textContent=`残り ${av.length}名 ／ ${tot}名中 ${called.size}名指名済`;
+  $('b-av').textContent=`出席 ${av.length}`;
+  $('b-cl').textContent=`指名済 ${called.size}`;
+
+  const btn=$('pick');
+  btn.classList.remove('run');
   btn.disabled=allDone; btn.textContent=allDone?'全員完了':'当てる！';
-  btn.style.animation=(!allDone&&animOn)?'glow-pulse 2.5s infinite':'none';
-  document.getElementById('undo-btn').style.display='inline-flex';
+  btn.style.animation=(!allDone&&animOn)?'':'none';
+  $('undo').style.display='inline-flex';
   renderChips();
-  if(animOn) doConfetti();
+  if(animOn) doConf();
 }
 
-function runSlot(pool, tick, done) {
+function slot(pool,tick,fin){
   let f=0;
   const go=()=>{
     f++;
     const d=f<12?55:f<22?110:f<27?200:380;
-    setTimeout(()=>{ const p=pool[Math.floor(Math.random()*pool.length)]; if(f<28){tick(p);go();}else done(pool[Math.floor(Math.random()*pool.length)]); },d);
+    setTimeout(()=>{
+      const p=pool[Math.floor(Math.random()*pool.length)];
+      if(f<28){tick(p);go();}else fin(pool[Math.floor(Math.random()*pool.length)]);
+    },d);
   };
   go();
 }
 
-/* ── Undo ── */
-function undoLast() {
-  if (!current||animating) return;
-  calledIds.delete(current.id);
-  store.set('called_'+classId, JSON.stringify([...calledIds]));
-  current=null;
-  document.getElementById('undo-btn').style.display='none';
+/* ════════════════════════════════
+   UNDO
+════════════════════════════════ */
+function undoLast(){
+  if(!curr||busy) return;
+  called.delete(curr.id);
+  allData[cid]=[...called];
+  saveToDrive();
+  curr=null;
+  $('undo').style.display='none';
   renderMain();
 }
 
-/* ── Absent ── */
-function toggleAbsent(id) {
-  absentIds.has(id)?absentIds.delete(id):absentIds.add(id);
-  const avail=getAvail(),total=students.length-absentIds.size,pct=total>0?Math.round(calledIds.size/total*100):0;
-  document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('hd-sub').textContent=`残り ${avail.length}名 ／ 全${total}名指名`;
-  document.getElementById('b-avail').textContent=`出席 ${avail.length}`;
-  document.getElementById('b-absent').textContent=`欠席 ${absentIds.size}`;
-  const btn=document.getElementById('pick-btn');
-  const allDone=avail.length===0&&students.length>0;
-  btn.disabled=allDone||animating; btn.textContent=allDone?'全員完了':'当てる！';
+/* ════════════════════════════════
+   CHIP TAP  (absent / restore)
+════════════════════════════════ */
+function chipTap(id){
+  if(absent.has(id)){
+    absent.delete(id);                 // absent → available
+  }else if(called.has(id)){
+    called.delete(id);                 // called → available (restore)
+    if(curr?.id===id){
+      curr=null; $('undo').style.display='none'; setIdle(false);
+    }
+    allData[cid]=[...called];
+    saveToDrive();
+  }else{
+    absent.add(id);                    // available → absent
+  }
+
+  const av=avail(), tot=students.length-absent.size;
+  const allDone=av.length===0&&students.length>0, pct=tot>0?Math.round(called.size/tot*100):0;
+  $('prog-f').style.width=pct+'%';
+  $('h-sb').textContent=`残り ${av.length}名 ／ ${tot}名中 ${called.size}名指名済`;
+  $('b-av').textContent=`出席 ${av.length}`;
+  $('b-ab').textContent=`欠席 ${absent.size}`;
+  $('b-cl').textContent=`指名済 ${called.size}`;
+  const btn=$('pick');
+  btn.disabled=busy||allDone; btn.textContent=allDone?'全員完了':'当てる！';
   renderChips();
 }
 
-/* ── Chips ── */
-function renderChips() {
-  const g=document.getElementById('chips'); g.innerHTML='';
+/* ════════════════════════════════
+   CHIPS
+════════════════════════════════ */
+function renderChips(q=''){
+  const g=$('chips'); g.innerHTML='';
+  const lq=q.toLowerCase();
   students.forEach(s=>{
-    const isAbs=absentIds.has(s.id),isCalled=calledIds.has(s.id),isCur=current?.id===s.id&&!animating;
+    const isAb=absent.has(s.id), isCl=called.has(s.id), isCu=curr?.id===s.id&&!busy;
+    const hidden=lq&&!s.name.toLowerCase().includes(lq);
     const c=document.createElement('div');
-    c.className='chip'+(isAbs?' absent':isCalled?' called':'')+(isCur?' current':'');
-    c.innerHTML=`<span class="chip-name">${isAbs?'🚫 ':isCalled?'✓ ':''}${esc(s.name)}</span><button class="x-btn" onclick="toggleAbsent('${s.id}')" title="${isAbs?'出席に戻す':'欠席にする'}">${isAbs?'↩':'✕'}</button>`;
+    c.className='chip'+(isAb?' abs':isCl?' done':'')+(isCu?' cur':'')+(hidden?' hide':'');
+    c.textContent=(isAb?'🚫 ':isCl?'✓ ':'')+s.name;
+    c.onclick=()=>chipTap(s.id);
     g.appendChild(c);
   });
 }
+function filterChips(v){ renderChips(v); }
 
-/* ── Reset ── */
-function confirmReset() { document.getElementById('reset-btn').style.display='none'; document.getElementById('reset-confirm').style.display='flex'; }
-function cancelReset()  { document.getElementById('reset-btn').style.display=''; document.getElementById('reset-confirm').style.display='none'; }
-function doReset() {
-  calledIds=new Set(); absentIds=new Set(); current=null; animating=false;
-  store.del('called_'+classId); cancelReset();
-  renderMain(); setStageIdle(false);
-  document.getElementById('undo-btn').style.display='none';
+/* ════════════════════════════════
+   RESET
+════════════════════════════════ */
+function confirmRst(){ $('rst-b').style.display='none'; $('rst-c').style.display='flex'; }
+function cancelRst() { $('rst-b').style.display=''; $('rst-c').style.display='none'; }
+function doReset(){
+  called=new Set(); absent=new Set(); curr=null; busy=false;
+  allData[cid]=[]; saveToDrive();
+  cancelRst(); renderMain(); setIdle(false);
+  $('undo').style.display='none';
+  const si=$('srch'); if(si) si.value='';
 }
+function chgClass(){ show(isManual?'s-manual':'s-courses'); }
 
-function changeClass() { showScreen(isManual?'screen-manual':'screen-courses'); }
-
-/* ── Anim toggle ── */
-function toggleAnim(on) {
+/* ════════════════════════════════
+   ANIMATION TOGGLE
+════════════════════════════════ */
+function setAnim(on){
   animOn=on;
-  const btn=document.getElementById('pick-btn');
-  if(!btn.disabled) btn.style.animation=on?'glow-pulse 2.5s infinite':'none';
+  const btn=$('pick');
+  if(!btn.disabled) btn.style.animation=on?'':'none';
 }
 
-/* ── Confetti ── */
-function doConfetti() {
-  const l=document.getElementById('confetti-layer'); l.innerHTML='';
-  for(let i=0;i<20;i++){
-    const el=document.createElement('div'); el.className='c-piece';
-    const sz=5+Math.random()*8, h=Math.floor(Math.random()*360);
-    el.style.cssText=`left:${20+Math.random()*60}%;width:${sz}px;height:${sz}px;background:hsl(${h},85%,65%);border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${(Math.random()*.4).toFixed(2)}s;`;
+/* ════════════════════════════════
+   FOCUS MODE
+════════════════════════════════ */
+function focusTog(){
+  focMode=!focMode;
+  document.body.classList.toggle('foc',focMode);
+}
+
+/* ════════════════════════════════
+   CONFETTI
+════════════════════════════════ */
+function doConf(){
+  const l=$('conf'); l.innerHTML='';
+  for(let i=0;i<24;i++){
+    const el=document.createElement('div'); el.className='cp';
+    const sz=5+Math.random()*9, h=Math.floor(Math.random()*360);
+    el.style.cssText=`left:${10+Math.random()*80}%;width:${sz}px;height:${sz}px;background:hsl(${h},85%,65%);border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${(Math.random()*.5).toFixed(2)}s;`;
     l.appendChild(el);
   }
-  setTimeout(()=>l.innerHTML='',2000);
+  setTimeout(()=>l.innerHTML='',2200);
 }
 
-/* ── Util ── */
+/* ════════════════════════════════
+   TUTORIAL
+════════════════════════════════ */
+let tPg=0;
+const TPG=4;
+
+function showTut(){
+  $('tut').classList.add('on');
+  tPg=0;
+  $('tut-slides').scrollTo({left:0,behavior:'instant'});
+  updateTDots(0);
+  $('tut-slides').addEventListener('scroll',onTutScroll,{passive:true});
+}
+
+function onTutScroll(){
+  const s=$('tut-slides');
+  const p=Math.round(s.scrollLeft/(s.offsetWidth||1));
+  if(p!==tPg){ tPg=p; updateTDots(p); }
+}
+
+function updateTDots(p){
+  document.querySelectorAll('.td').forEach((d,i)=>d.classList.toggle('on',i===p));
+  $('tut-next').textContent=p<TPG-1?'次へ':'スキップ';
+}
+
+function tutNext(){
+  if(tPg<TPG-1){
+    tPg++;
+    $('tut-slides').scrollTo({left:tPg*$('tut-slides').offsetWidth,behavior:'smooth'});
+    updateTDots(tPg);
+  }else{ tutClose(); }
+}
+
+function tutClose(){
+  $('tut').classList.remove('on');
+  localStorage.setItem('sel_tut','1');
+}
+
+/* ════════════════════════════════
+   UTIL
+════════════════════════════════ */
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
