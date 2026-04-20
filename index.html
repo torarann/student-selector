@@ -4,570 +4,593 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>生徒セレクター</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg:      #080c14;
-  --surface: #111827;
-  --card:    #1a2236;
-  --border:  #1e293b;
-  --accent:  #6366f1;
-  --accentL: #818cf8;
-  --hot:     #f43f5e;
-  --teal:    #14b8a6;
-  --gold:    #f59e0b;
-  --text:    #e2e8f0;
-  --sub:     #94a3b8;
-  --ff:      'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;
+  --bg:      #0f0f0f;
+  --surface: #1a1a1a;
+  --card:    #222222;
+  --border:  #2e2e2e;
+  --accent:  #4f6ef7;
+  --text:    #f0f0f0;
+  --sub:     #888;
+  --sub2:    #555;
+  --teal:    #2dd4bf;
+  --red:     #f25c5c;
+  --gold:    #f5a623;
+  --green:   #3ecf8e;
+  --ff:      'Inter', 'Noto Sans JP', sans-serif;
+  --radius:  12px;
 }
-body { background:var(--bg); color:var(--text); font-family:var(--ff); min-height:100vh; }
-::-webkit-scrollbar { width:6px; }
-::-webkit-scrollbar-track { background:#0d1117; }
-::-webkit-scrollbar-thumb { background:#334155; border-radius:3px; }
+body { background:var(--bg); color:var(--text); font-family:var(--ff); min-height:100vh; font-size:14px; }
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
 
-@keyframes pulse-ring {
-  0%   { box-shadow:0 0 0 0 rgba(99,102,241,.7); }
-  70%  { box-shadow:0 0 0 18px rgba(99,102,241,0); }
-  100% { box-shadow:0 0 0 0 rgba(99,102,241,0); }
+@keyframes spin-tick  { 0%,100%{opacity:1;} 50%{opacity:.5;} }
+@keyframes pop-in     { 0%{transform:scale(.85);opacity:0;} 60%{transform:scale(1.04);} 100%{transform:scale(1);opacity:1;} }
+@keyframes float      { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+@keyframes fade-up    { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:translateY(0);} }
+@keyframes confetti   { 0%{transform:translateY(-8px) rotate(0deg);opacity:1;} 100%{transform:translateY(100px) rotate(400deg);opacity:0;} }
+@keyframes glow-pulse {
+  0%  { box-shadow: 0 0 0 0 rgba(79,110,247,.5); }
+  70% { box-shadow: 0 0 0 14px rgba(79,110,247,0); }
+  100%{ box-shadow: 0 0 0 0 rgba(79,110,247,0); }
 }
-@keyframes slot-flicker { 0%,100%{opacity:1;} 50%{opacity:.65;} }
-@keyframes pop-in {
-  0%{transform:scale(.5);opacity:0;}
-  70%{transform:scale(1.07);}
-  100%{transform:scale(1);opacity:1;}
-}
-@keyframes float {
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-7px);}
-}
-@keyframes confetti-fall {
-  0%  {transform:translateY(-10px) rotate(0deg);opacity:1;}
-  100%{transform:translateY(90px) rotate(380deg);opacity:0;}
-}
-@keyframes fade-in { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
 
+/* ── Screens ── */
 .screen { display:none; }
-.screen.active { display:flex; flex-direction:column; min-height:100vh; animation:fade-in .3s ease; }
+.screen.active { display:flex; flex-direction:column; min-height:100vh; animation:fade-up .25s ease; }
 
-.page-center {
+/* ── Layout ── */
+.center-page {
   flex:1; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
-  padding:32px 20px; max-width:480px; margin:0 auto; width:100%;
+  padding:40px 20px; max-width:440px; margin:0 auto; width:100%;
 }
-.card { background:var(--card); border:1.5px solid var(--border); border-radius:18px; padding:28px 24px; width:100%; }
-.title { font-size:22px; font-weight:900; margin-bottom:6px; }
-label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--sub); margin-bottom:6px; }
+.logo   { font-size:48px; margin-bottom:20px; }
+h1      { font-size:24px; font-weight:700; letter-spacing:-.5px; margin-bottom:6px; }
+.lead   { color:var(--sub); font-size:13px; margin-bottom:32px; line-height:1.6; }
+
+/* ── Card ── */
+.card   { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; width:100%; }
+.card + .card { margin-top:12px; }
+.divider{ border:none; border-top:1px solid var(--border); margin:16px 0; }
+
+/* ── Form ── */
+.field  { margin-bottom:16px; }
+.field:last-child { margin-bottom:0; }
+label   { display:block; font-size:11px; font-weight:600; color:var(--sub); letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
 input, textarea {
-  width:100%; background:#0d1117; border:1.5px solid var(--border); border-radius:10px;
-  padding:12px 14px; font-size:14px; color:var(--text); font-family:var(--ff); outline:none; transition:border-color .2s;
+  width:100%; background:var(--surface); border:1px solid var(--border);
+  border-radius:8px; padding:10px 12px; font-size:14px; color:var(--text);
+  font-family:var(--ff); outline:none; transition:border-color .15s;
 }
-input:focus, textarea:focus { border-color:var(--accentL); }
-textarea { resize:vertical; min-height:160px; line-height:1.9; }
+input:focus, textarea:focus { border-color:var(--accent); }
+textarea { resize:vertical; min-height:150px; line-height:1.8; }
 
+/* ── Buttons ── */
 .btn {
-  display:inline-flex; align-items:center; justify-content:center;
-  gap:10px; border:none; border-radius:12px; padding:13px 24px;
-  font-size:15px; font-weight:700; font-family:var(--ff); cursor:pointer;
-  transition:transform .1s, opacity .2s; width:100%; margin-bottom:10px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border:none; border-radius:8px; padding:10px 18px;
+  font-size:14px; font-weight:600; font-family:var(--ff);
+  cursor:pointer; transition:opacity .15s, transform .1s;
+  white-space:nowrap;
 }
-.btn:active { transform:scale(.96); }
-.btn:disabled { opacity:.35; cursor:not-allowed; }
-.btn-primary { background:linear-gradient(135deg,var(--accent),#8b5cf6); color:white; box-shadow:0 4px 20px rgba(99,102,241,.35); }
-.btn-outline  { background:var(--card); border:1.5px solid var(--border)!important; color:var(--text); }
-.btn-ghost    { background:none; color:var(--sub); font-size:13px; padding:10px; }
-.btn-google   { background:white; color:#333; border:2px solid #ddd!important; }
-.btn-danger   { background:#7f1d1d; color:#fca5a5; border:1px solid var(--hot)!important; }
-.btn-sm       { padding:7px 14px; font-size:13px; border-radius:8px; width:auto; margin-bottom:0; }
-.btn-icon     { width:auto; padding:8px 14px; font-size:12px; border-radius:8px; margin-bottom:0; }
+.btn:active  { transform:scale(.97); }
+.btn:disabled{ opacity:.35; cursor:not-allowed; }
+.btn-full    { width:100%; justify-content:center; }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-primary:hover { opacity:.9; }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+.btn-outline:hover { border-color:var(--sub); }
+.btn-ghost   { background:transparent; color:var(--sub); }
+.btn-ghost:hover { color:var(--text); }
+.btn-google  { background:#fff; color:#333; border:1px solid #ddd; }
+.btn-danger  { background:#3a1515; color:var(--red); border:1px solid #5a2020; }
+.btn-sm      { padding:7px 12px; font-size:13px; border-radius:7px; }
+.btn-stack   { display:flex; flex-direction:column; gap:8px; width:100%; }
 
-/* ─── Header ─── */
+/* ── Top bar ── */
+#topbar {
+  display:none; align-items:center; gap:10px;
+  padding:10px 16px; background:var(--surface);
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+#topbar-avatar { width:24px; height:24px; border-radius:50%; object-fit:cover; }
+#topbar-name   { font-weight:600; }
+#topbar-right  { margin-left:auto; display:flex; align-items:center; gap:8px; }
+
+/* ── Header ── */
 #header {
   background:var(--surface); border-bottom:1px solid var(--border);
-  padding:12px 18px; display:flex; justify-content:space-between;
-  align-items:center; flex-wrap:wrap; gap:8px;
+  padding:12px 16px; display:flex; align-items:center;
+  justify-content:space-between; gap:8px; flex-wrap:wrap;
 }
-.header-class { font-size:16px; font-weight:900; }
-.header-sub   { font-size:12px; color:var(--sub); margin-top:2px; }
-.header-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.hd-class { font-size:15px; font-weight:700; }
+.hd-sub   { font-size:12px; color:var(--sub); margin-top:2px; }
+.hd-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 
-/* ─── Progress ─── */
-#progress-track { height:7px; background:var(--card); position:relative; overflow:hidden; }
-#progress-fill  {
-  height:100%; background:linear-gradient(90deg,var(--teal),var(--accent));
-  transition:width .6s ease; border-radius:0 4px 4px 0;
-}
+/* ── Toggle ── */
+.tog-wrap { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--sub); font-weight:600; }
+.tog      { position:relative; width:36px; height:20px; }
+.tog input{ opacity:0; width:0; height:0; }
+.tog-sl   { position:absolute; cursor:pointer; inset:0; background:var(--sub2); border-radius:20px; transition:.25s; }
+.tog-sl::before { content:""; position:absolute; width:14px; height:14px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.25s; }
+.tog input:checked + .tog-sl               { background:var(--accent); }
+.tog input:checked + .tog-sl::before       { transform:translateX(16px); }
 
-/* ─── Main body ─── */
+/* ── Progress ── */
+#prog-track { height:3px; background:var(--border); }
+#prog-fill  { height:100%; background:var(--accent); transition:width .5s ease; }
+
+/* ── Main body ── */
 #main-body { flex:1; display:flex; flex-direction:column; overflow:auto; }
 
-/* ─── Stage ─── */
-#selector-section { display:flex; flex-direction:column; align-items:center; padding:28px 20px 18px; gap:16px; }
+/* ── Stage ── */
+#stage-wrap { display:flex; flex-direction:column; align-items:center; padding:32px 20px 20px; gap:16px; }
 #stage {
-  background:var(--card); border:2px solid var(--border); border-radius:24px;
-  padding:32px 52px; min-width:280px; min-height:160px;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  box-shadow:0 8px 40px rgba(0,0,0,.45); transition:border-color .3s,box-shadow .3s; text-align:center;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:36px 48px;
+  min-width:260px; min-height:150px;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; transition:border-color .2s;
 }
-#stage.animating { border-color:var(--accentL); box-shadow:0 8px 40px rgba(129,140,248,.3); }
-#stage.result    { border-color:var(--gold);    box-shadow:0 8px 50px rgba(245,158,11,.3);  }
-#stage-avatar    { width:88px;height:88px;border-radius:50%;object-fit:cover;margin-bottom:14px;border:3px solid var(--accent);display:none; }
-#stage-initial   { width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#8b5cf6);font-size:38px;font-weight:900;color:white;display:none;align-items:center;justify-content:center;margin-bottom:14px; }
-#stage-name      { font-size:28px;font-weight:900;letter-spacing:-.5px;display:none; }
-#stage-badge     { margin-top:10px;background:rgba(245,158,11,.15);border:1px solid var(--gold);color:var(--gold);padding:4px 16px;border-radius:20px;font-size:13px;font-weight:700;display:none; }
-#stage-empty     { display:flex;flex-direction:column;align-items:center;gap:12px;opacity:.5; }
-#stage-empty .icon { font-size:48px; }
-#stage-empty p   { font-size:15px;color:var(--sub); }
-#stage-alldone   { display:none;flex-direction:column;align-items:center;gap:10px; }
-#stage-alldone .icon { font-size:52px;animation:float 2s ease-in-out infinite; }
-#stage-alldone p { color:var(--gold);font-weight:700;font-size:18px; }
+#stage.animating { border-color:var(--accent); }
+#stage.result    { border-color:var(--green); }
 
-/* ─── Pick button ─── */
+#s-empty   { display:flex; flex-direction:column; align-items:center; gap:8px; }
+#s-empty .icon { font-size:36px; opacity:.3; }
+#s-empty p { font-size:13px; color:var(--sub); }
+#s-done    { display:none; flex-direction:column; align-items:center; gap:8px; }
+#s-done .icon { font-size:40px; animation:float 2s ease-in-out infinite; }
+#s-done p  { font-size:16px; font-weight:700; color:var(--gold); }
+
+#s-avatar  { width:72px; height:72px; border-radius:50%; object-fit:cover; margin-bottom:12px; border:2px solid var(--border); display:none; }
+#s-initial { width:72px; height:72px; border-radius:50%; background:var(--surface); border:2px solid var(--border); font-size:28px; font-weight:700; display:none; align-items:center; justify-content:center; margin-bottom:12px; }
+#s-name    { font-size:26px; font-weight:700; letter-spacing:-.5px; display:none; }
+#s-badge   { margin-top:10px; font-size:12px; font-weight:600; color:var(--green); display:none; }
+
+/* ── Pick button ── */
 #pick-btn {
-  background:linear-gradient(135deg,var(--accent),#8b5cf6);
-  color:white; border:none; border-radius:50px; padding:18px 56px;
-  font-size:22px; font-weight:900; cursor:pointer; font-family:var(--ff);
-  box-shadow:0 8px 30px rgba(99,102,241,.45); transition:transform .1s,opacity .2s;
-  letter-spacing:1px; animation:pulse-ring 2s infinite;
+  background:var(--accent); color:#fff;
+  border:none; border-radius:50px; padding:16px 48px;
+  font-size:20px; font-weight:700; cursor:pointer; font-family:var(--ff);
+  transition:transform .1s, opacity .15s;
+  animation:glow-pulse 2.5s infinite;
 }
-#pick-btn:active  { transform:scale(.95); }
-#pick-btn.spinning{ animation:none; }
-#pick-btn:disabled{ opacity:.35;cursor:not-allowed;animation:none; }
-#undo-btn         { display:none; }
+#pick-btn:active   { transform:scale(.96); }
+#pick-btn:disabled { opacity:.3; cursor:not-allowed; animation:none; }
+#pick-btn.spinning { animation:none; }
 
-.controls-row { display:flex;gap:10px;align-items:center;margin-bottom:4px;flex-wrap:wrap;justify-content:center; }
+/* ── Roster ── */
+#roster { padding:0 16px 28px; }
+.r-head { display:flex; gap:14px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.r-badge{ display:flex; align-items:center; gap:5px; font-size:12px; color:var(--sub); font-weight:500; }
+.r-dot  { width:7px; height:7px; border-radius:50%; }
+#chips  { display:flex; flex-wrap:wrap; gap:6px; }
 
-/* ─── Toggle ─── */
-.toggle-wrap { display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);font-weight:700; }
-.toggle { position:relative;width:40px;height:22px; }
-.toggle input { opacity:0;width:0;height:0; }
-.toggle-slider { position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:22px;transition:.3s; }
-.toggle-slider::before { content:"";position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s; }
-.toggle input:checked + .toggle-slider { background:var(--accent); }
-.toggle input:checked + .toggle-slider::before { transform:translateX(18px); }
-
-/* ─── Roster ─── */
-#roster-section { padding:0 16px 28px; }
-.roster-header  { display:flex;gap:16px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);flex-wrap:wrap; }
-.roster-badge   { display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);font-weight:600; }
-.roster-badge-dot { width:8px;height:8px;border-radius:50%; }
-#chip-grid { display:flex;flex-wrap:wrap;gap:8px; }
 .chip {
-  background:var(--card); border:1.5px solid var(--border); border-radius:20px;
-  padding:6px 8px 6px 14px; display:flex; align-items:center; gap:6px; transition:all .2s;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:20px; padding:5px 8px 5px 12px;
+  display:flex; align-items:center; gap:5px;
+  font-size:13px; font-weight:500; transition:all .15s;
 }
-.chip.absent  { background:rgba(127,29,29,.35);border-color:#7f1d1d; }
-.chip.called  { background:rgba(6,78,59,.35);border-color:#064e3b; }
-.chip.current { background:rgba(245,158,11,.15);border-color:var(--gold);box-shadow:0 2px 12px rgba(245,158,11,.3); }
-.chip-name    { font-size:13px;font-weight:700;transition:opacity .2s; }
-.chip.called .chip-name { text-decoration:line-through;opacity:.55; }
-.chip.absent .chip-name { opacity:.55; }
-.absent-btn { background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;padding:2px 5px;border-radius:4px;line-height:1;transition:color .15s; }
-.absent-btn:hover { color:var(--hot); }
-
-/* ─── Course grid ─── */
-#course-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;width:100%; }
-.course-card {
-  background:#0f172a; border:1.5px solid var(--border); border-radius:16px; padding:20px 16px;
-  cursor:pointer; text-align:center; transition:all .2s; font-family:var(--ff); color:var(--text);
+.chip.absent  { background:#1f1010; border-color:#3a1515; color:var(--sub); }
+.chip.called  { background:#0f1f18; border-color:#1a3a2a; }
+.chip.called .chip-name { text-decoration:line-through; opacity:.5; }
+.chip.absent .chip-name { opacity:.5; }
+.chip.current { border-color:var(--gold); background:#1f1a0f; }
+.chip-name { font-size:13px; }
+.x-btn {
+  background:none; border:none; color:var(--sub2);
+  font-size:12px; cursor:pointer; padding:1px 4px;
+  border-radius:4px; line-height:1; transition:color .15s;
 }
-.course-card:hover { background:#1e3a5f;transform:translateY(-2px);border-color:var(--accentL); }
-.course-card .course-icon { font-size:30px;margin-bottom:8px; }
-.course-card .course-name { font-size:14px;font-weight:700;line-height:1.4; }
-.course-card .course-section { font-size:12px;color:var(--sub);margin-top:4px; }
+.x-btn:hover { color:var(--red); }
 
-/* ─── Confetti ─── */
-#confetti-layer { position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden; }
-.confetti-piece { position:absolute;top:38%;animation:confetti-fall 1.5s ease-in forwards; }
+/* ── Course grid ── */
+#course-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; width:100%; }
+.c-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:18px 14px; cursor:pointer;
+  text-align:center; transition:all .15s; font-family:var(--ff); color:var(--text);
+}
+.c-card:hover { border-color:var(--accent); background:var(--surface); }
+.c-icon  { font-size:26px; margin-bottom:8px; }
+.c-name  { font-size:13px; font-weight:600; line-height:1.4; }
+.c-sec   { font-size:11px; color:var(--sub); margin-top:3px; }
 
-/* ─── User strip ─── */
-#user-strip { display:none;align-items:center;gap:10px;padding:8px 18px;background:#0d1117;border-bottom:1px solid var(--border);font-size:12px;color:var(--sub); }
-#user-avatar { width:26px;height:26px;border-radius:50%;object-fit:cover; }
-#user-name { font-weight:700;color:var(--text); }
-#signout-btn { margin-left:auto;background:none;border:1px solid var(--border);border-radius:6px;color:var(--sub);font-size:11px;padding:4px 10px;cursor:pointer;font-family:var(--ff);transition:color .2s; }
-#signout-btn:hover { color:var(--hot); }
+/* ── Confetti ── */
+#confetti-layer { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.c-piece { position:absolute; top:35%; animation:confetti 1.4s ease-in forwards; }
 
-#reset-confirm { display:none;gap:6px; }
-
-@media(max-width:480px) {
-  #stage { padding:24px 28px;min-width:0;width:100%; }
-  #stage-name { font-size:22px; }
-  #pick-btn { font-size:18px;padding:16px 40px; }
+@media(max-width:440px) {
+  #stage { padding:28px 24px; min-width:0; width:100%; }
+  #s-name { font-size:22px; }
+  #pick-btn { font-size:18px; padding:14px 36px; }
 }
 </style>
 </head>
 <body>
 
-<!-- ══════════════
-     SCREEN: LOGIN
-══════════════ -->
+<!-- LOGIN -->
 <div id="screen-login" class="screen active">
-  <div class="page-center">
-    <div style="font-size:64px;margin-bottom:16px;filter:drop-shadow(0 0 24px rgba(99,102,241,.6))">🎯</div>
-    <div class="title" style="text-align:center;font-size:28px">生徒セレクター</div>
-    <p style="color:var(--sub);font-size:14px;text-align:center;margin-bottom:28px">先生向け・Google Classroom 連携</p>
-
+  <div class="center-page">
+    <div class="logo">🎯</div>
+    <h1>生徒セレクター</h1>
+    <p class="lead" style="text-align:center">Google Classroomと連携して<br>ランダムに生徒を指名します</p>
     <div class="card">
-      <p style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:20px;line-height:1.7">
-        Googleアカウントでログインするだけで<br>Classroomの生徒情報を自動で取得します
-      </p>
-      <button class="btn btn-google" onclick="doGoogleLogin()">
-        <svg width="20" height="20" viewBox="0 0 48 48">
-          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-        </svg>
-        Googleでログイン
-      </button>
-      <p id="login-error" style="color:var(--hot);font-size:13px;text-align:center;display:none;margin-top:8px"></p>
-      <div style="border-top:1px solid var(--border);margin:16px 0 14px"></div>
-      <p style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:12px">Classroomを使っていない場合</p>
-      <button class="btn btn-outline" onclick="showScreen('screen-manual')" style="font-size:14px">
-        ✏️ 名前を手動で入力する
-      </button>
+      <div class="btn-stack">
+        <button class="btn btn-google btn-full" onclick="doGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 48 48">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Googleでログイン
+        </button>
+        <p id="login-error" style="color:var(--red);font-size:12px;text-align:center;display:none"></p>
+        <hr class="divider" />
+        <button class="btn btn-ghost btn-full" onclick="showScreen('screen-manual')" style="font-size:13px">
+          手動で名前を入力する
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════
-     SCREEN: COURSES
-══════════════ -->
+<!-- COURSES -->
 <div id="screen-courses" class="screen">
-  <div class="page-center" style="max-width:600px">
-    <div class="title" style="margin-bottom:6px;align-self:flex-start">📚 クラスを選択</div>
-    <p style="color:var(--sub);font-size:13px;margin-bottom:20px;align-self:flex-start">授業で使うクラスを選んでください</p>
+  <div class="center-page" style="max-width:560px">
+    <h1 style="align-self:flex-start;margin-bottom:6px">クラスを選択</h1>
+    <p class="lead" style="align-self:flex-start;margin-bottom:20px">授業で使うクラスを選んでください</p>
     <div id="course-grid"></div>
     <p id="no-courses" style="color:var(--sub);display:none;margin-top:16px">クラスが見つかりませんでした</p>
-    <button class="btn btn-ghost" onclick="doSignOut()" style="margin-top:24px">← サインアウト</button>
+    <button class="btn btn-ghost" onclick="doSignOut()" style="margin-top:24px">サインアウト</button>
   </div>
 </div>
 
-<!-- ══════════════
-     SCREEN: MANUAL
-══════════════ -->
+<!-- MANUAL -->
 <div id="screen-manual" class="screen">
-  <div class="page-center">
-    <div class="title">✏️ 手動で名前を入力</div>
-    <p style="color:var(--sub);font-size:13px;margin-bottom:24px">クラス名と生徒名を入力してすぐ使えます</p>
+  <div class="center-page">
+    <h1 style="margin-bottom:6px">手動入力</h1>
+    <p class="lead" style="text-align:center;margin-bottom:24px">生徒名を貼り付けてすぐ使えます</p>
     <div class="card">
-      <div style="margin-bottom:14px">
+      <div class="field">
         <label>クラス名</label>
         <input type="text" id="manual-classname" placeholder="例：3年1組" />
       </div>
-      <div style="margin-bottom:14px">
+      <div class="field">
         <label>生徒名（1行に1名）</label>
         <textarea id="manual-names" placeholder="山田 太郎&#10;田中 花子&#10;佐藤 次郎"></textarea>
       </div>
-      <button class="btn btn-primary" onclick="startManual()">🚀 開始する</button>
-      <button class="btn btn-ghost" onclick="showScreen('screen-login')">← 戻る</button>
+      <div class="btn-stack" style="margin-top:16px">
+        <button class="btn btn-primary btn-full" onclick="startManual()">開始する</button>
+        <button class="btn btn-ghost btn-full" onclick="showScreen('screen-login')">戻る</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════
-     SCREEN: MAIN
-══════════════ -->
+<!-- MAIN -->
 <div id="screen-main" class="screen">
-  <div id="user-strip">
-    <img id="user-avatar" src="" alt="" />
-    <span id="user-name"></span>
-    <button id="signout-btn" onclick="doSignOut()">サインアウト</button>
+  <div id="topbar">
+    <img id="topbar-avatar" src="" alt="" />
+    <span id="topbar-name"></span>
+    <div id="topbar-right">
+      <button class="btn btn-ghost btn-sm" onclick="doSignOut()">サインアウト</button>
+    </div>
   </div>
+
   <div id="header">
     <div>
-      <div class="header-class" id="header-class"></div>
-      <div class="header-sub"   id="header-sub"></div>
+      <div class="hd-class" id="hd-class"></div>
+      <div class="hd-sub"   id="hd-sub"></div>
     </div>
-    <div class="header-actions">
-      <div class="toggle-wrap">
+    <div class="hd-right">
+      <div class="tog-wrap">
         <span>演出</span>
-        <label class="toggle">
-          <input type="checkbox" id="anim-toggle" checked onchange="toggleAnim(this.checked)" />
-          <span class="toggle-slider"></span>
+        <label class="tog">
+          <input type="checkbox" id="anim-tog" checked onchange="toggleAnim(this.checked)" />
+          <span class="tog-sl"></span>
         </label>
       </div>
-      <button class="btn btn-outline btn-icon" onclick="changeClass()">🔄 クラス変更</button>
-      <div id="reset-confirm" style="display:none;gap:6px">
-        <button class="btn btn-danger btn-sm" onclick="doReset()">本当にリセット</button>
+      <button class="btn btn-outline btn-sm" onclick="changeClass()">クラス変更</button>
+      <div id="reset-confirm" style="display:none; gap:6px; display:none">
+        <button class="btn btn-danger btn-sm" onclick="doReset()">リセット確定</button>
         <button class="btn btn-outline btn-sm" onclick="cancelReset()">キャンセル</button>
       </div>
-      <button class="btn btn-outline btn-icon" id="reset-btn" onclick="confirmReset()" style="color:#f87171">🗑️ リセット</button>
+      <button class="btn btn-ghost btn-sm" id="reset-btn" onclick="confirmReset()" style="color:var(--sub)">リセット</button>
     </div>
   </div>
-  <div id="progress-track"><div id="progress-fill" style="width:0%"></div></div>
+
+  <div id="prog-track"><div id="prog-fill" style="width:0%"></div></div>
+
   <div id="main-body">
-    <div id="selector-section">
+    <div id="stage-wrap">
       <div id="stage">
-        <div id="stage-empty"><div class="icon">🎯</div><p>ボタンを押して指名</p></div>
-        <div id="stage-alldone"><div class="icon">🎉</div><p>全員指名完了！</p></div>
-        <img id="stage-avatar" src="" alt="" />
-        <div id="stage-initial"></div>
-        <div id="stage-name"></div>
-        <div id="stage-badge">🎯 当たり！</div>
+        <div id="s-empty"><div class="icon">🎯</div><p>ボタンを押して指名</p></div>
+        <div id="s-done" style="display:none"><div class="icon">🎉</div><p>全員指名完了！</p></div>
+        <img id="s-avatar" src="" alt="" />
+        <div id="s-initial"></div>
+        <div id="s-name"></div>
+        <div id="s-badge">✓ 当たり！</div>
       </div>
-      <div class="controls-row">
-        <button id="pick-btn" onclick="pickStudent()">🎯 当てる！</button>
-      </div>
-      <button id="undo-btn" class="btn btn-outline btn-sm" onclick="undoLast()" style="display:none">↩️ 取り消し</button>
+
+      <button id="pick-btn" onclick="pickStudent()">当てる！</button>
+      <button id="undo-btn" class="btn btn-ghost btn-sm" onclick="undoLast()" style="display:none">↩ 取り消し</button>
     </div>
-    <div id="roster-section">
-      <div class="roster-header">
-        <div class="roster-badge"><div class="roster-badge-dot" style="background:var(--teal)"></div><span id="badge-avail"></span></div>
-        <div class="roster-badge"><div class="roster-badge-dot" style="background:var(--hot)"></div><span id="badge-absent"></span></div>
-        <div class="roster-badge"><div class="roster-badge-dot" style="background:var(--accent)"></div><span id="badge-called"></span></div>
+
+    <div id="roster">
+      <div class="r-head">
+        <div class="r-badge"><div class="r-dot" style="background:var(--teal)"></div><span id="b-avail"></span></div>
+        <div class="r-badge"><div class="r-dot" style="background:var(--red)"></div><span id="b-absent"></span></div>
+        <div class="r-badge"><div class="r-dot" style="background:var(--sub2)"></div><span id="b-called"></span></div>
       </div>
-      <div id="chip-grid"></div>
+      <div id="chips"></div>
     </div>
   </div>
 </div>
 
 <div id="confetti-layer"></div>
 
-<script src="https://apis.google.com/js/api.js"          async onload="onGapiLoad()"></script>
-<script src="https://accounts.google.com/gsi/client"     async onload="onGisLoad()"></script>
+<script src="https://apis.google.com/js/api.js"       async onload="onGapiLoad()"></script>
+<script src="https://accounts.google.com/gsi/client"  async onload="onGisLoad()"></script>
 <script>
-
+/* ── ▼ここだけ書き換えてデプロイ▼ ── */
 const CLIENT_ID = '448776260349-7lb41ijeh6sl133e6ucnsa8qu5e4i8dv.apps.googleusercontent.com';
+/* ── ▲ここだけ▲ ── */
 
+/* ── Storage（Claude artifact / localStorage 両対応） ── */
+const store = {
+  get: async (k) => {
+    try {
+      if (window.storage) return await window.storage.get(k);
+      const v = localStorage.getItem(k);
+      return v ? { value: v } : null;
+    } catch { return null; }
+  },
+  set: async (k, v) => {
+    try {
+      if (window.storage) await window.storage.set(k, v);
+      else localStorage.setItem(k, v);
+    } catch {}
+  },
+  del: async (k) => {
+    try {
+      if (window.storage) await window.storage.delete(k);
+      else localStorage.removeItem(k);
+    } catch {}
+  },
+};
+
+/* ── State ── */
 const SCOPES    = 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.rosters.readonly https://www.googleapis.com/auth/userinfo.profile';
 const DISCOVERY = 'https://classroom.googleapis.com/$discovery/rest?version=v1';
-
-let gapiReady = false, gisReady = false, tokenClient = null, userProfile = null;
-let students = [], absentIds = new Set(), calledIds = new Set();
-let currentStudent = null, isAnimating = false, animEnabled = true;
-let classId = '', className = '', isManual = false;
+let gapiReady=false, gisReady=false, tokenClient=null, userProfile=null;
+let students=[], absentIds=new Set(), calledIds=new Set();
+let current=null, animating=false, animOn=true, classId='', className='', isManual=false;
 
 /* ── Screen ── */
 function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-/* ── Google init ── */
-function onGapiLoad() { window.gapi.load('client', () => { gapiReady = true; tryInit(); }); }
-function onGisLoad()  { gisReady = true; tryInit(); }
-
+/* ── Google ── */
+function onGapiLoad() { window.gapi.load('client', ()=>{ gapiReady=true; tryInit(); }); }
+function onGisLoad()  { gisReady=true; tryInit(); }
 async function tryInit() {
-  if (!gapiReady || !gisReady) return;
+  if (!gapiReady||!gisReady) return;
   try {
-    await window.gapi.client.init({ discoveryDocs: [DISCOVERY] });
+    await window.gapi.client.init({ discoveryDocs:[DISCOVERY] });
     tokenClient = window.google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID, scope: SCOPES, callback: handleToken,
     });
-  } catch(e) { console.error('GAPI init:', e); }
+  } catch(e) { console.error(e); }
 }
 
 function doGoogleLogin() {
-  const err = document.getElementById('login-error');
-  err.style.display = 'none';
-  if (!tokenClient) { err.textContent = 'まだ初期化中です。少し待ってから再試行してください。'; err.style.display='block'; return; }
-  tokenClient.requestAccessToken({ prompt: '' });
+  const el = document.getElementById('login-error'); el.style.display='none';
+  if (!tokenClient) { el.textContent='初期化中です。少し待ってから再試行してください。'; el.style.display='block'; return; }
+  tokenClient.requestAccessToken({ prompt:'' });
 }
 
 async function handleToken(resp) {
-  if (resp.error) { showLoginError('ログインエラー: ' + resp.error); return; }
+  if (resp.error) { showLoginErr('ログインエラー: '+resp.error); return; }
   try {
-    const pr = await window.gapi.client.request({ path: 'https://www.googleapis.com/oauth2/v1/userinfo' });
+    const pr = await window.gapi.client.request({ path:'https://www.googleapis.com/oauth2/v1/userinfo' });
     userProfile = pr.result;
-    const r = await window.gapi.client.classroom.courses.list({ courseStates: ['ACTIVE'], pageSize: 30 });
-    renderCourses(r.result.courses || []);
+    const r = await window.gapi.client.classroom.courses.list({ courseStates:['ACTIVE'], pageSize:30 });
+    renderCourses(r.result.courses||[]);
     showScreen('screen-courses');
-  } catch(e) { showLoginError('取得エラー: ' + e.message); }
+  } catch(e) { showLoginErr('取得エラー: '+e.message); }
 }
 
-function showLoginError(msg) { const e=document.getElementById('login-error'); e.textContent=msg; e.style.display='block'; }
+function showLoginErr(msg) { const e=document.getElementById('login-error'); e.textContent=msg; e.style.display='block'; }
 
 function doSignOut() {
   try { window.google?.accounts.oauth2.revoke(window.gapi.client.getToken()?.access_token??'',()=>{}); window.gapi.client.setToken(null); } catch{}
-  userProfile = null; students = []; absentIds = new Set(); calledIds = new Set(); currentStudent = null;
-  document.getElementById('user-strip').style.display = 'none';
+  userProfile=null; students=[]; absentIds=new Set(); calledIds=new Set(); current=null;
+  document.getElementById('topbar').style.display='none';
   showScreen('screen-login');
 }
 
 /* ── Courses ── */
 function renderCourses(list) {
-  const grid = document.getElementById('course-grid');
-  grid.innerHTML = '';
-  if (!list.length) { document.getElementById('no-courses').style.display='block'; return; }
-  list.forEach(c => {
-    const btn = document.createElement('button');
-    btn.className = 'course-card';
-    btn.innerHTML = `<div class="course-icon">📋</div><div class="course-name">${esc(c.name)}</div>${c.section?`<div class="course-section">${esc(c.section)}</div>`:''}`;
-    btn.onclick = () => loadCourse(c);
-    grid.appendChild(btn);
+  const g=document.getElementById('course-grid'); g.innerHTML='';
+  document.getElementById('no-courses').style.display = list.length?'none':'block';
+  list.forEach(c=>{
+    const btn=document.createElement('button'); btn.className='c-card';
+    btn.innerHTML=`<div class="c-icon">📋</div><div class="c-name">${esc(c.name)}</div>${c.section?`<div class="c-sec">${esc(c.section)}</div>`:''}`;
+    btn.onclick=()=>loadCourse(c); g.appendChild(btn);
   });
 }
-
-async function loadCourse(course) {
+async function loadCourse(c) {
   try {
-    const r = await window.gapi.client.classroom.courses.students.list({ courseId: course.id, pageSize: 200 });
-    const list = (r.result.students||[]).map(s => ({ id:s.userId, name:s.profile.name.fullName, photo:s.profile.photoUrl||null }));
-    isManual = false;
-    await openClass(course.id, course.name, list);
+    const r=await window.gapi.client.classroom.courses.students.list({courseId:c.id,pageSize:200});
+    const list=(r.result.students||[]).map(s=>({id:s.userId,name:s.profile.name.fullName,photo:s.profile.photoUrl||null}));
+    isManual=false; await openClass(c.id,c.name,list);
   } catch(e) { alert('生徒取得エラー: '+e.message); }
 }
 
 /* ── Manual ── */
 function startManual() {
-  const names = document.getElementById('manual-names').value.split('\n').map(n=>n.trim()).filter(Boolean);
-  if (!names.length) { alert('生徒名を1行に1名ずつ入力してください'); return; }
-  const cname = document.getElementById('manual-classname').value.trim() || 'クラス';
-  isManual = true;
-  openClass('manual_'+Date.now(), cname, names.map((name,i)=>({id:'m'+i,name,photo:null})));
+  const names=document.getElementById('manual-names').value.split('\n').map(n=>n.trim()).filter(Boolean);
+  if (!names.length) { alert('生徒名を入力してください'); return; }
+  const cname=document.getElementById('manual-classname').value.trim()||'クラス';
+  isManual=true; openClass('manual_'+Date.now(), cname, names.map((n,i)=>({id:'m'+i,name:n,photo:null})));
 }
 
 /* ── Open class ── */
 async function openClass(id, name, list) {
   classId=id; className=name; students=list;
-  absentIds=new Set(); currentStudent=null; isAnimating=false;
-  try { const s=await window.storage.get('called_'+id); calledIds=s?new Set(JSON.parse(s.value)):new Set(); }
-  catch { calledIds=new Set(); }
+  absentIds=new Set(); current=null; animating=false;
+  const saved = await store.get('called_'+id);
+  calledIds = saved ? new Set(JSON.parse(saved.value)) : new Set();
   if (!isManual && userProfile) {
-    const strip = document.getElementById('user-strip');
-    strip.style.display = 'flex';
-    document.getElementById('user-name').textContent = userProfile.name;
-    if (userProfile.picture) document.getElementById('user-avatar').src = userProfile.picture;
-  } else { document.getElementById('user-strip').style.display='none'; }
-  renderMain();
-  showScreen('screen-main');
+    const tb=document.getElementById('topbar'); tb.style.display='flex';
+    document.getElementById('topbar-name').textContent=userProfile.name;
+    if (userProfile.picture) document.getElementById('topbar-avatar').src=userProfile.picture;
+  } else { document.getElementById('topbar').style.display='none'; }
+  renderMain(); showScreen('screen-main');
 }
 
-/* ── Render main ── */
+/* ── Render ── */
 function renderMain() {
-  const avail  = getAvail();
-  const total  = students.length - absentIds.size;
-  const pct    = total>0 ? Math.round(calledIds.size/total*100) : 0;
-  const allDone= avail.length===0 && students.length>0;
-  document.getElementById('header-class').textContent = className;
-  document.getElementById('header-sub').textContent   = `残り ${avail.length}名 ／ 全${total}名指名`;
-  document.getElementById('progress-fill').style.width= pct+'%';
-  document.getElementById('badge-avail').textContent  = `出席 ${avail.length}`;
-  document.getElementById('badge-absent').textContent = `欠席 ${absentIds.size}`;
-  document.getElementById('badge-called').textContent = `指名済 ${calledIds.size}`;
-  if (!currentStudent) updateStageIdle(allDone);
-  const btn = document.getElementById('pick-btn');
-  btn.disabled = isAnimating || allDone;
-  btn.textContent = allDone ? '✅ 全員完了' : '🎯 当てる！';
-  btn.style.animation = (!isAnimating && !allDone && animEnabled) ? 'pulse-ring 2s infinite' : 'none';
+  const avail=getAvail(), total=students.length-absentIds.size;
+  const pct=total>0?Math.round(calledIds.size/total*100):0, allDone=avail.length===0&&students.length>0;
+  document.getElementById('hd-class').textContent = className;
+  document.getElementById('hd-sub').textContent   = `残り ${avail.length}名 ／ 全${total}名指名`;
+  document.getElementById('prog-fill').style.width= pct+'%';
+  document.getElementById('b-avail').textContent  = `出席 ${avail.length}`;
+  document.getElementById('b-absent').textContent = `欠席 ${absentIds.size}`;
+  document.getElementById('b-called').textContent = `指名済 ${calledIds.size}`;
+  if (!current) setStageIdle(allDone);
+  const btn=document.getElementById('pick-btn');
+  btn.disabled=animating||allDone; btn.textContent=allDone?'全員完了':'当てる！';
+  btn.style.animation=(!animating&&!allDone&&animOn)?'glow-pulse 2.5s infinite':'none';
   renderChips();
 }
 
-function updateStageIdle(allDone) {
-  document.getElementById('stage-empty').style.display   = allDone ? 'none' : 'flex';
-  document.getElementById('stage-alldone').style.display = allDone ? 'flex' : 'none';
-  document.getElementById('stage-avatar').style.display  = 'none';
-  document.getElementById('stage-initial').style.display = 'none';
-  document.getElementById('stage-name').style.display    = 'none';
-  document.getElementById('stage-badge').style.display   = 'none';
-  document.getElementById('stage').className             = '';
+function setStageIdle(allDone) {
+  document.getElementById('s-empty').style.display  =allDone?'none':'flex';
+  document.getElementById('s-done').style.display   =allDone?'flex':'none';
+  document.getElementById('s-avatar').style.display ='none';
+  document.getElementById('s-initial').style.display='none';
+  document.getElementById('s-name').style.display   ='none';
+  document.getElementById('s-badge').style.display  ='none';
+  document.getElementById('stage').className        ='';
 }
 
 function showOnStage(s, isResult) {
-  ['stage-empty','stage-alldone'].forEach(id => document.getElementById(id).style.display='none');
-  document.getElementById('stage-name').style.display = 'block';
-  document.getElementById('stage-name').textContent   = s.name;
+  ['s-empty','s-done'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('s-name').style.display=document.getElementById('s-name').textContent=s.name,'block';
+  document.getElementById('s-name').textContent=s.name;
+  document.getElementById('s-name').style.display='block';
   if (s.photo) {
-    document.getElementById('stage-avatar').src            = s.photo;
-    document.getElementById('stage-avatar').style.display  = 'block';
-    document.getElementById('stage-initial').style.display = 'none';
+    document.getElementById('s-avatar').src=s.photo;
+    document.getElementById('s-avatar').style.display='block';
+    document.getElementById('s-initial').style.display='none';
   } else {
-    document.getElementById('stage-initial').textContent      = s.name.charAt(0);
-    document.getElementById('stage-initial').style.display    = 'flex';
-    document.getElementById('stage-avatar').style.display     = 'none';
+    document.getElementById('s-initial').textContent=s.name.charAt(0);
+    document.getElementById('s-initial').style.display='flex';
+    document.getElementById('s-avatar').style.display='none';
   }
-  if (isResult && !isAnimating) {
-    document.getElementById('stage-badge').style.display = 'block';
-    document.getElementById('stage').className = 'result';
-    if (animEnabled) document.getElementById('stage-name').style.animation = 'pop-in .4s ease';
+  if (isResult&&!animating) {
+    document.getElementById('s-badge').style.display='block';
+    document.getElementById('stage').className='result';
+    if(animOn) document.getElementById('s-name').style.animation='pop-in .35s ease';
   } else {
-    document.getElementById('stage-badge').style.display = 'none';
-    document.getElementById('stage').className = isAnimating ? 'animating' : '';
-    document.getElementById('stage-name').style.animation = (animEnabled && isAnimating) ? 'slot-flicker .12s infinite' : 'none';
+    document.getElementById('s-badge').style.display='none';
+    document.getElementById('stage').className=animating?'animating':'';
+    document.getElementById('s-name').style.animation=(animOn&&animating)?'spin-tick .15s infinite':'none';
   }
 }
 
 /* ── Pick ── */
-function getAvail() { return students.filter(s => !absentIds.has(s.id) && !calledIds.has(s.id)); }
+function getAvail() { return students.filter(s=>!absentIds.has(s.id)&&!calledIds.has(s.id)); }
 
 function pickStudent() {
-  if (isAnimating) return;
-  const avail = getAvail(); if (!avail.length) return;
-  isAnimating = true; currentStudent = null;
-  document.getElementById('undo-btn').style.display = 'none';
-  const btn = document.getElementById('pick-btn');
-  btn.textContent = '🎲 選択中…'; btn.disabled = true; btn.style.animation = 'none';
-  document.getElementById('stage').className = 'animating';
-  if (animEnabled) runSlot(avail, showOnStage, onDone);
+  if (animating) return;
+  const avail=getAvail(); if(!avail.length) return;
+  animating=true; current=null;
+  document.getElementById('undo-btn').style.display='none';
+  document.getElementById('s-badge').style.display='none';
+  const btn=document.getElementById('pick-btn');
+  btn.textContent='選択中…'; btn.disabled=true; btn.style.animation='none';
+  document.getElementById('stage').className='animating';
+  if (animOn) runSlot(avail, s=>showOnStage(s,false), onDone);
   else onDone(avail[Math.floor(Math.random()*avail.length)]);
 }
 
 function onDone(s) {
-  isAnimating = false; currentStudent = s;
-  showOnStage(s, true);
+  animating=false; current=s;
+  showOnStage(s,true);
   calledIds.add(s.id);
-  window.storage.set('called_'+classId, JSON.stringify([...calledIds])).catch(()=>{});
-  const avail = getAvail(), total = students.length - absentIds.size;
-  const allDone = avail.length===0; const pct = total>0?Math.round(calledIds.size/total*100):0;
-  document.getElementById('progress-fill').style.width = pct+'%';
-  document.getElementById('header-sub').textContent   = `残り ${avail.length}名 ／ 全${total}名指名`;
-  document.getElementById('badge-avail').textContent  = `出席 ${avail.length}`;
-  document.getElementById('badge-called').textContent = `指名済 ${calledIds.size}`;
-  const btn = document.getElementById('pick-btn');
-  btn.disabled = allDone; btn.textContent = allDone ? '✅ 全員完了' : '🎯 当てる！';
-  btn.style.animation = (!allDone && animEnabled) ? 'pulse-ring 2s infinite' : 'none';
-  document.getElementById('undo-btn').style.display = 'inline-flex';
+  store.set('called_'+classId, JSON.stringify([...calledIds]));
+  const avail=getAvail(), total=students.length-absentIds.size;
+  const allDone=avail.length===0, pct=total>0?Math.round(calledIds.size/total*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('hd-sub').textContent=`残り ${avail.length}名 ／ 全${total}名指名`;
+  document.getElementById('b-avail').textContent=`出席 ${avail.length}`;
+  document.getElementById('b-called').textContent=`指名済 ${calledIds.size}`;
+  const btn=document.getElementById('pick-btn');
+  btn.disabled=allDone; btn.textContent=allDone?'全員完了':'当てる！';
+  btn.style.animation=(!allDone&&animOn)?'glow-pulse 2.5s infinite':'none';
+  document.getElementById('undo-btn').style.display='inline-flex';
   renderChips();
-  if (animEnabled) launchConfetti();
+  if(animOn) doConfetti();
 }
 
-function runSlot(pool, onTick, onDone) {
-  let f=0; const total=28;
+function runSlot(pool, tick, done) {
+  let f=0;
   const go=()=>{
     f++;
     const d=f<12?55:f<22?110:f<27?200:380;
-    setTimeout(()=>{
-      const p=pool[Math.floor(Math.random()*pool.length)];
-      if(f<total){onTick(p,false);go();}
-      else onDone(pool[Math.floor(Math.random()*pool.length)]);
-    },d);
+    setTimeout(()=>{ const p=pool[Math.floor(Math.random()*pool.length)]; if(f<28){tick(p);go();}else done(pool[Math.floor(Math.random()*pool.length)]); },d);
   };
   go();
 }
 
 /* ── Undo ── */
 function undoLast() {
-  if (!currentStudent || isAnimating) return;
-  calledIds.delete(currentStudent.id);
-  window.storage.set('called_'+classId, JSON.stringify([...calledIds])).catch(()=>{});
-  currentStudent = null;
-  document.getElementById('undo-btn').style.display = 'none';
+  if (!current||animating) return;
+  calledIds.delete(current.id);
+  store.set('called_'+classId, JSON.stringify([...calledIds]));
+  current=null;
+  document.getElementById('undo-btn').style.display='none';
   renderMain();
 }
 
 /* ── Absent ── */
 function toggleAbsent(id) {
-  absentIds.has(id) ? absentIds.delete(id) : absentIds.add(id);
-  const avail=getAvail(), total=students.length-absentIds.size, pct=total>0?Math.round(calledIds.size/total*100):0;
-  document.getElementById('progress-fill').style.width=pct+'%';
-  document.getElementById('header-sub').textContent=`残り ${avail.length}名 ／ 全${total}名指名`;
-  document.getElementById('badge-avail').textContent=`出席 ${avail.length}`;
-  document.getElementById('badge-absent').textContent=`欠席 ${absentIds.size}`;
-  const btn=document.getElementById('pick-btn'); const allDone=avail.length===0&&students.length>0;
-  btn.disabled=allDone||isAnimating; btn.textContent=allDone?'✅ 全員完了':'🎯 当てる！';
+  absentIds.has(id)?absentIds.delete(id):absentIds.add(id);
+  const avail=getAvail(),total=students.length-absentIds.size,pct=total>0?Math.round(calledIds.size/total*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('hd-sub').textContent=`残り ${avail.length}名 ／ 全${total}名指名`;
+  document.getElementById('b-avail').textContent=`出席 ${avail.length}`;
+  document.getElementById('b-absent').textContent=`欠席 ${absentIds.size}`;
+  const btn=document.getElementById('pick-btn');
+  const allDone=avail.length===0&&students.length>0;
+  btn.disabled=allDone||animating; btn.textContent=allDone?'全員完了':'当てる！';
   renderChips();
 }
 
 /* ── Chips ── */
 function renderChips() {
-  const grid = document.getElementById('chip-grid'); grid.innerHTML='';
-  students.forEach(s => {
-    const isAbsent=absentIds.has(s.id), isCalled=calledIds.has(s.id), isCurrent=currentStudent?.id===s.id&&!isAnimating;
-    const chip=document.createElement('div');
-    chip.className='chip'+(isAbsent?' absent':isCalled?' called':'')+(isCurrent?' current':'');
-    chip.innerHTML=`<span class="chip-name">${isAbsent?'🚫 ':isCalled?'✅ ':''}${esc(s.name)}</span><button class="absent-btn" title="${isAbsent?'出席に戻す':'欠席にする'}" onclick="toggleAbsent('${s.id}')">${isAbsent?'↩':'✕'}</button>`;
-    grid.appendChild(chip);
+  const g=document.getElementById('chips'); g.innerHTML='';
+  students.forEach(s=>{
+    const isAbs=absentIds.has(s.id),isCalled=calledIds.has(s.id),isCur=current?.id===s.id&&!animating;
+    const c=document.createElement('div');
+    c.className='chip'+(isAbs?' absent':isCalled?' called':'')+(isCur?' current':'');
+    c.innerHTML=`<span class="chip-name">${isAbs?'🚫 ':isCalled?'✓ ':''}${esc(s.name)}</span><button class="x-btn" onclick="toggleAbsent('${s.id}')" title="${isAbs?'出席に戻す':'欠席にする'}">${isAbs?'↩':'✕'}</button>`;
+    g.appendChild(c);
   });
 }
 
@@ -575,36 +598,35 @@ function renderChips() {
 function confirmReset() { document.getElementById('reset-btn').style.display='none'; document.getElementById('reset-confirm').style.display='flex'; }
 function cancelReset()  { document.getElementById('reset-btn').style.display=''; document.getElementById('reset-confirm').style.display='none'; }
 function doReset() {
-  calledIds=new Set(); absentIds=new Set(); currentStudent=null; isAnimating=false;
-  window.storage.delete('called_'+classId).catch(()=>{});
-  cancelReset(); renderMain(); updateStageIdle(false);
+  calledIds=new Set(); absentIds=new Set(); current=null; animating=false;
+  store.del('called_'+classId); cancelReset();
+  renderMain(); setStageIdle(false);
   document.getElementById('undo-btn').style.display='none';
 }
 
-/* ── Class change ── */
-function changeClass() { showScreen(isManual ? 'screen-manual' : 'screen-courses'); }
+function changeClass() { showScreen(isManual?'screen-manual':'screen-courses'); }
 
 /* ── Anim toggle ── */
 function toggleAnim(on) {
-  animEnabled=on;
+  animOn=on;
   const btn=document.getElementById('pick-btn');
-  if (!btn.disabled) btn.style.animation=on?'pulse-ring 2s infinite':'none';
+  if(!btn.disabled) btn.style.animation=on?'glow-pulse 2.5s infinite':'none';
 }
 
 /* ── Confetti ── */
-function launchConfetti() {
-  const layer=document.getElementById('confetti-layer'); layer.innerHTML='';
-  for(let i=0;i<22;i++){
-    const el=document.createElement('div'); el.className='confetti-piece';
-    const size=6+Math.random()*9, hue=Math.floor(Math.random()*360);
-    el.style.cssText=`left:${25+Math.random()*50}%;width:${size}px;height:${size}px;background:hsl(${hue},90%,60%);border-radius:${Math.random()>.5?'50%':'3px'};animation-delay:${(Math.random()*.5).toFixed(2)}s;`;
-    layer.appendChild(el);
+function doConfetti() {
+  const l=document.getElementById('confetti-layer'); l.innerHTML='';
+  for(let i=0;i<20;i++){
+    const el=document.createElement('div'); el.className='c-piece';
+    const sz=5+Math.random()*8, h=Math.floor(Math.random()*360);
+    el.style.cssText=`left:${20+Math.random()*60}%;width:${sz}px;height:${sz}px;background:hsl(${h},85%,65%);border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${(Math.random()*.4).toFixed(2)}s;`;
+    l.appendChild(el);
   }
-  setTimeout(()=>{ layer.innerHTML=''; },2200);
+  setTimeout(()=>l.innerHTML='',2000);
 }
 
 /* ── Util ── */
-function esc(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
