@@ -368,7 +368,7 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
 
         <!-- Pick button -->
         <div id="pick-w">
-          <button id="pick" onclick="pickStudent()">当てる</button>
+          <button id="pick">当てる</button>
         </div>
         <button id="undo" class="btn btn-gst btn-sm" onclick="undoLast()">↩ 指名を取り消す</button>
       </div>
@@ -482,6 +482,20 @@ function show(id) {
 ════════════════════════════════ */
 function onGapiLoad(){ window.gapi.load('client',()=>{ gapiOk=true; tryInit(); }); }
 function onGisLoad() { gisOk=true; tryInit(); }
+
+/* ════════════════════════════════
+   DYNAMIC SCRIPT LOADING
+════════════════════════════════ */
+(function(){
+  function loadScript(src, cb){
+    const s=document.createElement('script');
+    s.src=src; s.async=true; s.onload=cb;
+    s.onerror=()=>console.warn('Script load failed:',src);
+    document.head.appendChild(s);
+  }
+  loadScript('https://apis.google.com/js/api.js', onGapiLoad);
+  loadScript('https://accounts.google.com/gsi/client', onGisLoad);
+})();
 
 async function tryInit(){
   if(!gapiOk||!gisOk) return;
@@ -633,6 +647,9 @@ function openClass(id,name,list){
     $('strip-nm').textContent=prof.name;
     if(prof.picture) $('strip-av').src=prof.picture;
   }else{ $('strip').style.display='none'; }
+
+  // Bind pick button click reliably via JS (not HTML attr)
+  $('pick').onclick = pickStudent;
 
   renderMain(); show('s-main');
   if(!localStorage.getItem('sel_tut')) setTimeout(showTut,700);
@@ -921,7 +938,5 @@ function tutClose(){
 ════════════════════════════════ */
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
-<script src="https://apis.google.com/js/api.js" async onload="onGapiLoad()"></script>
-<script src="https://accounts.google.com/gsi/client" async onload="onGisLoad()"></script>
 </body>
 </html>
