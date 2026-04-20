@@ -142,7 +142,7 @@ textarea.inp{resize:vertical;min-height:130px;line-height:1.8}
 
 /* ── Pick button ── */
 #pick-w{position:relative;display:flex;align-items:center;justify-content:center}
-#pick-w::after{content:'';position:absolute;inset:-6px;border-radius:50px;animation:btnRipple 2.5s ease-out infinite;outline:3px solid rgba(99,102,241,.5)}
+#pick-w::after{content:'';position:absolute;inset:-6px;border-radius:50px;animation:btnRipple 2.5s ease-out infinite;outline:3px solid rgba(99,102,241,.5);pointer-events:none;}
 #pick{
   position:relative;background:var(--acc);color:#fff;border:none;
   border-radius:50px;padding:17px clamp(36px,10vw,56px);
