@@ -617,8 +617,19 @@ function renderCourses(list){
 
 async function loadCourse(c){
   try{
-    const r=await window.gapi.client.classroom.courses.students.list({courseId:c.id,pageSize:200});
-    const list=(r.result.students||[]).map(s=>({id:s.userId,name:s.profile.name.fullName,photo:s.profile.photoUrl||null}));
+    const list=[];
+    let pageToken=undefined;
+    do {
+      const params={courseId:c.id, pageSize:30};
+      if(pageToken) params.pageToken=pageToken;
+      const r=await window.gapi.client.classroom.courses.students.list(params);
+      (r.result.students||[]).forEach(s=>list.push({
+        id:s.userId,
+        name:s.profile.name.fullName,
+        photo:s.profile.photoUrl||null
+      }));
+      pageToken=r.result.nextPageToken;
+    }while(pageToken);
     isManual=false; openClass(c.id,c.name,list);
   }catch(e){ alert('生徒取得エラー: '+e.message); }
 }
