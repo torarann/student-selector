@@ -504,6 +504,10 @@ async function tryInit(){
     tc = window.google.accounts.oauth2.initTokenClient({
       client_id:CLIENT_ID, scope:SCOPES, callback:handleToken
     });
+    // 前回ログイン済みなら自動でサインイン試行
+    if(localStorage.getItem('sel_autologin')){
+      tc.requestAccessToken({prompt:''});
+    }
   }catch(e){ console.error('init',e); }
 }
 
@@ -514,10 +518,19 @@ function googleLogin(){
 }
 
 async function handleToken(resp){
-  if(resp.error){ loginErr('ログインエラー: '+resp.error); return; }
+  if(resp.error){
+    // 自動ログイン失敗時はフラグ消してログイン画面へ
+    if(resp.error==='interaction_required'||resp.error==='login_required'){
+      localStorage.removeItem('sel_autologin');
+    }else{
+      loginErr('ログインエラー: '+resp.error);
+    }
+    return;
+  }
   try{
     const pr = await window.gapi.client.request({path:'https://www.googleapis.com/oauth2/v1/userinfo'});
     prof = pr.result;
+    localStorage.setItem('sel_autologin','1'); // ← これを追加
     await loadFromDrive();
     const r = await window.gapi.client.classroom.courses.list({courseStates:['ACTIVE'],pageSize:30});
     renderCourses(r.result.courses||[]);
@@ -528,6 +541,7 @@ async function handleToken(resp){
 function loginErr(m){ const e=$('lerr'); e.textContent=m; e.style.display='block'; }
 
 function signOut(){
+  localStorage.removeItem('sel_autologin');
   try{ window.google?.accounts.oauth2.revoke(window.gapi.client.getToken()?.access_token??'',()=>{}); window.gapi.client.setToken(null); }catch{}
   prof=null; students=[]; absent=new Set(); called=new Set(); curr=null;
   allData={}; dfid=null;
