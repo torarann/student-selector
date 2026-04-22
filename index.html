@@ -1426,7 +1426,21 @@ if(e.target===$('chip-menu-overlay')) closeChipMenu();
 /* ════════════════════════════════
 CHIP TAP (メイン名簿)
 ════════════════════════════════ */
-function chipTap(id){ openChipMenu(id); }
+function chipTap(id){
+  const isCl = called.has(id);
+  
+  if (!isCl) {
+    if (absent.has(id)) {
+      absent.delete(id);
+    } else {
+      absent.add(id);
+    }
+    refreshAll();
+  } else {
+    openChipMenu(id);
+  }
+}
+
 
 function refreshStats(){
 const av=avail(), tot=students.length-absent.size;
