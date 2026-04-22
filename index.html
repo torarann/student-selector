@@ -66,7 +66,7 @@ textarea.inp{resize:vertical;min-height:130px;line-height:1.8}
 .sep{border:none;border-top:1px solid var(–bd);margin:16px 0}
 
 /* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:9px;padding:12px 20px;font-size:15px;font-weight:600;font-family:var(–ff);cursor:pointer;transition:opacity .15s,transform .1s;user-select:none;letter-spacing:-.1px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:9px;padding:12px 20px;font-size:15px;font-weight:600;font-family:var(–ff);cursor:pointer;transition:opacity .15s,transform .1s;user-select:none;letter-spacing:-.1px;-webkit-appearance:none;appearance:none}
 .btn:active{transform:scale(.96)}.btn:disabled{opacity:.3;cursor:not-allowed}
 .btn-w{width:100%}.btn-pri{background:var(–acc);color:#fff}.btn-pri:hover{opacity:.9}
 .btn-gst{background:transparent;color:var(–t2)}.btn-gst:hover{color:var(–t1)}
@@ -101,7 +101,7 @@ textarea.inp{resize:vertical;min-height:130px;line-height:1.8}
 #stage-area{display:flex;flex-direction:column;align-items:center;padding:24px 20px 18px;gap:18px;flex-shrink:0}
 #stage{
 position:relative;overflow:hidden;
-background:var(–s2);border:1px solid var(–bd);
+background:#1e1e1e;background:var(–s2);border:1px solid #363636;border:1px solid var(–bd2);
 border-radius:20px;padding:clamp(24px,5vw,40px) clamp(28px,8vw,60px);
 min-width:min(280px,88vw);min-height:min(150px,28vh);
 display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
@@ -127,7 +127,9 @@ transition:border-color .3s;
 #pick-w{position:relative;display:flex;align-items:center;justify-content:center}
 #pick-w::after{content:’’;position:absolute;inset:-6px;border-radius:50px;animation:btnRipple 2.5s ease-out infinite;outline:3px solid rgba(99,102,241,.5);pointer-events:none}
 #pick{
-position:relative;z-index:1;background:var(–acc);color:#fff;border:none;
+position:relative;z-index:1;
+background:#6366f1;background:var(–acc);
+color:#fff;border:none;-webkit-appearance:none;appearance:none;
 border-radius:50px;padding:17px clamp(36px,10vw,56px);
 font-size:clamp(18px,4vw,21px);font-weight:700;cursor:pointer;
 font-family:var(–ff);transition:transform .1s,opacity .15s;
@@ -146,7 +148,9 @@ letter-spacing:-.2px;min-height:58px;min-width:160px;
 .srch-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(–t3);pointer-events:none}
 #srch{padding-left:34px}
 #chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{background:var(–s2);border:1px solid var(–bd);border-radius:50px;padding:8px 14px;font-size:13px;font-weight:500;color:var(–t1);cursor:pointer;transition:all .15s;user-select:none;min-height:36px;display:flex;align-items:center}
+.chip{background:#202020;border:1px solid #3c3c3c;border-radius:50px;padding:8px 14px;font-size:13px;font-weight:500;color:var(–t1);cursor:pointer;transition:all .15s;user-select:none;min-height:36px;display:flex;align-items:center;-webkit-tap-highlight-color:transparent}
+/* Safari search input 上書き */
+input[type=“search”]{-webkit-appearance:none;appearance:none}
 .chip:active{transform:scale(.94)}
 .chip.abs{background:#1e0e0e;border-color:#3a1c1c;color:var(–red);text-decoration:line-through;opacity:.7}
 .chip.done{background:#0d1d14;border-color:#1c3525;color:var(–t3);text-decoration:line-through}
@@ -170,6 +174,7 @@ gap:3px;padding:10px 4px;cursor:pointer;
 border:none;background:none;color:var(–t2);
 font-size:9px;font-weight:700;font-family:var(–ff);
 letter-spacing:.3px;text-transform:uppercase;
+-webkit-appearance:none;appearance:none;
 transition:color .2s;-webkit-tap-highlight-color:transparent;
 }
 .bb-btn:active{background:rgba(255,255,255,.04);transform:scale(.9)}
