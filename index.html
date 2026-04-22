@@ -88,7 +88,7 @@ body{height:100%;background:var(--bg);color:var(--t1);font-family:'DM Sans','Not
 .pg-wide{max-width:520px}
 
 /* ── Cards ── */
-.card{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:22px;width:100%}
+.card{background:var(--s2);border:1px solid var(--bd);border-radius:16px;padding:22px;width:100%}
 
 /* ── Form ── */
 .field{margin-bottom:14px}.field:last-child{margin-bottom:0}
@@ -547,6 +547,61 @@ font-size:15px;font-weight:600;color:var(--t2);
 cursor:pointer;-webkit-appearance:none;
 }
 #chip-menu-cancel:active{opacity:.7}
+
+/* ════════════════════════════════
+規約・テキスト用モーダル
+════════════════════════════════ */
+#txt-overlay{
+position:fixed;inset:0;z-index:900;
+background:var(--overlay-bg);backdrop-filter:blur(7px);
+display:none;align-items:center;justify-content:center;padding:28px 20px;
+}
+#txt-overlay.on{display:flex;animation:fadeIn .22s ease}
+#txt-overlay.closing{animation:fadeOut .2s ease forwards;pointer-events:none}
+#txt-card{
+background:var(--s2);border:1px solid var(--bd2);
+border-radius:22px;padding:30px 26px 24px;
+width:100%;max-width:380px;max-height:80dvh;
+display:flex;flex-direction:column;
+}
+#txt-overlay.on #txt-card{animation:modalIn .3s ease}
+#txt-overlay.closing #txt-card{animation:modalOut .2s ease forwards}
+#txt-title{font-size:18px;font-weight:700;margin-bottom:12px;text-align:center;letter-spacing:-.4px;}
+#txt-body{font-size:13px;color:var(--t2);line-height:1.7;overflow-y:auto;margin-bottom:20px;white-space:pre-wrap;padding-right:4px;}
+#txt-close-btn{
+width:100%;padding:13px;border-radius:11px;
+font-size:15px;font-weight:700;font-family:'DM Sans','Noto Sans JP',sans-serif;
+cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opacity .15s;-webkit-appearance:none;
+}
+#txt-close-btn:active{opacity:.8}
+
+/* ════════════════════════════════
+規約・テキスト用モーダル
+════════════════════════════════ */
+#txt-overlay{
+  position:fixed;inset:0;z-index:900;
+  background:var(--overlay-bg);backdrop-filter:blur(7px);
+  display:none;align-items:center;justify-content:center;padding:28px 20px;
+}
+#txt-overlay.on{display:flex;animation:fadeIn .22s ease}
+#txt-overlay.closing{animation:fadeOut .2s ease forwards;pointer-events:none}
+#txt-card{
+  background:var(--s2);border:1px solid var(--bd2);
+  border-radius:22px;padding:30px 26px 24px;
+  width:100%;max-width:380px;max-height:80dvh;
+  display:flex;flex-direction:column;
+}
+#txt-overlay.on #txt-card{animation:modalIn .3s ease}
+#txt-overlay.closing #txt-card{animation:modalOut .2s ease forwards}
+#txt-title{font-size:18px;font-weight:700;margin-bottom:12px;text-align:center;letter-spacing:-.4px;}
+#txt-body{font-size:13px;color:var(--t2);line-height:1.7;overflow-y:auto;margin-bottom:20px;white-space:pre-wrap;padding-right:4px;}
+#txt-close-btn{
+  width:100%;padding:13px;border-radius:11px;
+  font-size:15px;font-weight:700;font-family:'DM Sans','Noto Sans JP',sans-serif;
+  cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opacity .15s;-webkit-appearance:none;
+}
+#txt-close-btn:active{opacity:.8}
+
 @media(max-width:360px){
 #stage{padding:22px 18px}
 #pick{font-size:17px;padding:15px 32px;min-height:52px}
@@ -946,6 +1001,15 @@ cursor:pointer;-webkit-appearance:none;
     </div>
   </div>
 </div>
+
+<div id="txt-overlay">
+  <div id="txt-card">
+    <div id="txt-title"></div>
+    <div id="txt-body"></div>
+    <button id="txt-close-btn" onclick="closeTxtModal()">閉じる</button>
+  </div>
+</div>
+
 
 <div id="conf"></div>
 
@@ -1692,10 +1756,30 @@ else tutClose();
 function tutClose(){ $('tut').classList.remove('on'); localStorage.setItem('sel_tut','1'); }
 
 /* ════════════════════════════════
-利用規約 / プライバシーポリシー
+利用規約 / プライバシーポリシー (モーダル版)
 ════════════════════════════════ */
-function openTos(e){ e.preventDefault(); alert('利用規約\n\n本サービスは教育目的で提供されます。Google Classroomの生徒データはランダム指名のみに使用し、第三者への提供は行いません。利用者は自己の責任においてサービスを使用するものとします。'); }
-function openPp(e){ e.preventDefault(); alert('プライバシーポリシー\n\n取得する情報: Googleアカウント情報・クラスルームのクラス・生徒名\n利用目的: 指名ランダム選択機能の提供\n保存先: お使いのGoogleドライブ（アプリ専用フォルダ）\n第三者提供: 一切行いません\nお問い合わせ: 管理者までご連絡ください。'); }
+function openTxtModal(title, text){
+  $('txt-title').textContent = title;
+  $('txt-body').textContent = text;
+  const ov=$('txt-overlay');
+  ov.classList.remove('closing'); ov.classList.add('on');
+}
+
+function closeTxtModal(){
+  const ov=$('txt-overlay');
+  ov.classList.add('closing');
+  setTimeout(()=>ov.classList.remove('on','closing'),220);
+}
+
+function openTos(e){
+  if(e) e.preventDefault();
+  openTxtModal('利用規約', '本サービスは教育目的で提供されます。Google Classroomの生徒データはランダム指名のみに使用し、第三者への提供は行いません。利用者は自己の責任においてサービスを使用するものとします。');
+}
+
+function openPp(e){
+  if(e) e.preventDefault();
+  openTxtModal('プライバシーポリシー', '取得する情報: Googleアカウント情報・クラスルームのクラス・生徒名\n利用目的: 指名ランダム選択機能の提供\n保存先: お使いのGoogleドライブ（アプリ専用フォルダ）\n第三者提供: 一切行いません\nお問い合わせ: 管理者までご連絡ください。');
+}
 
 /* ════════════════════════════════
 UTIL
