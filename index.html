@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -15,15 +16,19 @@
   --grn:#34d399;--red:#f87171;--gld:#fbbf24;
   --ff:'DM Sans','Noto Sans JP',sans-serif;
   --r:14px;
+  --bbar:64px;
 }
 html{height:100%;overflow:hidden}
 body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--ff);-webkit-tap-highlight-color:transparent;overscroll-behavior:none;touch-action:manipulation}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 
 /* ── Keyframes ── */
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
 @keyframes scaleIn{0%{transform:scale(.75);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes modalIn{0%{transform:scale(.88) translateY(16px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+@keyframes modalOut{0%{transform:scale(1);opacity:1}100%{transform:scale(.93) translateY(8px);opacity:0}}
 @keyframes flicker{0%,100%{opacity:1}50%{opacity:.2}}
 @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -33,71 +38,60 @@ body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--ff);-web
 @keyframes ringOut{0%{r:30;stroke-opacity:.9}100%{r:120;stroke-opacity:0}}
 @keyframes checkDraw{from{stroke-dashoffset:40}to{stroke-dashoffset:0}}
 @keyframes btnRipple{0%{outline-offset:2px;outline-width:3px;outline-color:rgba(99,102,241,.6)}100%{outline-offset:18px;outline-width:1px;outline-color:rgba(99,102,241,0)}}
-@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes bbPop{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes progFill{from{width:0%}to{width:100%}}
+@keyframes delBtnActivate{0%{transform:scale(1)}35%{transform:scale(1.04)}65%{transform:scale(.97)}100%{transform:scale(1)}}
+@keyframes checkBounce{0%{transform:scale(0);opacity:0}60%{transform:scale(1.25)}100%{transform:scale(1);opacity:1}}
+@keyframes starPop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes rowSlideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes completeFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── Screens ── */
 .sc{display:none}
-.sc.on{display:flex;flex-direction:column;height:100vh;height:100dvh;animation:fadeUp .28s ease}
+.sc.on{display:flex;flex-direction:column;height:100dvh;animation:fadeUp .28s ease}
 
 /* ── Page center ── */
 .pg{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 20px;max-width:400px;margin:0 auto;width:100%;overflow-y:auto}
 .pg-wide{max-width:520px}
 
 /* ── Cards ── */
-.card{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:22px;width:100%}
+.card{background:var(–s2);border:1px solid var(–bd);border-radius:var(–r);padding:22px;width:100%}
 
 /* ── Form ── */
-.field{margin-bottom:14px}
-.field:last-child{margin-bottom:0}
-lbl,label.lbl{display:block;font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px}
-.inp{width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:11px 13px;font-size:15px;color:var(--t1);font-family:var(--ff);outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
-.inp:focus{border-color:var(--acc)}
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+label.lbl{display:block;font-size:11px;font-weight:600;color:var(–t3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px}
+.inp{width:100%;background:var(–s1);border:1px solid var(–bd);border-radius:9px;padding:11px 13px;font-size:15px;color:var(–t1);font-family:var(–ff);outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
+.inp:focus{border-color:var(–acc)}
 textarea.inp{resize:vertical;min-height:130px;line-height:1.8}
-.sep{border:none;border-top:1px solid var(--bd);margin:16px 0}
+.sep{border:none;border-top:1px solid var(–bd);margin:16px 0}
 
 /* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:9px;padding:12px 20px;font-size:15px;font-weight:600;font-family:var(--ff);cursor:pointer;transition:opacity .15s,transform .1s;user-select:none;letter-spacing:-.1px}
-.btn:active{transform:scale(.96)}
-.btn:disabled{opacity:.3;cursor:not-allowed}
-.btn-w{width:100%}
-.btn-pri{background:var(--acc);color:#fff}
-.btn-pri:hover{opacity:.9}
-.btn-out{background:transparent;border:1px solid var(--bd);color:var(--t1)}
-.btn-out:hover{border-color:var(--bd2)}
-.btn-gst{background:transparent;color:var(--t2)}
-.btn-gst:hover{color:var(--t1)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:9px;padding:12px 20px;font-size:15px;font-weight:600;font-family:var(–ff);cursor:pointer;transition:opacity .15s,transform .1s;user-select:none;letter-spacing:-.1px}
+.btn:active{transform:scale(.96)}.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-w{width:100%}.btn-pri{background:var(–acc);color:#fff}.btn-pri:hover{opacity:.9}
+.btn-gst{background:transparent;color:var(–t2)}.btn-gst:hover{color:var(–t1)}
 .btn-ggl{background:#fff;color:#1a1a1a;border:1px solid #e0e0e0}
-.btn-dng{background:#1e0c0c;color:var(--red);border:1px solid #3a1818}
 .btn-sm{padding:8px 13px;font-size:13px;border-radius:8px}
 .stk{display:flex;flex-direction:column;gap:8px;width:100%}
 
-/* ── Strip (user info) ── */
-#strip{display:none;align-items:center;gap:10px;padding:9px 16px;background:var(--s1);border-bottom:1px solid var(--bd);font-size:13px;flex-shrink:0}
-#strip-av{width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(--s3);flex-shrink:0}
+/* ── Strip ── */
+#strip{display:none;align-items:center;gap:10px;padding:9px 16px;background:var(–s1);border-bottom:1px solid var(–bd);font-size:13px;flex-shrink:0}
+#strip-av{width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(–s3);flex-shrink:0}
 #strip-nm{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #strip-r{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
 #sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:all .3s;opacity:0}
-#sync-dot.sync{opacity:1;background:transparent;border:1.5px solid var(--acc);border-top-color:transparent;animation:spinCw .7s linear infinite;width:12px;height:12px}
-#sync-dot.ok{opacity:1;background:var(--grn);animation:pulseDot .5s ease;width:8px;height:8px;border:none}
+#sync-dot.sync{opacity:1;background:transparent;border:1.5px solid var(–acc);border-top-color:transparent;animation:spinCw .7s linear infinite;width:12px;height:12px}
+#sync-dot.ok{opacity:1;background:var(–grn);animation:pulseDot .5s ease;width:8px;height:8px;border:none}
 
 /* ── Header ── */
-#hdr{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;flex-wrap:wrap;min-height:50px}
+#hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(–s1);border-bottom:1px solid var(–bd);flex-shrink:0;min-height:46px}
 #hdr-l h2{font-size:15px;font-weight:700;letter-spacing:-.3px;line-height:1.3}
-#hdr-l p{font-size:12px;color:var(--t2);margin-top:2px}
-#hdr-r{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-
-/* ── Toggle ── */
-.tog-w{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);font-weight:600;cursor:pointer}
-.tog{position:relative;width:36px;height:20px;flex-shrink:0}
-.tog input{opacity:0;width:0;height:0;position:absolute}
-.tog-sl{position:absolute;cursor:pointer;inset:0;background:var(--s3);border-radius:20px;transition:.2s}
-.tog-sl::before{content:"";position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
-.tog input:checked+.tog-sl{background:var(--acc)}
-.tog input:checked+.tog-sl::before{transform:translateX(16px)}
+#hdr-l p{font-size:12px;color:var(–t2);margin-top:2px}
+#hdr-r{display:flex;align-items:center;gap:8px}
 
 /* ── Progress ── */
-#prog{height:2px;background:var(--s3);flex-shrink:0}
-#prog-f{height:100%;background:var(--acc);transition:width .7s ease}
+#prog{height:2px;background:var(–s3);flex-shrink:0}
+#prog-f{height:100%;background:var(–acc);transition:width .7s ease}
 
 /* ── Main body ── */
 #mbody{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -105,141 +99,307 @@ textarea.inp{resize:vertical;min-height:130px;line-height:1.8}
 
 /* ── Stage area ── */
 #stage-area{display:flex;flex-direction:column;align-items:center;padding:24px 20px 18px;gap:18px;flex-shrink:0}
-
-/* ── Stage card ── */
 #stage{
-  position:relative;overflow:hidden;
-  background:var(--s2);border:1px solid var(--bd);
-  border-radius:20px;padding:clamp(24px,5vw,40px) clamp(28px,8vw,60px);
-  min-width:min(280px,88vw);min-height:min(150px,28vh);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
-  transition:border-color .3s;
+position:relative;overflow:hidden;
+background:var(–s2);border:1px solid var(–bd);
+border-radius:20px;padding:clamp(24px,5vw,40px) clamp(28px,8vw,60px);
+min-width:min(280px,88vw);min-height:min(150px,28vh);
+display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+transition:border-color .3s;
 }
-#stage.anim{border-color:var(--acc)}
-#stage.res {
-  border-color:var(--grn);
-  background:linear-gradient(160deg,var(--s2) 60%,rgba(52,211,153,.04));
-}
-/* Burst ring inside stage */
+#stage.anim{border-color:var(–acc)}
+#stage.res{border-color:var(–grn);background:linear-gradient(160deg,var(–s2) 60%,rgba(52,211,153,.04))}
 #stage-ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-#burst-c{fill:none;stroke:var(--grn);stroke-width:1.5;opacity:0}
-#burst-c.pop{animation:ringOut .55s ease-out forwards}
-
-/* Student content */
-#s-photo{width:68px;height:68px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:2px solid var(--bd);display:none;flex-shrink:0}
-#s-init{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--s3),var(--bd));border:2px solid var(--bd);font-size:26px;font-weight:700;display:none;align-items:center;justify-content:center;margin-bottom:12px;flex-shrink:0}
+#burst-c{fill:none;stroke:var(–grn);stroke-width:1.5;opacity:0}
+#s-photo{width:68px;height:68px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:2px solid var(–bd);display:none;flex-shrink:0}
+#s-init{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(–s3),var(–bd));border:2px solid var(–bd);font-size:26px;font-weight:700;display:none;align-items:center;justify-content:center;margin-bottom:12px;flex-shrink:0}
 #s-nm{font-size:clamp(22px,5.5vw,30px);font-weight:700;letter-spacing:-.5px;display:none;line-height:1.2}
-#s-badge{display:none;align-items:center;gap:6px;font-size:13px;color:var(--grn);font-weight:600;margin-top:10px}
+#s-badge{display:none;align-items:center;gap:6px;font-size:13px;color:var(–grn);font-weight:600;margin-top:10px}
 .ck-svg{width:18px;height:18px}
-.ck-path{fill:none;stroke:var(--grn);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40}
-/* Idle / done states */
+.ck-path{fill:none;stroke:var(–grn);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40}
 #s-idle{display:flex;flex-direction:column;align-items:center;gap:9px;opacity:.3}
-#s-idle .ico{font-size:38px}
-#s-idle p{font-size:13px;color:var(--t2)}
+#s-idle .ico{font-size:38px}#s-idle p{font-size:13px;color:var(–t2)}
 #s-done{display:none;flex-direction:column;align-items:center;gap:9px}
 #s-done .ico{font-size:44px;animation:floatY 2.2s ease-in-out infinite}
-#s-done p{font-size:16px;font-weight:700;color:var(--gld)}
+#s-done p{font-size:16px;font-weight:700;color:var(–gld)}
 
 /* ── Pick button ── */
 #pick-w{position:relative;display:flex;align-items:center;justify-content:center}
-#pick-w::after{content:'';position:absolute;inset:-6px;border-radius:50px;animation:btnRipple 2.5s ease-out infinite;outline:3px solid rgba(99,102,241,.5);pointer-events:none;}
+#pick-w::after{content:’’;position:absolute;inset:-6px;border-radius:50px;animation:btnRipple 2.5s ease-out infinite;outline:3px solid rgba(99,102,241,.5);pointer-events:none}
 #pick{
-  position:relative;z-index:1;background:var(--acc);color:#fff;border:none;
-  border-radius:50px;padding:17px clamp(36px,10vw,56px);
-  font-size:clamp(18px,4vw,21px);font-weight:700;cursor:pointer;
-  font-family:var(--ff);transition:transform .1s,opacity .15s;
-  letter-spacing:-.2px;min-height:58px;min-width:160px;
+position:relative;z-index:1;background:var(–acc);color:#fff;border:none;
+border-radius:50px;padding:17px clamp(36px,10vw,56px);
+font-size:clamp(18px,4vw,21px);font-weight:700;cursor:pointer;
+font-family:var(–ff);transition:transform .1s,opacity .15s;
+letter-spacing:-.2px;min-height:58px;min-width:160px;
 }
-#pick:active{transform:scale(.95)}
-#pick:disabled{opacity:.3;cursor:not-allowed}
-#pick:disabled + * ,#pick:disabled ~ *{pointer-events:none}
-#pick.run::after{display:none}
+#pick:active{transform:scale(.95)}#pick:disabled{opacity:.3;cursor:not-allowed}
 #undo{display:none}
 
 /* ── Roster ── */
-#roster{padding:4px 14px 28px;display:flex;flex-direction:column;gap:12px}
-.r-stats{display:flex;gap:14px;padding-bottom:10px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
-.r-stat{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);font-weight:500}
+#roster{padding:4px 14px calc(28px + var(–bbar));display:flex;flex-direction:column;gap:12px}
+.r-stats{display:flex;gap:14px;padding-bottom:10px;border-bottom:1px solid var(–bd);flex-wrap:wrap}
+.r-stat{display:flex;align-items:center;gap:5px;font-size:12px;color:var(–t2);font-weight:500}
 .r-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.r-hint{margin-left:auto;font-size:11px;color:var(--t3)}
-/* Search */
+.r-hint{margin-left:auto;font-size:11px;color:var(–t3)}
 .srch-w{position:relative}
-.srch-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
+.srch-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(–t3);pointer-events:none}
 #srch{padding-left:34px}
-/* Chips */
 #chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{
-  background:var(--s2);border:1px solid var(--bd);
-  border-radius:50px;padding:8px 14px;
-  font-size:13px;font-weight:500;color:var(--t1);
-  cursor:pointer;transition:all .15s;user-select:none;
-  min-height:36px;display:flex;align-items:center;
-}
+.chip{background:var(–s2);border:1px solid var(–bd);border-radius:50px;padding:8px 14px;font-size:13px;font-weight:500;color:var(–t1);cursor:pointer;transition:all .15s;user-select:none;min-height:36px;display:flex;align-items:center}
 .chip:active{transform:scale(.94)}
-.chip.abs{background:#1e0e0e;border-color:#3a1c1c;color:var(--red);text-decoration:line-through;opacity:.7}
-.chip.done{background:#0d1d14;border-color:#1c3525;color:var(--t3);text-decoration:line-through}
-.chip.cur{border-color:var(--gld);background:#1b1708;color:var(--t1)}
+.chip.abs{background:#1e0e0e;border-color:#3a1c1c;color:var(–red);text-decoration:line-through;opacity:.7}
+.chip.done{background:#0d1d14;border-color:#1c3525;color:var(–t3);text-decoration:line-through}
+.chip.cur{border-color:var(–gld);background:#1b1708;color:var(–t1)}
 .chip.hide{display:none}
+
+/* ════════════════════════════════
+ボトムアクションバー
+════════════════════════════════ */
+#btm-bar{
+position:fixed;bottom:0;left:0;right:0;z-index:200;
+background:var(–s1);border-top:1px solid var(–bd);
+display:none;align-items:stretch;
+padding-bottom:env(safe-area-inset-bottom,0px);
+}
+#btm-bar.on{display:flex;animation:bbPop .2s ease}
+
+.bb-btn{
+flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+gap:3px;padding:10px 4px;cursor:pointer;
+border:none;background:none;color:var(–t2);
+font-size:9px;font-weight:700;font-family:var(–ff);
+letter-spacing:.3px;text-transform:uppercase;
+transition:color .2s;-webkit-tap-highlight-color:transparent;
+}
+.bb-btn:active{background:rgba(255,255,255,.04);transform:scale(.9)}
+.bb-btn svg{width:20px;height:20px;flex-shrink:0}
+
+/* ✅ 演出ボタン: ON時は金色で星を塗りつぶし */
+#bb-anim.anim-on{color:var(–gld)}
+#bb-anim.anim-on svg{filter:drop-shadow(0 0 5px rgba(251,191,36,.6))}
+.star-poly{transition:fill .25s,stroke .25s}
+
+/* 集中 ON */
+#bb-foc.foc-on{color:var(–acc)}
+/* リセット */
+#bb-rst{color:var(–t3)}
+
+/* クラスリセット確認バー */
+#rst-bar{
+position:fixed;bottom:0;left:0;right:0;z-index:201;
+background:var(–s2);border-top:1px solid var(–bd);
+display:none;align-items:center;
+padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));gap:10px;
+}
+#rst-bar.on{display:flex;animation:bbPop .2s ease}
+#rst-bar-msg{font-size:13px;color:var(–t2);flex:1;line-height:1.4}
+#btn-rst-cancel{padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;font-family:var(–ff);cursor:pointer;border:1px solid var(–bd);background:none;color:var(–t3)}
+#btn-rst-ok{padding:9px 16px;border-radius:8px;font-size:13px;font-weight:700;font-family:var(–ff);cursor:pointer;border:1px solid #4a1a1a;background:#2a0f0f;color:var(–red)}
+
+/* ── Focus exit ── */
+#fbtn{
+position:fixed;bottom:calc(var(–bbar) + 14px);right:18px;z-index:200;
+display:none;background:var(–acc);border:none;border-radius:50%;
+width:44px;height:44px;align-items:center;justify-content:center;
+cursor:pointer;color:#fff;box-shadow:0 4px 20px rgba(99,102,241,.4);
+}
+body.foc #strip,body.foc #hdr,body.foc #roster,body.foc #btm-bar{display:none!important}
+body.foc #scroll-area{justify-content:center}
+body.foc #stage-area{flex:1;justify-content:center;padding:20px}
+body.foc #s-nm{font-size:clamp(28px,8vw,40px)}
+body.foc #fbtn{display:flex}
+
+/* ════════════════════════════════
+設定ページ
+════════════════════════════════ */
+#s-settings{background:var(–bg)}
+
+#set-hdr{
+display:flex;align-items:center;gap:12px;
+padding:12px 14px;background:var(–s1);
+border-bottom:1px solid var(–bd);flex-shrink:0;min-height:50px;
+}
+#set-back{
+width:36px;height:36px;border-radius:9px;
+background:none;border:1px solid var(–bd);color:var(–t2);
+display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+transition:border-color .15s;
+}
+#set-back:active{background:var(–s2)}
+#set-hdr h2{font-size:16px;font-weight:700;letter-spacing:-.3px}
+
+#set-body{flex:1;overflow-y:auto;padding:12px 0 48px}
+
+.set-section{margin-bottom:6px}
+.set-label{font-size:11px;font-weight:700;color:var(–t3);letter-spacing:.6px;text-transform:uppercase;padding:14px 16px 7px}
+
+.set-row{
+display:flex;align-items:center;gap:12px;
+padding:13px 16px;
+background:var(–s1);
+border-top:1px solid var(–bd);
+}
+.set-row:last-child{border-bottom:1px solid var(–bd)}
+.set-row-tap{cursor:pointer;transition:background .15s}
+.set-row-tap:active{background:var(–s2)}
+
+.set-row-l{flex:1;min-width:0}
+.set-row-title{font-size:14px;font-weight:600;letter-spacing:-.2px;line-height:1.3}
+.set-row-desc{font-size:12px;color:var(–t2);margin-top:3px;line-height:1.4}
+
+/* セグメントボタン */
+.seg-group{display:flex;background:var(–s3);border-radius:8px;padding:2px;flex-shrink:0}
+.seg-btn{
+padding:5px 11px;border-radius:6px;font-size:12px;font-weight:700;
+font-family:var(–ff);cursor:pointer;border:none;
+background:none;color:var(–t3);transition:all .15s;white-space:nowrap;
+}
+.seg-btn.seg-on{background:var(–s1);color:var(–t1);box-shadow:0 1px 4px rgba(0,0,0,.5)}
+
+/* インラインボタン */
+.set-act-btn{
+padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;
+font-family:var(–ff);cursor:pointer;border:1px solid var(–bd);
+background:none;color:var(–t2);flex-shrink:0;transition:all .15s;
+}
+.set-act-btn:active{background:var(–s2)}
+.set-act-btn.done-flash{color:var(–grn);border-color:var(–grn)}
+
+.set-row-danger .set-row-title{color:var(–red)}
+.set-row-signout .set-row-title{color:var(–t3)}
+.chevron{color:var(–t3);flex-shrink:0}
+
+/* 行アニメ */
+.set-section:nth-child(1) .set-row:nth-child(1){animation:rowSlideIn .22s .05s both}
+.set-section:nth-child(1) .set-row:nth-child(2){animation:rowSlideIn .22s .09s both}
+.set-section:nth-child(2) .set-row{animation:rowSlideIn .22s .13s both}
+.set-section:nth-child(3) .set-row{animation:rowSlideIn .22s .17s both}
+.set-section:nth-child(4) .set-row{animation:rowSlideIn .22s .21s both}
+
+/* ════════════════════════════════
+全進行状況リセット モーダル
+════════════════════════════════ */
+#frm-overlay{
+position:fixed;inset:0;z-index:600;
+background:rgba(0,0,0,.72);backdrop-filter:blur(7px);
+display:none;align-items:center;justify-content:center;padding:28px 20px;
+}
+#frm-overlay.on{display:flex;animation:fadeIn .22s ease}
+#frm-overlay.closing{animation:fadeOut .2s ease forwards;pointer-events:none}
+
+#frm-card{
+background:var(–s2);border:1px solid var(–bd2);
+border-radius:22px;padding:30px 26px 24px;
+width:100%;max-width:360px;
+display:flex;flex-direction:column;align-items:center;text-align:center;
+}
+#frm-overlay.on #frm-card{animation:modalIn .32s ease}
+#frm-overlay.closing #frm-card{animation:modalOut .2s ease forwards}
+
+/* 確認パネル */
+#frm-confirm{display:flex;flex-direction:column;align-items:center;width:100%}
+#frm-ico{font-size:46px;margin-bottom:18px;filter:drop-shadow(0 0 14px rgba(248,113,113,.35))}
+#frm-title{font-size:18px;font-weight:700;letter-spacing:-.4px;margin-bottom:9px}
+#frm-desc{font-size:13px;color:var(–t2);line-height:1.7;margin-bottom:22px}
+
+/* プログレスバー */
+#frm-prog-wrap{width:100%;background:var(–s3);border-radius:4px;height:3px;overflow:hidden;margin-bottom:10px}
+#frm-prog-fill{height:100%;background:var(–acc);width:0%;border-radius:4px}
+#frm-prog-fill.running{animation:progFill linear forwards}
+
+#frm-cd-text{font-size:12px;color:var(–t3);margin-bottom:20px;transition:color .4s}
+#frm-cd-text.ready{color:var(–grn)}
+
+/* 削除ボタン - 無効時 → 有効時 */
+#frm-del-btn{
+width:100%;padding:14px;border-radius:12px;
+font-size:15px;font-weight:700;font-family:var(–ff);
+cursor:not-allowed;
+background:var(–s3);color:var(–t3);border:1px solid var(–bd);
+margin-bottom:11px;
+transition:background .35s,color .35s,border-color .35s,box-shadow .35s;
+}
+#frm-del-btn.ready{
+background:#2a0f0f;color:var(–red);border-color:#4a1818;
+cursor:pointer;animation:delBtnActivate .45s ease;
+box-shadow:0 0 0 1px rgba(248,113,113,.15),0 4px 16px rgba(248,113,113,.12);
+}
+#frm-del-btn.ready:active{transform:scale(.97)}
+
+#frm-cancel-btn{
+width:100%;padding:12px;border-radius:12px;
+font-size:14px;font-weight:600;font-family:var(–ff);
+cursor:pointer;border:none;background:none;color:var(–t3);
+transition:color .15s;
+}
+#frm-cancel-btn:hover{color:var(–t2)}
+
+/* ローディングパネル */
+#frm-loading{display:none;flex-direction:column;align-items:center;gap:18px;padding:18px 0;width:100%}
+#frm-loading.on{display:flex;animation:completeFadeIn .25s ease}
+.frm-spinner{width:46px;height:46px;border-radius:50%;border:3px solid var(–bd2);border-top-color:var(–acc);animation:spinCw .7s linear infinite}
+#frm-loading p{font-size:14px;color:var(–t2);font-weight:500}
+
+/* 完了パネル */
+#frm-complete{display:none;flex-direction:column;align-items:center;gap:16px;padding:18px 0;width:100%}
+#frm-complete.on{display:flex;animation:completeFadeIn .3s ease}
+#frm-done-ico{
+width:60px;height:60px;border-radius:50%;
+background:rgba(52,211,153,.1);border:2px solid var(–grn);
+display:flex;align-items:center;justify-content:center;
+animation:checkBounce .42s ease;
+}
+#frm-complete p{font-size:16px;font-weight:700;color:var(–grn)}
 
 /* ── Course grid ── */
 #cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;width:100%}
-.cc{background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center;font-family:var(--ff);color:var(--t1);transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent}
-.cc:active{background:var(--s3)}
+.cc{background:var(–s2);border:1px solid var(–bd);border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center;font-family:var(–ff);color:var(–t1);transition:border-color .15s;-webkit-tap-highlight-color:transparent}
+.cc:active{background:var(–s3)}
 .cc .ci{font-size:26px;margin-bottom:7px}
 .cc .cn{font-size:13px;font-weight:600;line-height:1.4}
-.cc .cs{font-size:11px;color:var(--t2);margin-top:3px}
-
-/* ── Focus mode ── */
-#fbtn{position:fixed;bottom:18px;right:18px;z-index:200;display:none;
-  background:var(--s2);border:1px solid var(--bd);border-radius:50%;
-  width:42px;height:42px;align-items:center;justify-content:center;
-  cursor:pointer;transition:all .15s;box-shadow:0 4px 20px rgba(0,0,0,.5);color:var(--t2)}
-#fbtn:hover{border-color:var(--acc);color:var(--acc)}
-body.foc #strip,body.foc #hdr,body.foc #roster{display:none!important}
-body.foc #scroll-area{justify-content:center}
-body.foc #stage-area{flex:1;justify-content:center;padding:20px}
-body.foc #stage{padding:clamp(32px,8vw,56px) clamp(40px,12vw,80px)}
-body.foc #s-nm{font-size:clamp(28px,8vw,40px)}
-body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
+.cc .cs{font-size:11px;color:var(–t2);margin-top:3px}
 
 /* ── Tutorial sheet ── */
 #tut{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
 #tut.on{display:flex}
-#tut-sheet{background:var(--s1);border-radius:22px 22px 0 0;border-top:1px solid var(--bd);width:100%;max-width:420px;animation:slideUp .32s ease;padding-bottom:env(safe-area-inset-bottom,12px)}
+#tut-sheet{background:var(–s1);border-radius:22px 22px 0 0;border-top:1px solid var(–bd);width:100%;max-width:420px;animation:slideUp .32s ease;padding-bottom:env(safe-area-inset-bottom,12px)}
 #tut-slides{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 #tut-slides::-webkit-scrollbar{display:none}
 .ts{flex-shrink:0;width:100%;scroll-snap-align:start;padding:28px 28px 12px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
 .ts-ico{font-size:52px;filter:drop-shadow(0 4px 16px rgba(99,102,241,.3))}
 .ts-h{font-size:19px;font-weight:700;letter-spacing:-.4px}
-.ts-p{font-size:14px;color:var(--t2);line-height:1.7;max-width:300px}
+.ts-p{font-size:14px;color:var(–t2);line-height:1.7;max-width:300px}
 #tut-dots{display:flex;justify-content:center;gap:6px;padding:14px 0 8px}
-.td{width:6px;height:6px;border-radius:50%;background:var(--bd);transition:all .2s}
-.td.on{background:var(--acc);width:20px;border-radius:3px}
+.td{width:6px;height:6px;border-radius:50%;background:var(–bd);transition:all .2s}
+.td.on{background:var(–acc);width:20px;border-radius:3px}
 #tut-foot{padding:0 20px 16px;display:flex;gap:8px}
 
 /* ── Confetti ── */
 #conf{position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden}
 .cp{position:absolute;top:28%;animation:confDrop 1.5s ease-in forwards}
 
-/* ── Login page decorations ── */
+/* ── Login decorations ── */
 .logo-wrap{position:relative;margin-bottom:22px}
 .logo-ring{position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(99,102,241,.2);animation:btnRipple 3s ease-out infinite}
 .logo-ico{font-size:60px;display:block;text-align:center;position:relative;z-index:1;filter:drop-shadow(0 0 20px rgba(99,102,241,.5))}
 
 /* ── Responsive ── */
 @media(max-width:360px){
-  #stage{padding:22px 18px}
-  #pick{font-size:17px;padding:15px 32px;min-height:52px}
-  .pg{padding:24px 16px}
+#stage{padding:22px 18px}
+#pick{font-size:17px;padding:15px 32px;min-height:52px}
+.pg{padding:24px 16px}
 }
 @media(min-height:800px){
-  #stage-area{padding:32px 20px 20px;gap:22px}
+#stage-area{padding:32px 20px 20px;gap:22px}
 }
 </style>
+
 </head>
 <body>
 
 <!-- ═══ LOGIN ═══ -->
+
 <div id="s-login" class="sc on">
   <div class="pg">
     <div class="logo-wrap">
@@ -266,19 +426,27 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
 </div>
 
 <!-- ═══ COURSES ═══ -->
+
 <div id="s-courses" class="sc">
   <div class="pg pg-wide">
-    <div style="align-self:flex-start;margin-bottom:20px">
-      <h2 style="font-size:21px;font-weight:700;letter-spacing:-.4px">クラスを選択</h2>
-      <p style="color:var(--t2);font-size:13px;margin-top:4px">今日の授業のクラスを選んでください</p>
+    <!-- ✅ サインアウトをアイコンボタンへ縮小、主要UIに混ぜない -->
+    <div style="align-self:flex-start;margin-bottom:20px;width:100%;display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <h2 style="font-size:21px;font-weight:700;letter-spacing:-.4px">クラスを選択</h2>
+        <p style="color:var(--t2);font-size:13px;margin-top:4px">今日の授業のクラスを選んでください</p>
+      </div>
+      <button onclick="signOut()" style="background:none;border:1px solid var(--bd);border-radius:8px;padding:7px 11px;cursor:pointer;color:var(--t3);display:flex;align-items:center;gap:5px;font-size:12px;font-family:var(--ff);flex-shrink:0;margin-top:2px;transition:border-color .15s">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        退出
+      </button>
     </div>
     <div id="cg"></div>
     <p id="no-c" style="color:var(--t2);display:none;margin-top:16px;font-size:13px">クラスが見つかりませんでした</p>
-    <button class="btn btn-gst" onclick="signOut()" style="margin-top:24px;font-size:13px">サインアウト</button>
   </div>
 </div>
 
 <!-- ═══ MANUAL ═══ -->
+
 <div id="s-manual" class="sc">
   <div class="pg">
     <div style="align-self:flex-start;margin-bottom:20px">
@@ -303,101 +471,220 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
 </div>
 
 <!-- ═══ MAIN ═══ -->
+
 <div id="s-main" class="sc">
 
-  <!-- User strip -->
+  <!-- ✅ ストリップ: サインアウトボタンを削除。sync dot のみ -->
+
   <div id="strip">
     <img id="strip-av" src="" alt="">
     <span id="strip-nm"></span>
-    <div id="strip-r">
-      <div id="sync-dot"></div>
-      <button class="btn btn-gst btn-sm" onclick="signOut()" style="font-size:12px">サインアウト</button>
-    </div>
+    <div id="strip-r"><div id="sync-dot"></div></div>
   </div>
 
-  <!-- Header -->
+  <!-- ✅ ヘッダー: クラス名のみ。操作ボタンは全てボトムバーへ -->
+
   <div id="hdr">
     <div id="hdr-l">
       <h2 id="h-cl"></h2>
       <p id="h-sb"></p>
     </div>
-    <div id="hdr-r">
-      <label class="tog-w" style="gap:5px">
-        <span>演出</span>
-        <div class="tog"><input type="checkbox" id="atog" checked onchange="setAnim(this.checked)"><div class="tog-sl"></div></div>
-      </label>
-      <button class="btn btn-out btn-sm" onclick="focusTog()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
-        集中
-      </button>
-      <button class="btn btn-out btn-sm" onclick="chgClass()">変更</button>
-      <div id="rst-c" style="display:none;gap:6px">
-        <button class="btn btn-dng btn-sm" onclick="doReset()">確定</button>
-        <button class="btn btn-out btn-sm" onclick="cancelRst()">✕</button>
-      </div>
-      <button class="btn btn-gst btn-sm" id="rst-b" onclick="confirmRst()" style="color:var(--t3);font-size:12px">リセット</button>
-    </div>
+    <div id="hdr-r"></div>
   </div>
 
-  <!-- Progress -->
   <div id="prog"><div id="prog-f" style="width:0%"></div></div>
 
-  <!-- Body -->
   <div id="mbody">
     <div id="scroll-area">
 
-      <!-- Stage -->
-      <div id="stage-area">
-        <div id="stage">
-          <!-- Burst ring SVG -->
-          <svg id="stage-ring" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible">
-            <circle id="burst-c" cx="100" cy="100" r="30"/>
-          </svg>
-          <!-- Student -->
-          <img id="s-photo" src="" alt="">
-          <div id="s-init"></div>
-          <div id="s-nm"></div>
-          <div id="s-badge">
-            <svg class="ck-svg" viewBox="0 0 24 24"><polyline class="ck-path" points="4,12 9,17 20,7"/></svg>
-            当たり
-          </div>
-          <!-- States -->
-          <div id="s-idle"><div class="ico">🎯</div><p>ボタンを押して生徒を指名</p></div>
-          <div id="s-done"><div class="ico">🎉</div><p>全員の指名が完了しました</p></div>
-        </div>
-
-        <!-- Pick button -->
-        <div id="pick-w">
-          <button id="pick">当てる</button>
-        </div>
-        <button id="undo" class="btn btn-gst btn-sm" onclick="undoLast()">↩ 指名を取り消す</button>
+```
+  <!-- Stage -->
+  <div id="stage-area">
+    <div id="stage">
+      <svg id="stage-ring" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible">
+        <circle id="burst-c" cx="100" cy="100" r="30"/>
+      </svg>
+      <img id="s-photo" src="" alt="">
+      <div id="s-init"></div>
+      <div id="s-nm"></div>
+      <div id="s-badge">
+        <svg class="ck-svg" viewBox="0 0 24 24"><polyline class="ck-path" points="4,12 9,17 20,7"/></svg>
+        当たり
       </div>
+      <div id="s-idle"><div class="ico">🎯</div><p>ボタンを押して生徒を指名</p></div>
+      <div id="s-done"><div class="ico">🎉</div><p>全員の指名が完了しました</p></div>
+    </div>
 
-      <!-- Roster -->
-      <div id="roster">
-        <div class="r-stats">
-          <div class="r-stat"><div class="r-dot" style="background:var(--acc)"></div><span id="b-av"></span></div>
-          <div class="r-stat"><div class="r-dot" style="background:var(--red)"></div><span id="b-ab"></span></div>
-          <div class="r-stat"><div class="r-dot" style="background:var(--t3)"></div><span id="b-cl"></span></div>
-          <span class="r-hint">タップで欠席・復帰の切り替え</span>
-        </div>
-        <div class="srch-w">
-          <svg class="srch-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input class="inp srch" type="search" id="srch" placeholder="名前で検索…" oninput="filterChips(this.value)" autocomplete="off">
-        </div>
-        <div id="chips"></div>
-      </div>
+    <div id="pick-w"><button id="pick">当てる</button></div>
+    <button id="undo" class="btn btn-gst btn-sm" onclick="undoLast()">↩ 指名を取り消す</button>
+  </div>
 
+  <!-- Roster -->
+  <div id="roster">
+    <div class="r-stats">
+      <div class="r-stat"><div class="r-dot" style="background:var(--acc)"></div><span id="b-av"></span></div>
+      <div class="r-stat"><div class="r-dot" style="background:var(--red)"></div><span id="b-ab"></span></div>
+      <div class="r-stat"><div class="r-dot" style="background:var(--t3)"></div><span id="b-cl"></span></div>
+      <span class="r-hint">タップで欠席・復帰の切り替え</span>
+    </div>
+    <div class="srch-w">
+      <svg class="srch-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="inp srch" type="search" id="srch" placeholder="名前で検索…" oninput="filterChips(this.value)" autocomplete="off">
+    </div>
+    <div id="chips"></div>
+  </div>
+
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+
+<div id="s-settings" class="sc">
+
+  <div id="set-hdr">
+    <button id="set-back" onclick="show('s-main')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <h2>設定</h2>
+  </div>
+
+  <div id="set-body">
+
+```
+<!-- 操作設定 -->
+<div class="set-section">
+  <div class="set-label">操作</div>
+
+  <!-- スロット速度 -->
+  <div class="set-row">
+    <div class="set-row-l">
+      <div class="set-row-title">スロット速度</div>
+      <div class="set-row-desc">指名アニメーションのスピード</div>
+    </div>
+    <div class="seg-group" id="speed-seg">
+      <button class="seg-btn" data-v="fast"   onclick="setSlotSpeed('fast',this)">速い</button>
+      <button class="seg-btn" data-v="normal" onclick="setSlotSpeed('normal',this)">普通</button>
+      <button class="seg-btn" data-v="slow"   onclick="setSlotSpeed('slow',this)">遅い</button>
+    </div>
+  </div>
+
+  <!-- 名簿並び順 -->
+  <div class="set-row">
+    <div class="set-row-l">
+      <div class="set-row-title">名簿の並び順</div>
+      <div class="set-row-desc">指名済み生徒の表示位置</div>
+    </div>
+    <div class="seg-group" id="sort-seg">
+      <button class="seg-btn" data-v="default"     onclick="setChipSort('default',this)">そのまま</button>
+      <button class="seg-btn" data-v="called-last" onclick="setChipSort('called-last',this)">末尾へ</button>
     </div>
   </div>
 </div>
 
-<!-- Focus exit button (floating) -->
-<button id="fbtn" onclick="focusTog()" title="集中モード">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+<!-- その他 -->
+<div class="set-section">
+  <div class="set-label">その他</div>
+  <div class="set-row">
+    <div class="set-row-l">
+      <div class="set-row-title">チュートリアルを再表示</div>
+      <div class="set-row-desc">次回クラスを開いた時に案内を表示</div>
+    </div>
+    <button class="set-act-btn" id="tut-reset-btn" onclick="resetTutorial(this)">リセット</button>
+  </div>
+</div>
+
+<!-- データ -->
+<div class="set-section">
+  <div class="set-label">データ</div>
+  <!-- ✅ 全進行状況リセット -->
+  <div class="set-row set-row-tap set-row-danger" onclick="openFullResetModal()">
+    <div class="set-row-l">
+      <div class="set-row-title">全進行状況をリセット</div>
+      <div class="set-row-desc">全クラスの指名履歴を完全に削除します</div>
+    </div>
+    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </div>
+</div>
+
+<!-- アカウント (Google ログイン時のみ) -->
+<div class="set-section" id="set-account" style="display:none">
+  <div class="set-label">アカウント</div>
+  <div class="set-row set-row-tap set-row-signout" onclick="signOut()">
+    <div class="set-row-l">
+      <div class="set-row-title">サインアウト</div>
+    </div>
+    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ═══ BOTTOM ACTION BAR ═══ -->
+
+<div id="btm-bar">
+
+  <!-- ✅ 演出: アニメON=星を金色・中塗り、OFF=アウトラインのみ -->
+
+  <button class="bb-btn anim-on" id="bb-anim" onclick="toggleAnim()">
+    <svg width="20" height="20" viewBox="0 0 24 24">
+      <polygon class="star-poly"
+        points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+        fill="#fbbf24" stroke="#fbbf24" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    演出
+  </button>
+
+  <!-- 集中モード -->
+
+  <button class="bb-btn" id="bb-foc" onclick="focusTog()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+    集中
+  </button>
+
+  <!-- クラス変更 -->
+
+  <button class="bb-btn" onclick="chgClass()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+    変更
+  </button>
+
+  <!-- クラスリセット -->
+
+  <button class="bb-btn" id="bb-rst" onclick="confirmRst()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+    リセット
+  </button>
+
+  <!-- 設定 -->
+
+  <button class="bb-btn" onclick="openSettings()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    設定
+  </button>
+
+</div>
+
+<!-- クラスリセット確認バー -->
+
+<div id="rst-bar">
+  <p id="rst-bar-msg">⚠️ このクラスの指名をリセット</p>
+  <button id="btn-rst-cancel" onclick="cancelRst()">キャンセル</button>
+  <button id="btn-rst-ok" onclick="doReset()">リセット</button>
+</div>
+
+<!-- フォーカスモード解除ボタン (右下固定) -->
+
+<button id="fbtn" onclick="focusTog()">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
 </button>
 
 <!-- Tutorial -->
+
 <div id="tut">
   <div id="tut-sheet">
     <div id="tut-slides">
@@ -409,7 +696,7 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
       <div class="ts">
         <div class="ts-ico">👆</div>
         <div class="ts-h">タップで欠席・復帰</div>
-        <div class="ts-p">名簿の名前をタップすると欠席になります。もう一度タップすると出席に戻ります。指名済みの生徒も同様に復帰できます。</div>
+        <div class="ts-p">名簿の名前をタップすると欠席になります。もう一度タップすると出席に戻ります。指名済みも同様に復帰できます。</div>
       </div>
       <div class="ts">
         <div class="ts-ico">☁️</div>
@@ -417,9 +704,9 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
         <div class="ts-p">進行状況はGoogleアカウントに保存されます。スマホ・タブレット・PCで同じ続きから使えます。</div>
       </div>
       <div class="ts">
-        <div class="ts-ico">🔍</div>
-        <div class="ts-h">集中モード・検索</div>
-        <div class="ts-p">「集中」ボタンでセレクターのみ全画面表示になります。名簿は名前で検索できます。リセットで最初からやり直せます。</div>
+        <div class="ts-ico">⚙️</div>
+        <div class="ts-h">集中モード・設定</div>
+        <div class="ts-p">下部バーの「集中」でセレクターのみ全画面表示になります。「設定」からスロット速度や並び順をカスタマイズできます。</div>
       </div>
     </div>
     <div id="tut-dots">
@@ -432,7 +719,43 @@ body.foc #fbtn{background:var(--acc);border-color:var(--acc);color:#fff}
   </div>
 </div>
 
-<!-- Confetti layer -->
+<!-- ═══ 全進行状況リセット モーダル ═══ -->
+
+<div id="frm-overlay">
+  <div id="frm-card">
+
+```
+<!-- 確認 -->
+<div id="frm-confirm">
+  <div id="frm-ico">🗑️</div>
+  <div id="frm-title">全進行状況をリセット</div>
+  <div id="frm-desc">全クラスの指名履歴・欠席記録が<br>完全に削除されます。<br>この操作は取り消せません。</div>
+  <div id="frm-prog-wrap"><div id="frm-prog-fill"></div></div>
+  <div id="frm-cd-text">5秒後に削除ボタンが有効になります</div>
+  <button id="frm-del-btn" disabled onclick="execFullReset()">削除する</button>
+  <button id="frm-cancel-btn" onclick="closeFullResetModal()">キャンセル</button>
+</div>
+
+<!-- 処理中 -->
+<div id="frm-loading">
+  <div class="frm-spinner"></div>
+  <p>リセット中…</p>
+</div>
+
+<!-- 完了 -->
+<div id="frm-complete">
+  <div id="frm-done-ico">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--grn)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4,12 9,17 20,7"/>
+    </svg>
+  </div>
+  <p>リセット完了</p>
+</div>
+```
+
+  </div>
+</div>
+
 <div id="conf"></div>
 
 <script>
@@ -450,9 +773,12 @@ const SCOPES = [
   'https://www.googleapis.com/auth/userinfo.profile',
   'https://www.googleapis.com/auth/drive.appdata',
 ].join(' ');
-const DISC     = 'https://classroom.googleapis.com/$discovery/rest?version=v1';
-const DF       = 'sel_data_v2.json';    // Drive file name
-const LS_KEY   = 'sel_data_v2';
+const DISC   = 'https://classroom.googleapis.com/$discovery/rest?version=v1';
+const DF     = 'sel_data_v2.json';
+const LS_KEY = 'sel_data_v2';
+const LS_CFG = 'sel_config_v1';
+const FRM_SECS = 5;
+const SPEED_MULT = { fast:0.7, normal:1.0, slow:1.6 };
 
 /* ════════════════════════════════
    STATE
@@ -461,53 +787,68 @@ let gapiOk=false, gisOk=false, tc=null, prof=null;
 let students=[], absent=new Set(), called=new Set();
 let curr=null, busy=false, animOn=true, focMode=false;
 let cid='', cname='', isManual=false;
-let dfid=null, allData={};       // Drive file id + all course data
+let dfid=null, allData={};
+// 設定値
+let slotSpeedKey = 'fast';
+let chipSort     = 'default';
+// モーダルタイマー
+let frmTimer=null, frmCountdown=FRM_SECS;
 
 /* ════════════════════════════════
    DOM UTILS
 ════════════════════════════════ */
-const $  = id => document.getElementById(id);
-const el = id => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-function show(id) {
-  document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
+function show(id){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
   $(id).classList.add('on');
-  $('fbtn').style.display = (id === 's-main') ? 'flex' : 'none';
-  // reset focus mode when changing screens
-  if (id !== 's-main' && focMode) { focMode=false; document.body.classList.remove('foc'); }
+  const isMain = (id==='s-main');
+  $('btm-bar').classList.toggle('on', isMain);
+  $('rst-bar').classList.remove('on');
+  if(id!=='s-main'&&focMode){ focMode=false; document.body.classList.remove('foc'); }
+}
+
+/* ════════════════════════════════
+   CONFIG PERSISTENCE
+════════════════════════════════ */
+function loadConfig(){
+  try{
+    const c=JSON.parse(localStorage.getItem(LS_CFG)||'{}');
+    if(c.slotSpeed) slotSpeedKey=c.slotSpeed;
+    if(c.chipSort)  chipSort=c.chipSort;
+    if(typeof c.animOn==='boolean') animOn=c.animOn;
+  }catch{}
+  syncConfigUI();
+}
+function saveConfig(){
+  try{ localStorage.setItem(LS_CFG,JSON.stringify({slotSpeed:slotSpeedKey,chipSort,animOn})); }catch{}
+}
+function syncConfigUI(){
+  // 演出ボタン
+  updateAnimBtn(false);
+  // speed seg
+  $('speed-seg').querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('seg-on',b.dataset.v===slotSpeedKey));
+  // sort seg
+  $('sort-seg').querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('seg-on',b.dataset.v===chipSort));
 }
 
 /* ════════════════════════════════
    GOOGLE AUTH
 ════════════════════════════════ */
 function onGapiLoad(){ window.gapi.load('client',()=>{ gapiOk=true; tryInit(); }); }
-function onGisLoad() { gisOk=true; tryInit(); }
-
-/* ════════════════════════════════
-   DYNAMIC SCRIPT LOADING
-════════════════════════════════ */
+function onGisLoad(){ gisOk=true; tryInit(); }
 (function(){
-  function loadScript(src, cb){
-    const s=document.createElement('script');
-    s.src=src; s.async=true; s.onload=cb;
-    s.onerror=()=>console.warn('Script load failed:',src);
-    document.head.appendChild(s);
-  }
-  loadScript('https://apis.google.com/js/api.js', onGapiLoad);
-  loadScript('https://accounts.google.com/gsi/client', onGisLoad);
+  function ls(src,cb){ const s=document.createElement('script'); s.src=src; s.async=true; s.onload=cb; s.onerror=()=>console.warn('Load failed:',src); document.head.appendChild(s); }
+  ls('https://apis.google.com/js/api.js', onGapiLoad);
+  ls('https://accounts.google.com/gsi/client', onGisLoad);
 })();
 
 async function tryInit(){
   if(!gapiOk||!gisOk) return;
   try{
     await window.gapi.client.init({discoveryDocs:[DISC]});
-    tc = window.google.accounts.oauth2.initTokenClient({
-      client_id:CLIENT_ID, scope:SCOPES, callback:handleToken
-    });
-    // 前回ログイン済みなら自動でサインイン試行
-    if(localStorage.getItem('sel_autologin')){
-      tc.requestAccessToken({prompt:''});
-    }
+    tc=window.google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPES,callback:handleToken});
+    if(localStorage.getItem('sel_autologin')) tc.requestAccessToken({prompt:''});
   }catch(e){ console.error('init',e); }
 }
 
@@ -519,20 +860,16 @@ function googleLogin(){
 
 async function handleToken(resp){
   if(resp.error){
-    // 自動ログイン失敗時はフラグ消してログイン画面へ
-    if(resp.error==='interaction_required'||resp.error==='login_required'){
-      localStorage.removeItem('sel_autologin');
-    }else{
-      loginErr('ログインエラー: '+resp.error);
-    }
+    if(resp.error==='interaction_required'||resp.error==='login_required') localStorage.removeItem('sel_autologin');
+    else loginErr('ログインエラー: '+resp.error);
     return;
   }
   try{
-    const pr = await window.gapi.client.request({path:'https://www.googleapis.com/oauth2/v1/userinfo'});
-    prof = pr.result;
-    localStorage.setItem('sel_autologin','1'); // ← これを追加
+    const pr=await window.gapi.client.request({path:'https://www.googleapis.com/oauth2/v1/userinfo'});
+    prof=pr.result;
+    localStorage.setItem('sel_autologin','1');
     await loadFromDrive();
-    const r = await window.gapi.client.classroom.courses.list({courseStates:['ACTIVE'],pageSize:30});
+    const r=await window.gapi.client.classroom.courses.list({courseStates:['ACTIVE'],pageSize:30});
     renderCourses(r.result.courses||[]);
     show('s-courses');
   }catch(e){ loginErr('エラー: '+e.message); }
@@ -550,65 +887,41 @@ function signOut(){
 }
 
 /* ════════════════════════════════
-   DRIVE STORAGE  (cross-device sync)
-   Falls back to localStorage silently
+   DRIVE STORAGE
 ════════════════════════════════ */
 function tok(){ try{ return window.gapi?.client?.getToken()?.access_token; }catch{ return null; } }
-function setSyn(s){ const d=$('sync-dot'); d.className=s; }
+function setSyn(s){ $('sync-dot').className=s; }
 
 async function loadFromDrive(){
-  const t=tok();
-  if(!t){ allData=lsGet(); return; }
+  const t=tok(); if(!t){ allData=lsGet(); return; }
   setSyn('sync');
   try{
-    const r=await fetch(
-      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27${DF}%27%20and%20trashed%3Dfalse&fields=files(id)`,
-      {headers:{Authorization:'Bearer '+t}}
-    );
+    const r=await fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27${DF}%27%20and%20trashed%3Dfalse&fields=files(id)`,{headers:{Authorization:'Bearer '+t}});
     if(!r.ok) throw new Error(r.status);
     const d=await r.json();
     if(d.files?.length){
       dfid=d.files[0].id;
-      const r2=await fetch(
-        `https://www.googleapis.com/drive/v3/files/${dfid}?alt=media`,
-        {headers:{Authorization:'Bearer '+t}}
-      );
-      if(r2.ok) allData=await r2.json();
-      else allData=lsGet();
+      const r2=await fetch(`https://www.googleapis.com/drive/v3/files/${dfid}?alt=media`,{headers:{Authorization:'Bearer '+t}});
+      if(r2.ok) allData=await r2.json(); else allData=lsGet();
     }else{ allData=lsGet(); dfid=null; }
     setSyn('ok'); setTimeout(()=>setSyn(''),2500);
-  }catch(e){
-    console.warn('Drive load:',e);
-    allData=lsGet(); setSyn('');
-  }
+  }catch(e){ console.warn('Drive load:',e); allData=lsGet(); setSyn(''); }
 }
 
 async function saveToDrive(){
-  lsSet(allData);
-  const t=tok();
-  if(!t||isManual) return;
-  setSyn('sync');
-  const body=JSON.stringify(allData);
+  lsSet(allData); const t=tok(); if(!t||isManual) return;
+  setSyn('sync'); const body=JSON.stringify(allData);
   try{
     if(dfid){
-      await fetch(
-        `https://www.googleapis.com/upload/drive/v3/files/${dfid}?uploadType=media`,
-        {method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body}
-      );
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${dfid}?uploadType=media`,{method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body});
     }else{
-      const b='__sel_b__';
-      const meta=JSON.stringify({name:DF,parents:['appDataFolder']});
+      const b='__sel_b__', meta=JSON.stringify({name:DF,parents:['appDataFolder']});
       const mb=`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${b}--`;
-      const r=await fetch(
-        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
-        {method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':`multipart/related; boundary="${b}"`},body:mb}
-      );
+      const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':`multipart/related; boundary="${b}"`},body:mb});
       if(r.ok) dfid=(await r.json()).id;
     }
     setSyn('ok'); setTimeout(()=>setSyn(''),2500);
-  }catch(e){
-    console.warn('Drive save:',e); setSyn('');
-  }
+  }catch(e){ console.warn('Drive save:',e); setSyn(''); }
 }
 
 function lsGet(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch{ return {}; } }
@@ -621,29 +934,21 @@ function renderCourses(list){
   const g=$('cg'); g.innerHTML='';
   $('no-c').style.display=list.length?'none':'block';
   list.forEach(c=>{
-    const b=document.createElement('button');
-    b.className='cc';
+    const b=document.createElement('button'); b.className='cc';
     b.innerHTML=`<div class="ci">📋</div><div class="cn">${esc(c.name)}</div>${c.section?`<div class="cs">${esc(c.section)}</div>`:''}`;
-    b.onclick=()=>loadCourse(c);
-    g.appendChild(b);
+    b.onclick=()=>loadCourse(c); g.appendChild(b);
   });
 }
 
 async function loadCourse(c){
   try{
-    const list=[];
-    let pageToken=undefined;
-    do {
-      const params={courseId:c.id, pageSize:30};
-      if(pageToken) params.pageToken=pageToken;
+    const list=[]; let pt=undefined;
+    do{
+      const params={courseId:c.id,pageSize:30}; if(pt) params.pageToken=pt;
       const r=await window.gapi.client.classroom.courses.students.list(params);
-      (r.result.students||[]).forEach(s=>list.push({
-        id:s.userId,
-        name:s.profile.name.fullName,
-        photo:s.profile.photoUrl||null
-      }));
-      pageToken=r.result.nextPageToken;
-    }while(pageToken);
+      (r.result.students||[]).forEach(s=>list.push({id:s.userId,name:s.profile.name.fullName,photo:s.profile.photoUrl||null}));
+      pt=r.result.nextPageToken;
+    }while(pt);
     isManual=false; openClass(c.id,c.name,list);
   }catch(e){ alert('生徒取得エラー: '+e.message); }
 }
@@ -671,11 +976,13 @@ function openClass(id,name,list){
     const st=$('strip'); st.style.display='flex';
     $('strip-nm').textContent=prof.name;
     if(prof.picture) $('strip-av').src=prof.picture;
-  }else{ $('strip').style.display='none'; }
+    $('set-account').style.display='block';
+  }else{
+    $('strip').style.display='none';
+    $('set-account').style.display='none';
+  }
 
-  // Bind pick button click reliably via JS (not HTML attr)
-  $('pick').onclick = pickStudent;
-
+  $('pick').onclick=pickStudent;
   renderMain(); show('s-main');
   if(!localStorage.getItem('sel_tut')) setTimeout(showTut,700);
 }
@@ -700,11 +1007,9 @@ function renderMain(){
   if(!curr) setIdle(allDone);
 
   const btn=$('pick');
-  btn.disabled=busy||allDone;
-  btn.textContent=allDone?'全員完了':'当てる';
-  btn.classList.toggle('run', busy);
-  if(!busy&&!allDone&&animOn) btn.style.animation='';
-  else btn.style.animation='none';
+  btn.disabled=busy||allDone; btn.textContent=allDone?'全員完了':'当てる';
+  btn.classList.toggle('run',busy);
+  if(!busy&&!allDone&&animOn) btn.style.animation=''; else btn.style.animation='none';
 
   renderChips();
 }
@@ -712,43 +1017,28 @@ function renderMain(){
 function setIdle(allDone){
   $('s-idle').style.display=allDone?'none':'flex';
   $('s-done').style.display=allDone?'flex':'none';
-  $('s-photo').style.display='none';
-  $('s-init').style.display='none';
-  $('s-nm').style.display='none';
-  $('s-badge').style.display='none';
-  const st=$('stage'); st.className='';
+  $('s-photo').style.display='none'; $('s-init').style.display='none';
+  $('s-nm').style.display='none'; $('s-badge').style.display='none';
+  $('stage').className='';
 }
 
 function showStudent(s,isRes){
-  $('s-idle').style.display='none';
-  $('s-done').style.display='none';
-  $('s-nm').style.display='block';
-  $('s-nm').textContent=s.name;
-
-  if(s.photo){
-    $('s-photo').src=s.photo; $('s-photo').style.display='block';
-    $('s-init').style.display='none';
-  }else{
-    $('s-init').textContent=s.name.charAt(0);
-    $('s-init').style.display='flex';
-    $('s-photo').style.display='none';
-  }
+  $('s-idle').style.display='none'; $('s-done').style.display='none';
+  $('s-nm').style.display='block'; $('s-nm').textContent=s.name;
+  if(s.photo){ $('s-photo').src=s.photo; $('s-photo').style.display='block'; $('s-init').style.display='none'; }
+  else{ $('s-init').textContent=s.name.charAt(0); $('s-init').style.display='flex'; $('s-photo').style.display='none'; }
 
   const st=$('stage');
   if(isRes&&!busy){
     $('s-badge').style.display='flex';
-    // Animate check mark
     const ck=document.querySelector('.ck-path');
     if(ck){ ck.style.animation='none'; void ck.offsetWidth; ck.style.animation='checkDraw .35s .1s ease forwards'; }
-    // Stage burst ring
     const bc=$('burst-c');
-    bc.style.animation='none'; void bc.offsetWidth;
-    bc.style.opacity='1';
+    bc.style.animation='none'; void bc.offsetWidth; bc.style.opacity='1';
     bc.style.animation='ringOut .6s ease-out forwards';
     setTimeout(()=>{ bc.style.opacity='0'; bc.style.animation='none'; },700);
-    // Stage class
     st.className=''; void st.offsetWidth; st.className='res';
-    if(animOn) { $('s-nm').style.animation='none'; void $('s-nm').offsetWidth; $('s-nm').style.animation='scaleIn .35s ease'; }
+    if(animOn){ $('s-nm').style.animation='none'; void $('s-nm').offsetWidth; $('s-nm').style.animation='scaleIn .35s ease'; }
   }else{
     $('s-badge').style.display='none';
     st.className=busy?'anim':'';
@@ -762,24 +1052,17 @@ function showStudent(s,isRes){
 function pickStudent(){
   if(busy) return;
   const av=avail(); if(!av.length) return;
-  busy=true; curr=null;
-  $('undo').style.display='none';
+  busy=true; curr=null; $('undo').style.display='none';
   const btn=$('pick');
-  btn.textContent='選択中…'; btn.disabled=true; btn.style.animation='none';
-  btn.classList.add('run');
-  $('s-badge').style.display='none';
-  $('stage').className='anim';
-
-  if(animOn) slot(av, s=>showStudent(s,false), done);
+  btn.textContent='選択中…'; btn.disabled=true; btn.style.animation='none'; btn.classList.add('run');
+  $('s-badge').style.display='none'; $('stage').className='anim';
+  if(animOn) slot(av,s=>showStudent(s,false),done);
   else done(av[Math.floor(Math.random()*av.length)]);
 }
 
 function done(s){
-  busy=false; curr=s;
-  showStudent(s,true);
-  called.add(s.id);
-  allData[cid]=[...called];
-  saveToDrive();
+  busy=false; curr=s; showStudent(s,true);
+  called.add(s.id); allData[cid]=[...called]; saveToDrive();
 
   const av=avail(), tot=students.length-absent.size;
   const allDone=av.length===0, pct=tot>0?Math.round(called.size/tot*100):0;
@@ -787,10 +1070,8 @@ function done(s){
   $('h-sb').textContent=`残り ${av.length}名 ／ ${tot}名中 ${called.size}名指名済`;
   $('b-av').textContent=`出席 ${av.length}`;
   $('b-cl').textContent=`指名済 ${called.size}`;
-
   const btn=$('pick');
-  btn.classList.remove('run');
-  btn.disabled=allDone; btn.textContent=allDone?'全員完了':'当てる';
+  btn.classList.remove('run'); btn.disabled=allDone; btn.textContent=allDone?'全員完了':'当てる';
   btn.style.animation=(!allDone&&animOn)?'':'none';
   $('undo').style.display='inline-flex';
   renderChips();
@@ -798,18 +1079,16 @@ function done(s){
 }
 
 function slot(pool,tick,fin){
+  const mult=SPEED_MULT[slotSpeedKey]||1.0;
   let f=0;
   const go=()=>{
     f++;
-    const d=f<12?55:f<22?110:f<27?200:380;
+    const d=Math.round((f<12?55:f<22?110:f<27?200:380)*mult);
     setTimeout(()=>{
       try{
         const p=pool[Math.floor(Math.random()*pool.length)];
         if(f<28){tick(p);go();}else fin(pool[Math.floor(Math.random()*pool.length)]);
-      }catch(e){
-        console.error('slot error:',e);
-        try{ fin(pool[Math.floor(Math.random()*pool.length)]); }catch(e2){ console.error('fin error:',e2); busy=false; }
-      }
+      }catch(e){ console.error('slot:',e); try{fin(pool[Math.floor(Math.random()*pool.length)]);}catch(e2){busy=false;} }
     },d);
   };
   go();
@@ -820,40 +1099,27 @@ function slot(pool,tick,fin){
 ════════════════════════════════ */
 function undoLast(){
   if(!curr||busy) return;
-  called.delete(curr.id);
-  allData[cid]=[...called];
-  saveToDrive();
-  curr=null;
-  $('undo').style.display='none';
-  renderMain();
+  called.delete(curr.id); allData[cid]=[...called]; saveToDrive();
+  curr=null; $('undo').style.display='none'; renderMain();
 }
 
 /* ════════════════════════════════
-   CHIP TAP  (absent / restore)
+   CHIP TAP
 ════════════════════════════════ */
 function chipTap(id){
-  if(absent.has(id)){
-    absent.delete(id);                 // absent → available
-  }else if(called.has(id)){
-    called.delete(id);                 // called → available (restore)
-    if(curr?.id===id){
-      curr=null; $('undo').style.display='none'; setIdle(false);
-    }
-    allData[cid]=[...called];
-    saveToDrive();
-  }else{
-    absent.add(id);                    // available → absent
-  }
+  if(absent.has(id)) absent.delete(id);
+  else if(called.has(id)){
+    called.delete(id);
+    if(curr?.id===id){ curr=null; $('undo').style.display='none'; setIdle(false); }
+    allData[cid]=[...called]; saveToDrive();
+  }else absent.add(id);
 
   const av=avail(), tot=students.length-absent.size;
   const allDone=av.length===0&&students.length>0, pct=tot>0?Math.round(called.size/tot*100):0;
   $('prog-f').style.width=pct+'%';
   $('h-sb').textContent=`残り ${av.length}名 ／ ${tot}名中 ${called.size}名指名済`;
-  $('b-av').textContent=`出席 ${av.length}`;
-  $('b-ab').textContent=`欠席 ${absent.size}`;
-  $('b-cl').textContent=`指名済 ${called.size}`;
-  const btn=$('pick');
-  btn.disabled=busy||allDone; btn.textContent=allDone?'全員完了':'当てる';
+  $('b-av').textContent=`出席 ${av.length}`; $('b-ab').textContent=`欠席 ${absent.size}`; $('b-cl').textContent=`指名済 ${called.size}`;
+  const btn=$('pick'); btn.disabled=busy||allDone; btn.textContent=allDone?'全員完了':'当てる';
   renderChips();
 }
 
@@ -863,39 +1129,57 @@ function chipTap(id){
 function renderChips(q=''){
   const g=$('chips'); g.innerHTML='';
   const lq=q.toLowerCase();
-  students.forEach(s=>{
-    const isAb=absent.has(s.id), isCl=called.has(s.id), isCu=curr?.id===s.id&&!busy;
+  let list=[...students];
+  if(chipSort==='called-last') list.sort((a,b)=>{ const ac=called.has(a.id),bc=called.has(b.id); return ac&&!bc?1:!ac&&bc?-1:0; });
+  list.forEach(s=>{
+    const isAb=absent.has(s.id),isCl=called.has(s.id),isCu=curr?.id===s.id&&!busy;
     const hidden=lq&&!s.name.toLowerCase().includes(lq);
     const c=document.createElement('div');
     c.className='chip'+(isAb?' abs':isCl?' done':'')+(isCu?' cur':'')+(hidden?' hide':'');
     c.textContent=(isAb?'🚫 ':isCl?'✓ ':'')+s.name;
-    c.onclick=()=>chipTap(s.id);
-    g.appendChild(c);
+    c.onclick=()=>chipTap(s.id); g.appendChild(c);
   });
 }
 function filterChips(v){ renderChips(v); }
 
 /* ════════════════════════════════
-   RESET
+   クラスリセット (ボトムバー)
 ════════════════════════════════ */
-function confirmRst(){ $('rst-b').style.display='none'; $('rst-c').style.display='flex'; }
-function cancelRst() { $('rst-b').style.display=''; $('rst-c').style.display='none'; }
+function confirmRst(){ $('btm-bar').classList.remove('on'); $('rst-bar').classList.add('on'); }
+function cancelRst(){ $('rst-bar').classList.remove('on'); $('btm-bar').classList.add('on'); }
 function doReset(){
   called=new Set(); absent=new Set(); curr=null; busy=false;
   allData[cid]=[]; saveToDrive();
   cancelRst(); renderMain(); setIdle(false);
   $('undo').style.display='none';
   const si=$('srch'); if(si) si.value='';
+  renderChips();
 }
 function chgClass(){ show(isManual?'s-manual':'s-courses'); }
 
 /* ════════════════════════════════
-   ANIMATION TOGGLE
+   ✅ ANIM TOGGLE (演出ボタン)
 ════════════════════════════════ */
-function setAnim(on){
-  animOn=on;
-  const btn=$('pick');
-  if(!btn.disabled) btn.style.animation=on?'':'none';
+function toggleAnim(){
+  animOn=!animOn;
+  updateAnimBtn(true);
+  const btn=$('pick'); if(!btn.disabled) btn.style.animation=animOn?'':'none';
+  saveConfig();
+}
+
+function updateAnimBtn(withPop){
+  const bb=$('bb-anim');
+  const poly=bb.querySelector('.star-poly');
+  if(animOn){
+    bb.classList.add('anim-on');
+    poly.setAttribute('fill','#fbbf24');
+    poly.setAttribute('stroke','#fbbf24');
+    if(withPop){ poly.style.animation='none'; void poly.offsetWidth; poly.style.animation='starPop .3s ease'; setTimeout(()=>poly.style.animation='',400); }
+  }else{
+    bb.classList.remove('anim-on');
+    poly.setAttribute('fill','none');
+    poly.setAttribute('stroke','currentColor');
+  }
 }
 
 /* ════════════════════════════════
@@ -904,6 +1188,126 @@ function setAnim(on){
 function focusTog(){
   focMode=!focMode;
   document.body.classList.toggle('foc',focMode);
+  $('bb-foc').classList.toggle('foc-on',focMode);
+}
+
+/* ════════════════════════════════
+   SETTINGS
+════════════════════════════════ */
+function openSettings(){ show('s-settings'); }
+
+function setSlotSpeed(val,btn){
+  slotSpeedKey=val;
+  $('speed-seg').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('seg-on'));
+  btn.classList.add('seg-on');
+  saveConfig();
+}
+
+function setChipSort(val,btn){
+  chipSort=val;
+  $('sort-seg').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('seg-on'));
+  btn.classList.add('seg-on');
+  if(students.length) renderChips();
+  saveConfig();
+}
+
+function resetTutorial(btn){
+  localStorage.removeItem('sel_tut');
+  const orig=btn.textContent;
+  btn.textContent='✓ リセット済';
+  btn.classList.add('done-flash');
+  setTimeout(()=>{ btn.textContent=orig; btn.classList.remove('done-flash'); }, 2000);
+}
+
+/* ════════════════════════════════
+   全進行状況リセット モーダル
+════════════════════════════════ */
+function openFullResetModal(){
+  // 状態初期化
+  $('frm-confirm').style.display='flex';
+  $('frm-loading').className='';  // display:none
+  $('frm-loading').style.display='none';
+  $('frm-complete').className='';
+  $('frm-complete').style.display='none';
+
+  const delBtn=$('frm-del-btn');
+  delBtn.disabled=true; delBtn.classList.remove('ready');
+  delBtn.textContent=`削除する (${FRM_SECS})`;
+
+  $('frm-cd-text').textContent=`${FRM_SECS}秒後に削除ボタンが有効になります`;
+  $('frm-cd-text').classList.remove('ready');
+
+  // プログレスバー
+  const fill=$('frm-prog-fill');
+  fill.classList.remove('running'); fill.style.width='0%'; void fill.offsetWidth;
+  fill.style.animationDuration=FRM_SECS+'s';
+  fill.classList.add('running');
+
+  // オーバーレイ表示
+  const ov=$('frm-overlay');
+  ov.classList.remove('closing'); ov.classList.add('on');
+
+  // カウントダウン
+  frmCountdown=FRM_SECS; clearInterval(frmTimer);
+  frmTimer=setInterval(()=>{
+    frmCountdown--;
+    if(frmCountdown>0){
+      delBtn.textContent=`削除する (${frmCountdown})`;
+    }else{
+      clearInterval(frmTimer);
+      delBtn.disabled=false; delBtn.classList.add('ready');
+      delBtn.textContent='削除する';
+      $('frm-cd-text').textContent='削除の準備ができました';
+      $('frm-cd-text').classList.add('ready');
+    }
+  },1000);
+}
+
+function closeFullResetModal(){
+  clearInterval(frmTimer);
+  const ov=$('frm-overlay');
+  ov.classList.add('closing');
+  setTimeout(()=>{ ov.classList.remove('on','closing'); },230);
+}
+
+async function execFullReset(){
+  const delBtn=$('frm-del-btn');
+  if(delBtn.disabled) return;
+  clearInterval(frmTimer);
+
+  // → ローディング
+  $('frm-confirm').style.display='none';
+  $('frm-loading').style.display='flex';
+  $('frm-loading').classList.add('on');
+
+  // データ削除
+  allData={}; lsSet({});
+  const t=tok();
+  if(t&&!isManual&&dfid){
+    setSyn('sync');
+    try{
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${dfid}?uploadType=media`,{method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:'{}'});
+      setSyn('ok'); setTimeout(()=>setSyn(''),2000);
+    }catch(e){ console.warn('Drive full reset:',e); setSyn(''); }
+  }
+
+  // 最低 1.5s ローディング表示
+  await new Promise(r=>setTimeout(r,1500));
+
+  // → 完了
+  $('frm-loading').style.display='none';
+  $('frm-complete').style.display='flex';
+  $('frm-complete').classList.add('on');
+
+  // 1.3s 後に閉じて画面リセット
+  setTimeout(()=>{
+    closeFullResetModal();
+    setTimeout(()=>{
+      called=new Set(); absent=new Set(); curr=null; busy=false;
+      if($('s-main').classList.contains('on')){ renderMain(); setIdle(false); $('undo').style.display='none'; const si=$('srch'); if(si) si.value=''; }
+      else if($('s-settings').classList.contains('on')){ /* stay on settings */ }
+    },250);
+  },1300);
 }
 
 /* ════════════════════════════════
@@ -923,45 +1327,37 @@ function doConf(){
 /* ════════════════════════════════
    TUTORIAL
 ════════════════════════════════ */
-let tPg=0;
-const TPG=4;
-
+let tPg=0; const TPG=4;
 function showTut(){
-  $('tut').classList.add('on');
-  tPg=0;
+  $('tut').classList.add('on'); tPg=0;
   $('tut-slides').scrollTo({left:0,behavior:'instant'});
   updateTDots(0);
   $('tut-slides').addEventListener('scroll',onTutScroll,{passive:true});
 }
-
 function onTutScroll(){
-  const s=$('tut-slides');
-  const p=Math.round(s.scrollLeft/(s.offsetWidth||1));
+  const s=$('tut-slides'), p=Math.round(s.scrollLeft/(s.offsetWidth||1));
   if(p!==tPg){ tPg=p; updateTDots(p); }
 }
-
 function updateTDots(p){
   document.querySelectorAll('.td').forEach((d,i)=>d.classList.toggle('on',i===p));
   $('tut-next').textContent=p<TPG-1?'次へ':'スキップ';
 }
-
 function tutNext(){
-  if(tPg<TPG-1){
-    tPg++;
-    $('tut-slides').scrollTo({left:tPg*$('tut-slides').offsetWidth,behavior:'smooth'});
-    updateTDots(tPg);
-  }else{ tutClose(); }
+  if(tPg<TPG-1){ tPg++; $('tut-slides').scrollTo({left:tPg*$('tut-slides').offsetWidth,behavior:'smooth'}); updateTDots(tPg); }
+  else tutClose();
 }
-
-function tutClose(){
-  $('tut').classList.remove('on');
-  localStorage.setItem('sel_tut','1');
-}
+function tutClose(){ $('tut').classList.remove('on'); localStorage.setItem('sel_tut','1'); }
 
 /* ════════════════════════════════
    UTIL
 ════════════════════════════════ */
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ════════════════════════════════
+   INIT
+════════════════════════════════ */
+loadConfig();
 </script>
+
 </body>
 </html>
