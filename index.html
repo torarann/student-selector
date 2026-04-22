@@ -685,7 +685,7 @@ cursor:pointer;-webkit-appearance:none;
         <div class="srch-row">
           <div class="srch-w">
             <svg class="srch-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input class="inp srch" type="search" id="srch" placeholder="名前で検索…" oninput="filterChips(this.value)" autocomplete="off">
+            <input class="inp srch" type="search" id="srch" placeholder="名前で検索..." oninput="filterChips(this.value)" autocomplete="off">
           </div>
           <button id="roster-expand-btn" onclick="openRosterOverlay()" title="名簿を大きく表示">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -934,7 +934,7 @@ cursor:pointer;-webkit-appearance:none;
     </div>
     <div id="frm-loading">
       <div class="frm-spinner"></div>
-      <p>リセット中…</p>
+      <p>リセット中...</p>
     </div>
     <div id="frm-complete">
       <div id="frm-done-ico">
@@ -1281,7 +1281,7 @@ if(busy) return;
 const av=avail(); if(!av.length) return;
 busy=true; curr=null; $('undo').style.display='none';
 const btn=$('pick');
-btn.textContent='選択中…'; btn.disabled=true; btn.style.animation='none'; btn.classList.add('run');
+btn.textContent='選択中...'; btn.disabled=true; btn.style.animation='none'; btn.classList.add('run');
 $('s-badge').style.display='none'; $('stage').className='anim';
 if(animOn) slot(av,s=>showStudent(s,false),done);
 else done(av[Math.floor(Math.random()*av.length)]);
@@ -1289,7 +1289,7 @@ else done(av[Math.floor(Math.random()*av.length)]);
 
 function done(s){
 busy=false; curr=s; showStudent(s,true);
-called.add(s.id); allData[cid]=[…called]; saveToDrive();
+called.add(s.id); allData[cid]=[...called]; saveToDrive();
 const av=avail(), tot=students.length-absent.size;
 const allDone=av.length===0, pct=tot>0?Math.round(called.size/tot*100):0;
 $('prog-f').style.width=pct+'%';
@@ -1327,7 +1327,7 @@ UNDO
 ════════════════════════════════ */
 function undoLast(){
 if(!curr||busy) return;
-called.delete(curr.id); allData[cid]=[…called]; saveToDrive();
+called.delete(curr.id); allData[cid]=[...called]; saveToDrive();
 curr=null; $('undo').style.display='none'; renderMain();
 }
 
@@ -1373,7 +1373,7 @@ absent.add(id); closeChipMenu(); refreshAll();
 area.appendChild(makeCmBtn('ico-undo','↩','指名記録を解除する','次回の指名対象に戻します',()=>{
 called.delete(id);
 if(curr?.id===id){ curr=null; $('undo').style.display='none'; setIdle(false); }
-allData[cid]=[…called]; saveToDrive();
+allData[cid]=[...called]; saveToDrive();
 closeChipMenu(); refreshAll();
 }));
 }
@@ -1387,7 +1387,7 @@ absent.delete(id); closeChipMenu(); refreshAll();
 area.appendChild(makeCmBtn('ico-undo','🔄','指名記録も解除する','出席・未指名の状態に戻します',()=>{
 absent.delete(id); called.delete(id);
 if(curr?.id===id){ curr=null; $('undo').style.display='none'; setIdle(false); }
-allData[cid]=[…called]; saveToDrive();
+allData[cid]=[...called]; saveToDrive();
 closeChipMenu(); refreshAll();
 }));
 }
@@ -1443,7 +1443,7 @@ CHIPS (メイン)
 function renderChips(q=''){
 const g=$('chips'); g.innerHTML='';
 const lq=q.toLowerCase();
-let list=[…students];
+let list=[...students];
 if(chipSort==='called-last') list.sort((a,b)=>{ const ac=called.has(a.id),bc=called.has(b.id); return ac&&!bc?1:!ac&&bc?-1:0; });
 list.forEach(s=>{
 const isAb=absent.has(s.id),isCl=called.has(s.id),isCu=curr?.id===s.id&&!busy;
@@ -1479,7 +1479,7 @@ setTimeout(()=>ov.classList.remove('on','closing'),200);
 }
 function renderRoChips(){
 const g=$('ro-chips'); g.innerHTML='';
-let list=[…students];
+let list=[...students];
 if(chipSort==='called-last') list.sort((a,b)=>{ const ac=called.has(a.id),bc=called.has(b.id); return ac&&!bc?1:!ac&&bc?-1:0; });
 list.forEach(s=>{
 const isAb=absent.has(s.id),isCl=called.has(s.id),isCu=curr?.id===s.id&&!busy;
