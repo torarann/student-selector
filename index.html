@@ -410,13 +410,15 @@ display:grid;grid-template-columns:1.2fr auto;align-items:center;gap:14px;
 padding:14px 16px;
 }
 .offline-mode-main{min-width:0}
-.offline-mode-stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.offline-mode-main .set-actions{justify-content:flex-start}
+.offline-mode-main .set-act-btn{min-width:88px;white-space:nowrap}
+.offline-mode-stats{display:grid;grid-template-columns:repeat(2,minmax(112px,1fr));gap:8px;justify-content:flex-end}
 .offline-mode-stat{min-width:112px;background:var(--s3);border:1px solid var(--bd);border-radius:9px;padding:8px 10px}
-.offline-mode-stat span{display:block;font-size:11px;color:var(--t3);margin-bottom:2px}
-.offline-mode-stat strong{font-size:14px;color:var(--t1)}
+.offline-mode-stat span{display:block;font-size:11px;color:var(--t3);margin-bottom:2px;white-space:nowrap}
+.offline-mode-stat strong{font-size:14px;color:var(--t1);white-space:nowrap}
 .offline-panel-title{font-size:13px;font-weight:700;margin-bottom:7px}
 .offline-panel-row{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--t2);line-height:1.55}
-.offline-panel-note{font-size:11px;color:var(--t3);line-height:1.55;margin-top:8px}
+.offline-panel-note{font-size:11px;color:var(--t3);line-height:1.55;margin-top:8px;overflow-wrap:normal;word-break:normal}
 .offline-course-heading{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;margin:16px 0 8px}
 .cc.offline-saved{border-color:rgba(52,211,153,.35)}
 .cc.offline-saved .ci{background:rgba(52,211,153,.12)}
@@ -644,9 +646,13 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
 .seg-group{width:100%}
 .seg-btn{flex:1}
 .set-act-btn{width:100%}
-.offline-mode-panel{grid-template-columns:1fr}
-.offline-mode-stats{justify-content:flex-start}
-.offline-mode-stat{flex:1;min-width:0}
+}
+@media(max-width:520px){
+.offline-mode-panel{grid-template-columns:1fr;align-items:stretch}
+.offline-mode-main .set-actions{display:grid;grid-template-columns:1fr;gap:8px}
+.offline-mode-main .set-act-btn{width:100%;min-width:0;white-space:normal}
+.offline-mode-stats{grid-template-columns:1fr 1fr}
+.offline-mode-stat{min-width:0}
 }
 @media(min-height:800px){
 #stage-area{padding:32px 20px 20px;gap:22px}
@@ -683,7 +689,7 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
       </button>
       <p id="lerr" style="color:var(--red);font-size:12px;text-align:center;display:none;line-height:1.5"></p>
       <hr class="sep">
-      <button class="btn btn-pri btn-w" onclick="openOfflineMode()" style="font-size:13px">オフライン保存済みクラスを開く</button>
+      <button class="btn btn-pri btn-w" id="login-offline-btn" onclick="openOfflineMode()" style="font-size:13px;display:none">オフライン保存済みクラスを開く</button>
       <button class="btn btn-gst btn-w" onclick="show('s-manual')" style="font-size:13px">手動で名前を入力する</button>
     </div>
     <!-- ✅ 利用規約・プライバシーポリシー + 同意みなし文言 -->
@@ -1465,11 +1471,16 @@ function isPwaMode(){
 return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
 }
 
+function updateInstallModeUI(){
+const btn=$('login-offline-btn');
+if(btn) btn.style.display=isPwaMode()?'inline-flex':'none';
+}
+
 async function maybeOpenOfflineOnStartup(){
 try{
 await initializeOfflineStorage();
 const courses=await getAllOfflineCourses().catch(()=>[]);
-if(courses.length&&(isPwaMode()||!navigator.onLine)){
+if(courses.length&&isPwaMode()){
 await openOfflineMode();
 }
 }catch(err){
@@ -1736,7 +1747,7 @@ offlineAddMode=false;
 const note=document.createElement('div');
 note.className='offline-empty';
 note.style.marginTop='28px';
-note.innerHTML='アプリ化することでオフラインでの利用が可能になります。<br>ホーム画面に追加したアプリ版で開くと、保存済みクラスをオフラインで利用できます。';
+note.innerHTML='ホーム画面に追加したアプリ版で開くと、圏外でもアプリ本体を起動しやすくなります。対応端末では、保存データが自動削除されにくい設定を使用します。';
 g.appendChild(note);
 return;
 }
@@ -2447,6 +2458,7 @@ INIT
 ════════════════════════════════ */
 loadConfig();
 initializeOfflineStorage();
+updateInstallModeUI();
 maybeOpenOfflineOnStartup();
 registerServiceWorker();
 </script>
