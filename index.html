@@ -405,6 +405,15 @@ background:none;color:var(--t2);flex-shrink:0;transition:all .15s;-webkit-appear
 background:var(--s1);border:1px solid var(--bd);border-radius:12px;
 padding:12px 14px;margin-bottom:14px;width:100%;
 }
+.offline-mode-panel{
+display:grid;grid-template-columns:1.2fr auto;align-items:center;gap:14px;
+padding:14px 16px;
+}
+.offline-mode-main{min-width:0}
+.offline-mode-stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.offline-mode-stat{min-width:112px;background:var(--s3);border:1px solid var(--bd);border-radius:9px;padding:8px 10px}
+.offline-mode-stat span{display:block;font-size:11px;color:var(--t3);margin-bottom:2px}
+.offline-mode-stat strong{font-size:14px;color:var(--t1)}
 .offline-panel-title{font-size:13px;font-weight:700;margin-bottom:7px}
 .offline-panel-row{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--t2);line-height:1.55}
 .offline-panel-note{font-size:11px;color:var(--t3);line-height:1.55;margin-top:8px}
@@ -635,6 +644,9 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
 .seg-group{width:100%}
 .seg-btn{flex:1}
 .set-act-btn{width:100%}
+.offline-mode-panel{grid-template-columns:1fr}
+.offline-mode-stats{justify-content:flex-start}
+.offline-mode-stat{flex:1;min-width:0}
 }
 @media(min-height:800px){
 #stage-area{padding:32px 20px 20px;gap:22px}
@@ -689,13 +701,6 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
     <div style="align-self:flex-start;margin-bottom:20px;width:100%">
       <h2 style="font-size:21px;font-weight:700;letter-spacing:-.4px">クラスを選択</h2>
       <p style="color:var(--t2);font-size:13px;margin-top:4px">今日の授業のクラスを選んでください</p>
-    </div>
-    <div class="offline-panel" id="offline-course-status">
-      <div class="offline-panel-title">オフライン保存</div>
-      <div class="offline-panel-row"><span>保存方式</span><strong id="oc-storage-method">IndexedDB</strong></div>
-      <div class="offline-panel-row"><span>永続保存</span><strong id="oc-persistent">確認中</strong></div>
-      <div class="offline-panel-row" id="oc-usage-row" style="display:none"><span>使用容量</span><strong id="oc-usage"></strong></div>
-      <div class="offline-panel-note">この端末に保存されています。消えにくい保存方式を使用しますが、端末の空き容量不足やブラウザ設定により、まれに削除される場合があります。</div>
     </div>
     <div class="course-tabs" id="course-tabs">
       <button class="course-tab on" id="tab-classroom" onclick="setCourseTab('classroom')">Classroom</button>
@@ -806,7 +811,7 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
 <!-- 操作設定 -->
 <div class="set-section">
   <div class="set-label">操作</div>
-  <div class="set-row offline-actions-row">
+  <div class="set-row">
     <div class="set-row-l">
       <div class="set-row-title">スロット速度</div>
       <div class="set-row-desc">指名アニメーションのスピード</div>
@@ -841,34 +846,6 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
     <div class="seg-group" id="theme-seg">
       <button class="seg-btn" data-v="dark"  onclick="setTheme('dark',this)">🌙 ダーク</button>
       <button class="seg-btn" data-v="light" onclick="setTheme('light',this)">☀️ ライト</button>
-    </div>
-  </div>
-</div>
-
-<!-- オフライン -->
-<div class="set-section">
-  <div class="set-label">オフライン</div>
-  <div class="set-row">
-    <div class="set-row-l">
-      <div class="set-row-title">保存状態</div>
-      <div class="set-row-desc">
-        保存方式：<span id="set-storage-method">IndexedDB</span><br>
-        永続保存：<span id="set-persistent">確認中</span><br>
-        保存済みクラス：<span id="set-offline-course-count">0件</span><br>
-        未同期データ：<span id="set-unsynced-count">0件</span><br>
-        <span id="set-storage-usage-row" style="display:none">使用容量：約 <span id="set-storage-usage"></span></span>
-      </div>
-    </div>
-  </div>
-  <div class="set-row">
-    <div class="set-row-l">
-      <div class="set-row-title">端末内の保存データ</div>
-      <div class="set-row-desc">保存済みクラスと同期状態を確認します</div>
-    </div>
-    <div class="set-actions">
-      <button class="set-act-btn" onclick="manageOfflineCourses()">オフライン用クラスを管理</button>
-      <button class="set-act-btn" onclick="syncUnsyncedOfflineProgress()">未同期データを同期</button>
-      <button class="set-act-btn" onclick="refreshOfflineStorageStatus(true)">保存状態を確認</button>
     </div>
   </div>
 </div>
@@ -1132,6 +1109,7 @@ let offlineDBPromise=null, offlineInitPromise=null;
 let offlineStorageInfo={supported:false,persisted:false,estimate:null,dbReady:false,error:null};
 let offlineDeviceId=null;
 let classroomCoursesCache=[], activeCourseTab='classroom';
+let offlineAddMode=false;
 
 const $ = id => document.getElementById(id);
 
@@ -1476,16 +1454,6 @@ offlineStorageInfo.estimate=await getStorageEstimate();
 const usage=offlineStorageInfo.estimate?.usage;
 const usageText=formatBytes(usage);
 const persistent=persistentLabel();
-if($('oc-storage-method')) $('oc-storage-method').textContent='IndexedDB';
-if($('oc-persistent')) $('oc-persistent').textContent=offlineStorageInfo.persisted?'有効':'この端末では未対応または未許可';
-if($('oc-usage-row')) $('oc-usage-row').style.display=usageText?'flex':'none';
-if($('oc-usage')) $('oc-usage').textContent=usageText?'約 '+usageText:'';
-if($('set-storage-method')) $('set-storage-method').textContent='IndexedDB';
-if($('set-persistent')) $('set-persistent').textContent=persistent;
-if($('set-offline-course-count')) $('set-offline-course-count').textContent=courses.length+'件';
-if($('set-unsynced-count')) $('set-unsynced-count').textContent=unsynced.length+'件';
-if($('set-storage-usage-row')) $('set-storage-usage-row').style.display=usageText?'inline':'none';
-if($('set-storage-usage')) $('set-storage-usage').textContent=usageText;
 if(showMessage) alert(`保存方式：IndexedDB\n永続保存：${persistent}\n保存済みクラス：${courses.length}件\n未同期データ：${unsynced.length}件${usageText?`\n使用容量：約 ${usageText}`:''}`);
 }catch(err){
 console.warn('Offline status refresh failed',err);
@@ -1763,27 +1731,39 @@ const unsynced=await getUnsyncedOfflineProgress().catch(()=>[]);
 const progressList=await idbGetAll(STORE_PROGRESS).catch(()=>[]);
 const progressByCourse=new Map(progressList.map(p=>[p.courseId,p]));
 const unsyncedIds=new Set(unsynced.map(p=>p.courseId));
+if(!isPwaMode()){
+offlineAddMode=false;
+const note=document.createElement('div');
+note.className='offline-empty';
+note.style.marginTop='28px';
+note.innerHTML='アプリ化することでオフラインでの利用が可能になります。<br>ホーム画面に追加したアプリ版で開くと、保存済みクラスをオフラインで利用できます。';
+g.appendChild(note);
+return;
+}
 const tools=document.createElement('div');
-tools.className='offline-panel';
-tools.innerHTML=`<div class="offline-panel-title">オフラインモード</div>
-<div class="offline-panel-row"><span>保存済みクラス</span><strong>${offlineCourses.length}件</strong></div>
-<div class="offline-panel-row"><span>未同期データ</span><strong>${unsynced.length}件</strong></div>
+tools.className='offline-panel offline-mode-panel';
+tools.innerHTML=`<div class="offline-mode-main">
+<div class="offline-panel-title">オフラインモード</div>
 <div class="offline-panel-note">Googleログインなしでも、この端末に保存済みのクラスでセレクターを開始できます。欠席情報はその授業用として端末内に保存され、Driveには保存しません。</div>
 <div class="set-actions" style="margin-top:10px">
+  <button class="set-act-btn" onclick="startOfflineCourseAdd()">追加</button>
   <button class="set-act-btn" onclick="syncUnsyncedOfflineProgress()">未同期データを同期</button>
   <button class="set-act-btn" onclick="refreshOfflineCourseTab()">更新状況を再読み込み</button>
+</div>
+</div>
+<div class="offline-mode-stats">
+  <div class="offline-mode-stat"><span>保存済みクラス</span><strong>${offlineCourses.length}件</strong></div>
+  <div class="offline-mode-stat"><span>未同期データ</span><strong>${unsynced.length}件</strong></div>
 </div>`;
 g.appendChild(tools);
-if(!isPwaMode()){
-const note=document.createElement('div');
-note.className='offline-panel';
-note.innerHTML='<div class="offline-panel-title">アプリ版の利用について</div><div class="offline-panel-note">ホーム画面に追加したアプリ版で開くと、圏外でもアプリ本体を起動しやすくなります。対応端末では、保存データが自動削除されにくい設定を使用します。</div>';
-g.appendChild(note);
+if(offlineAddMode){
+renderOfflineAddCandidates(g,offlineCourses);
+return;
 }
 if(!offlineCourses.length){
 const empty=document.createElement('div');
 empty.className='offline-empty';
-empty.textContent='保存済みのオフラインクラスはまだありません。オンラインでClassroomクラスを一度開くと、この端末に名簿が保存されます。';
+empty.textContent='保存済みのオフラインクラスはまだありません。「追加」からオンラインのClassroomクラスを選んで保存してください。';
 g.appendChild(empty);
 return;
 }
@@ -1802,6 +1782,67 @@ const isUnsynced=unsyncedIds.has(c.courseId);
 b.innerHTML=`<div class="ci">💾</div><div class="cn">${esc(c.courseName)}</div><div class="cs">端末内に保存済み</div><div class="offline-meta"><span class="offline-pill">名簿 ${rosterUpdated}</span>${progressUpdated?`<span class="offline-pill">進行 ${progressUpdated}</span>`:''}${used?`<span class="offline-pill">使用 ${used}</span>`:''}<span class="offline-pill ${isUnsynced?'warn':''}">${isUnsynced?'未同期あり':synced?`同期 ${synced}`:'同期済み'}</span></div>`;
 b.onclick=()=>loadSavedOfflineCourse(c.courseId); g.appendChild(b);
 });
+}
+
+function renderOfflineAddCandidates(g,offlineCourses){
+const savedIds=new Set(offlineCourses.map(c=>c.courseId));
+const head=document.createElement('div');
+head.className='offline-course-heading';
+head.textContent='保存するクラスを選択';
+g.appendChild(head);
+if(!prof||!tok()){
+const empty=document.createElement('div');
+empty.className='offline-empty';
+empty.innerHTML='オフライン用クラスを追加するには、オンラインでGoogleログインしてください。';
+g.appendChild(empty);
+return;
+}
+if(!classroomCoursesCache.length){
+const empty=document.createElement('div');
+empty.className='offline-empty';
+empty.textContent='追加できるClassroomクラスが見つかりません。';
+g.appendChild(empty);
+return;
+}
+classroomCoursesCache.forEach(c=>{
+const saved=savedIds.has(c.id);
+const b=document.createElement('button');
+b.className='cc';
+b.innerHTML=`<div class="ci">${saved?'✅':'＋'}</div><div class="cn">${esc(c.name)}</div>${c.section?`<div class="cs">${esc(c.section)}</div>`:''}<div class="offline-meta"><span class="offline-pill">${saved?'保存済み・更新できます':'未保存'}</span></div>`;
+b.onclick=()=>addOfflineCourse(c);
+g.appendChild(b);
+});
+const cancel=document.createElement('button');
+cancel.className='btn btn-gst btn-w';
+cancel.style.marginTop='12px';
+cancel.textContent='戻る';
+cancel.onclick=()=>{ offlineAddMode=false; refreshOfflineCourseTab(); };
+g.appendChild(cancel);
+}
+
+async function startOfflineCourseAdd(){
+if(!navigator.onLine){
+alert('クラスを追加するにはオンライン接続が必要です。');
+return;
+}
+if(!prof||!tok()){
+alert('クラスを追加するにはGoogleログインしてください。');
+return;
+}
+offlineAddMode=true;
+await refreshOfflineCourseTab();
+}
+
+async function addOfflineCourse(c){
+try{
+const list=await fetchCourseStudents(c);
+await saveOfflineCourse({courseId:c.id,courseName:c.name,students:list,source:'classroom',updatedAt:Date.now()});
+offlineAddMode=false;
+await refreshOfflineCourseTab();
+alert('オフライン用クラスに追加しました。');
+}catch(e){
+alert('クラスの保存に失敗しました: '+e.message);
+}
 }
 
 async function setCourseTab(tab){
@@ -1824,6 +1865,12 @@ return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}
 
 async function loadCourse(c){
 try{
+const list=await fetchCourseStudents(c);
+isManual=false; await openClass(c.id,c.name,list);
+}catch(e){ alert('生徒取得エラー: '+e.message); }
+}
+
+async function fetchCourseStudents(c){
 const list=[]; let pt=undefined;
 do{
 const params={courseId:c.id,pageSize:30}; if(pt) params.pageToken=pt;
@@ -1831,8 +1878,7 @@ const r=await window.gapi.client.classroom.courses.students.list(params);
 (r.result.students||[]).forEach(s=>list.push({id:s.userId,name:s.profile.name.fullName,photo:s.profile.photoUrl||null}));
 pt=r.result.nextPageToken;
 }while(pt);
-isManual=false; await openClass(c.id,c.name,list);
-}catch(e){ alert('生徒取得エラー: '+e.message); }
+return list;
 }
 
 /* ════════════════════════════════
@@ -1857,8 +1903,6 @@ try{
 await initializeOfflineStorage();
 if(opts.fromOffline){
 await updateOfflineCourseLastUsed(id);
-}else{
-await saveOfflineCourse({courseId:id,courseName:name,students:list,source:isManual?'manual':'classroom'});
 }
 localProgress=await getOfflineProgress(id).catch(()=>null);
 }catch(err){ console.warn('Offline class prepare failed',err); }
