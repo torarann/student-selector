@@ -1634,7 +1634,15 @@ await openClass(course.courseId,course.courseName,course.students.map(s=>({id:s.
 function registerServiceWorker(){
 if(!('serviceWorker' in navigator)) return;
 window.addEventListener('load',()=>{
-navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('Service worker registration failed',err));
+navigator.serviceWorker.register('./service-worker.js')
+.then(reg=>reg.update().catch(()=>{}))
+.catch(err=>console.warn('Service worker registration failed',err));
+let refreshing=false;
+navigator.serviceWorker.addEventListener('controllerchange',()=>{
+if(refreshing) return;
+refreshing=true;
+window.location.reload();
+});
 });
 }
 
@@ -1865,10 +1873,6 @@ b.onclick=()=>loadSavedOfflineCourse(c.courseId); g.appendChild(b);
 
 function renderOfflineAddCandidates(g,offlineCourses){
 const savedIds=new Set(offlineCourses.map(c=>c.courseId));
-const head=document.createElement('div');
-head.className='offline-course-heading';
-head.textContent='保存するクラスを選択';
-g.appendChild(head);
 if(!prof||!tok()){
 const empty=document.createElement('div');
 empty.className='offline-empty';
