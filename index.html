@@ -1107,8 +1107,8 @@ border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bo
     <div id="sync-confirm-title">未同期データがあります</div>
     <div id="sync-confirm-desc">この端末に未同期の指名データがあります。今すぐDriveへ同期しますか？</div>
     <div id="sync-confirm-actions">
-      <button class="btn btn-gst" onclick="resolveUnsyncedSync(false)">あとで</button>
-      <button class="btn btn-pri" onclick="resolveUnsyncedSync(true)">同期する</button>
+      <button class="btn btn-gst" id="sync-confirm-secondary" onclick="resolveUnsyncedSync(false)">あとで</button>
+      <button class="btn btn-pri" id="sync-confirm-primary" onclick="resolveUnsyncedSync(true)">同期する</button>
     </div>
   </div>
 </div>
@@ -1591,11 +1591,19 @@ show('s-courses');
 }
 
 let unsyncedSyncResolver=null;
-function askUnsyncedSync(){
+function askSyncChoice(title,desc,primary='同期する',secondary='あとで'){
 return new Promise(resolve=>{
 unsyncedSyncResolver=resolve;
+$('sync-confirm-title').textContent=title;
+$('sync-confirm-desc').textContent=desc;
+$('sync-confirm-primary').textContent=primary;
+$('sync-confirm-secondary').textContent=secondary;
 $('sync-confirm-overlay').classList.add('on');
 });
+}
+
+function askUnsyncedSync(){
+return askSyncChoice('未同期データがあります','この端末に未同期の指名データがあります。今すぐDriveへ同期しますか？','同期する','あとで');
 }
 function resolveUnsyncedSync(ok){
 $('sync-confirm-overlay').classList.remove('on');
@@ -1612,6 +1620,44 @@ const items=await getUnsyncedOfflineProgress().catch(()=>[]);
 if(!items.length) return;
 const ok=await askUnsyncedSync();
 if(ok) await syncUnsyncedOfflineProgress();
+}
+
+function sameIdList(a,b){
+const aa=[...(a||[])].map(String).sort();
+const bb=[...(b||[])].map(String).sort();
+return aa.length===bb.length&&aa.every((v,i)=>v===bb[i]);
+}
+
+async function reconcileDriveAndLocalProgress(){
+if(!navigator.onLine||!tok()) return;
+await initializeOfflineStorage();
+const progressList=await idbGetAll(STORE_PROGRESS).catch(()=>[]);
+let changedDrive=false;
+for(const local of progressList){
+const courseId=local.courseId;
+const localCalled=local.called||[];
+const driveCalled=driveCalledFor(courseId);
+const localUpdated=local.updatedAt||0;
+const driveUpdated=driveUpdatedAtFor(courseId);
+if(sameIdList(localCalled,driveCalled)&&!local.unsynced) continue;
+if(localUpdated>driveUpdated||(!driveUpdated&&local.unsynced)){
+const ok=await askSyncChoice('データを同期します','この端末のデータがDriveより新しいため、Driveへ同期します。','同期する','あとで');
+if(!ok) continue;
+setDriveProgress(courseId,localCalled,localUpdated||Date.now());
+changedDrive=true;
+await markOfflineProgressSynced(courseId);
+continue;
+}
+const useDrive=await askSyncChoice('進行状況に差があります','Driveとこの端末の進行状況が異なります。どちらのデータを使いますか？','Driveを使う','この端末を使う');
+if(useDrive){
+await putOfflineProgressRecord({...local,called:driveCalled,updatedAt:driveUpdated||Date.now(),unsynced:false,lastSyncedAt:Date.now()});
+}else{
+setDriveProgress(courseId,localCalled,localUpdated||Date.now());
+changedDrive=true;
+await markOfflineProgressSynced(courseId);
+}
+}
+if(changedDrive) await saveToDrive();
 }
 
 async function syncUnsyncedOfflineProgress(){
@@ -1637,7 +1683,7 @@ return true;
 }
 let ok=true;
 for(const progress of items){
-allData[progress.courseId]=[...progress.called];
+setDriveProgress(progress.courseId,progress.called,progress.updatedAt||Date.now());
 const saved=await saveToDrive();
 if(saved){
 await markOfflineProgressSynced(progress.courseId);
@@ -1651,7 +1697,7 @@ return ok;
 
 async function persistCurrentProgress(syncDrive=true){
 if(!cid) return;
-allData[cid]=[...called];
+setDriveProgress(cid,[...called]);
 try{ await saveOfflineProgress(cid); }catch(err){ console.warn('Offline progress save failed',err); }
 if(syncDrive){
 const saved=await saveToDrive();
@@ -1777,7 +1823,7 @@ prof=pr.result;
 updateLoginButton();
 localStorage.setItem('sel_autologin','1');
 await loadFromDrive();
-await confirmUnsyncedSyncIfNeeded();
+await reconcileDriveAndLocalProgress();
 const r=await window.gapi.client.classroom.courses.list({courseStates:['ACTIVE'],pageSize:30});
 classroomCoursesCache=r.result.courses||[];
 activeCourseTab='classroom';
@@ -1860,6 +1906,15 @@ if(Array.isArray(value)) return value;
 return value?.called||[];
 }
 
+function driveUpdatedAtFor(courseId){
+const value=allData?.[courseId];
+return Array.isArray(value)?0:(value?.updatedAt||0);
+}
+
+function setDriveProgress(courseId,calledList,updatedAt=Date.now()){
+allData[courseId]={called:[...calledList],updatedAt,version:2};
+}
+
 /* ════════════════════════════════
 COURSES
 ════════════════════════════════ */
@@ -1872,7 +1927,7 @@ $('tab-classroom')?.classList.toggle('on',activeCourseTab==='classroom');
 $('tab-offline')?.classList.toggle('on',activeCourseTab==='offline');
 if(activeCourseTab==='classroom'){
 renderClassroomCourseList(g,classroomCoursesCache);
-$('no-c').style.display=classroomCoursesCache.length?'none':'block';
+$('no-c').style.display=(!prof||classroomCoursesCache.length)?'none':'block';
 $('no-c').textContent=prof?'クラスが見つかりませんでした':'オンライン状態でGoogleログイン後に、Classroomのクラスを表示します。保存済みクラスは「オフライン」タブから開けます。';
 }else{
 await renderOfflineCourseList(g,offlineCourses);
