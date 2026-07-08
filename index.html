@@ -373,13 +373,14 @@ padding:13px 16px;
 background:var(--s1);
 border-top:1px solid var(--bd);
 transition:background .25s;
+min-width:0;
 }
 .set-row:last-child{border-bottom:1px solid var(--bd)}
 .set-row-tap{cursor:pointer;transition:background .15s}
 .set-row-tap:active{background:var(--s2)}
 .set-row-l{flex:1;min-width:0}
 .set-row-title{font-size:14px;font-weight:600;letter-spacing:-.2px;line-height:1.3}
-.set-row-desc{font-size:12px;color:var(--t2);margin-top:3px;line-height:1.4}
+.set-row-desc{font-size:12px;color:var(--t2);margin-top:3px;line-height:1.55;overflow-wrap:anywhere}
 /* セグメントボタン */
 .seg-group{display:flex;background:var(--s3);border-radius:8px;padding:2px;flex-shrink:0}
 .seg-btn{
@@ -396,7 +397,10 @@ background:none;color:var(--t2);flex-shrink:0;transition:all .15s;-webkit-appear
 }
 .set-act-btn:active{background:var(--s2)}
 .set-act-btn.done-flash{color:var(--grn);border-color:var(--grn)}
-.set-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.set-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:100%}
+.set-actions .set-act-btn{white-space:normal;line-height:1.35}
+.offline-actions-row{align-items:flex-start;flex-wrap:wrap}
+.offline-actions-row .set-actions{width:100%;justify-content:flex-start}
 .offline-panel{
 background:var(--s1);border:1px solid var(--bd);border-radius:12px;
 padding:12px 14px;margin-bottom:14px;width:100%;
@@ -407,6 +411,13 @@ padding:12px 14px;margin-bottom:14px;width:100%;
 .offline-course-heading{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;margin:16px 0 8px}
 .cc.offline-saved{border-color:rgba(52,211,153,.35)}
 .cc.offline-saved .ci{background:rgba(52,211,153,.12)}
+.course-tabs{display:flex;gap:6px;background:var(--s3);border:1px solid var(--bd);border-radius:10px;padding:3px;margin:0 0 14px;width:100%}
+.course-tab{flex:1;border:none;border-radius:7px;background:transparent;color:var(--t2);font-size:13px;font-weight:700;padding:9px 8px;font-family:'DM Sans','Noto Sans JP',sans-serif;cursor:pointer}
+.course-tab.on{background:var(--s1);color:var(--t1);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.offline-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.offline-pill{font-size:11px;color:var(--t2);background:var(--s3);border:1px solid var(--bd);border-radius:999px;padding:3px 7px}
+.offline-pill.warn{color:var(--gld);border-color:rgba(251,191,36,.35)}
+.offline-empty{color:var(--t2);font-size:13px;line-height:1.7;text-align:center;padding:24px 8px}
 .set-row-danger .set-row-title{color:var(--red)}
 .set-row-signout .set-row-title{color:var(--t2)}
 .chevron{color:var(--t3);flex-shrink:0}
@@ -620,6 +631,10 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
 #pick{font-size:17px;padding:15px 32px;min-height:52px}
 .pg{padding:24px 16px}
 .bb-btn{font-size:7px;padding:10px 1px}
+.set-row{align-items:flex-start;flex-wrap:wrap}
+.seg-group{width:100%}
+.seg-btn{flex:1}
+.set-act-btn{width:100%}
 }
 @media(min-height:800px){
 #stage-area{padding:32px 20px 20px;gap:22px}
@@ -656,6 +671,7 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
       </button>
       <p id="lerr" style="color:var(--red);font-size:12px;text-align:center;display:none;line-height:1.5"></p>
       <hr class="sep">
+      <button class="btn btn-pri btn-w" onclick="openOfflineMode()" style="font-size:13px">オフライン保存済みクラスを開く</button>
       <button class="btn btn-gst btn-w" onclick="show('s-manual')" style="font-size:13px">手動で名前を入力する</button>
     </div>
     <!-- ✅ 利用規約・プライバシーポリシー + 同意みなし文言 -->
@@ -680,6 +696,10 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
       <div class="offline-panel-row"><span>永続保存</span><strong id="oc-persistent">確認中</strong></div>
       <div class="offline-panel-row" id="oc-usage-row" style="display:none"><span>使用容量</span><strong id="oc-usage"></strong></div>
       <div class="offline-panel-note">この端末に保存されています。消えにくい保存方式を使用しますが、端末の空き容量不足やブラウザ設定により、まれに削除される場合があります。</div>
+    </div>
+    <div class="course-tabs" id="course-tabs">
+      <button class="course-tab on" id="tab-classroom" onclick="setCourseTab('classroom')">Classroom</button>
+      <button class="course-tab" id="tab-offline" onclick="setCourseTab('offline')">オフライン</button>
     </div>
     <div id="cg"></div>
     <p id="no-c" style="color:var(--t2);display:none;margin-top:16px;font-size:13px">クラスが見つかりませんでした</p>
@@ -786,7 +806,7 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
 <!-- 操作設定 -->
 <div class="set-section">
   <div class="set-label">操作</div>
-  <div class="set-row">
+  <div class="set-row offline-actions-row">
     <div class="set-row-l">
       <div class="set-row-title">スロット速度</div>
       <div class="set-row-desc">指名アニメーションのスピード</div>
@@ -1111,6 +1131,7 @@ let frmTimer=null, frmCountdown=FRM_SECS;
 let offlineDBPromise=null, offlineInitPromise=null;
 let offlineStorageInfo={supported:false,persisted:false,estimate:null,dbReady:false,error:null};
 let offlineDeviceId=null;
+let classroomCoursesCache=[], activeCourseTab='classroom';
 
 const $ = id => document.getElementById(id);
 
@@ -1239,9 +1260,18 @@ courseName:course.courseName||course.name||cname||'クラス',
 students:(course.students||students||[]).map(normalizeOfflineStudent).filter(s=>s.id&&s.name),
 savedAt:existing?.savedAt||now,
 updatedAt:course.updatedAt||now,
+lastUsedAt:course.lastUsedAt||existing?.lastUsedAt||null,
 source:course.source||(isManual?'manual':'classroom'),
 version:1
 };
+await idbPut(STORE_COURSES,record);
+return record;
+}
+
+async function updateOfflineCourseLastUsed(courseId){
+const existing=await getOfflineCourse(courseId).catch(()=>null);
+if(!existing) return null;
+const record={...existing,lastUsedAt:Date.now()};
 await idbPut(STORE_COURSES,record);
 return record;
 }
@@ -1467,23 +1497,40 @@ function isPwaMode(){
 return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
 }
 
+async function maybeOpenOfflineOnStartup(){
+try{
+await initializeOfflineStorage();
+const courses=await getAllOfflineCourses().catch(()=>[]);
+if(courses.length&&(isPwaMode()||!navigator.onLine)){
+await openOfflineMode();
+}
+}catch(err){
+console.warn('Offline startup check failed',err);
+}
+}
+
 function showPwaOfflineNotice(){
 alert('オフライン利用では、クラス名簿や指名状況をこの端末に保存します。\nホーム画面に追加したアプリ版で開くことで、圏外でもアプリ本体を起動しやすくなります。\n\nアプリ版では、保存済みクラスを端末内に保存します。\n対応端末では、保存データが自動削除されにくい設定を使用します。');
 }
 
 async function manageOfflineCourses(){
-await initializeOfflineStorage();
-if(!isPwaMode()){
-showPwaOfflineNotice();
-return;
+await openOfflineMode();
 }
-await renderCourses([]);
+
+async function openOfflineMode(){
+await initializeOfflineStorage();
+activeCourseTab='offline';
+await renderCourses(classroomCoursesCache);
 show('s-courses');
 }
 
 async function syncUnsyncedOfflineProgress(){
 if(!navigator.onLine){
 alert('現在オフラインです。オンラインになってから再試行してください。');
+return false;
+}
+if(!tok()){
+alert('未同期データをDriveへ同期するには、オンラインでGoogleログインしてください。保存済みデータはこの端末に残ります。');
 return false;
 }
 let items=[];
@@ -1590,6 +1637,8 @@ localStorage.setItem('sel_autologin','1');
 await loadFromDrive();
 await syncUnsyncedOfflineProgress();
 const r=await window.gapi.client.classroom.courses.list({courseStates:['ACTIVE'],pageSize:30});
+classroomCoursesCache=r.result.courses||[];
+activeCourseTab='classroom';
 await renderCourses(r.result.courses||[]);
 show('s-courses');
 }catch(e){ loginErr('エラー: '+e.message); }
@@ -1672,9 +1721,30 @@ COURSES
 ════════════════════════════════ */
 async function renderCourses(list){
 await initializeOfflineStorage();
+classroomCoursesCache=list||classroomCoursesCache||[];
 const g=$('cg'); g.innerHTML='';
 const offlineCourses=await getAllOfflineCourses().catch(()=>[]);
-$('no-c').style.display=(list.length||offlineCourses.length)?'none':'block';
+$('tab-classroom')?.classList.toggle('on',activeCourseTab==='classroom');
+$('tab-offline')?.classList.toggle('on',activeCourseTab==='offline');
+if(activeCourseTab==='classroom'){
+renderClassroomCourseList(g,classroomCoursesCache);
+$('no-c').style.display=classroomCoursesCache.length?'none':'block';
+$('no-c').textContent=prof?'クラスが見つかりませんでした':'Googleログイン後にClassroomのクラスを表示します';
+}else{
+await renderOfflineCourseList(g,offlineCourses);
+$('no-c').style.display='none';
+}
+await refreshOfflineStorageStatus();
+}
+
+function renderClassroomCourseList(g,list){
+if(!prof){
+const box=document.createElement('div');
+box.className='offline-empty';
+box.innerHTML='Classroomのクラスを表示するにはGoogleログインが必要です。<br>保存済みクラスは「オフライン」タブから開けます。';
+g.appendChild(box);
+return;
+}
 if(list.length){
 const onlineHead=document.createElement('div');
 onlineHead.className='offline-course-heading';
@@ -1686,18 +1756,70 @@ const b=document.createElement('button'); b.className='cc';
 b.innerHTML=`<div class="ci">📋</div><div class="cn">${esc(c.name)}</div>${c.section?`<div class="cs">${esc(c.section)}</div>`:''}`;
 b.onclick=()=>loadCourse(c); g.appendChild(b);
 });
-if(offlineCourses.length){
+}
+
+async function renderOfflineCourseList(g,offlineCourses){
+const unsynced=await getUnsyncedOfflineProgress().catch(()=>[]);
+const progressList=await idbGetAll(STORE_PROGRESS).catch(()=>[]);
+const progressByCourse=new Map(progressList.map(p=>[p.courseId,p]));
+const unsyncedIds=new Set(unsynced.map(p=>p.courseId));
+const tools=document.createElement('div');
+tools.className='offline-panel';
+tools.innerHTML=`<div class="offline-panel-title">オフラインモード</div>
+<div class="offline-panel-row"><span>保存済みクラス</span><strong>${offlineCourses.length}件</strong></div>
+<div class="offline-panel-row"><span>未同期データ</span><strong>${unsynced.length}件</strong></div>
+<div class="offline-panel-note">Googleログインなしでも、この端末に保存済みのクラスでセレクターを開始できます。欠席情報はその授業用として端末内に保存され、Driveには保存しません。</div>
+<div class="set-actions" style="margin-top:10px">
+  <button class="set-act-btn" onclick="syncUnsyncedOfflineProgress()">未同期データを同期</button>
+  <button class="set-act-btn" onclick="refreshOfflineCourseTab()">更新状況を再読み込み</button>
+</div>`;
+g.appendChild(tools);
+if(!isPwaMode()){
+const note=document.createElement('div');
+note.className='offline-panel';
+note.innerHTML='<div class="offline-panel-title">アプリ版の利用について</div><div class="offline-panel-note">ホーム画面に追加したアプリ版で開くと、圏外でもアプリ本体を起動しやすくなります。対応端末では、保存データが自動削除されにくい設定を使用します。</div>';
+g.appendChild(note);
+}
+if(!offlineCourses.length){
+const empty=document.createElement('div');
+empty.className='offline-empty';
+empty.textContent='保存済みのオフラインクラスはまだありません。オンラインでClassroomクラスを一度開くと、この端末に名簿が保存されます。';
+g.appendChild(empty);
+return;
+}
 const offlineHead=document.createElement('div');
 offlineHead.className='offline-course-heading';
 offlineHead.textContent='この端末に保存済み';
 g.appendChild(offlineHead);
 offlineCourses.forEach(c=>{
 const b=document.createElement('button'); b.className='cc offline-saved';
-b.innerHTML=`<div class="ci">💾</div><div class="cn">${esc(c.courseName)}</div><div class="cs">端末内に保存済み</div>`;
+const progress=progressByCourse.get(c.courseId);
+const rosterUpdated=formatDateTime(c.updatedAt||c.savedAt);
+const progressUpdated=formatDateTime(progress?.updatedAt);
+const synced=formatDateTime(progress?.lastSyncedAt);
+const used=formatDateTime(c.lastUsedAt);
+const isUnsynced=unsyncedIds.has(c.courseId);
+b.innerHTML=`<div class="ci">💾</div><div class="cn">${esc(c.courseName)}</div><div class="cs">端末内に保存済み</div><div class="offline-meta"><span class="offline-pill">名簿 ${rosterUpdated}</span>${progressUpdated?`<span class="offline-pill">進行 ${progressUpdated}</span>`:''}${used?`<span class="offline-pill">使用 ${used}</span>`:''}<span class="offline-pill ${isUnsynced?'warn':''}">${isUnsynced?'未同期あり':synced?`同期 ${synced}`:'同期済み'}</span></div>`;
 b.onclick=()=>loadSavedOfflineCourse(c.courseId); g.appendChild(b);
 });
 }
-await refreshOfflineStorageStatus();
+
+async function setCourseTab(tab){
+activeCourseTab=tab;
+await renderCourses(classroomCoursesCache);
+}
+
+async function refreshOfflineCourseTab(){
+activeCourseTab='offline';
+await renderCourses(classroomCoursesCache);
+}
+
+function formatDateTime(ts){
+if(!ts) return '';
+try{
+const d=new Date(ts);
+return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}catch{ return ''; }
 }
 
 async function loadCourse(c){
@@ -1733,7 +1855,11 @@ absent=new Set(); curr=null; busy=false;
 let localProgress=null;
 try{
 await initializeOfflineStorage();
+if(opts.fromOffline){
+await updateOfflineCourseLastUsed(id);
+}else{
 await saveOfflineCourse({courseId:id,courseName:name,students:list,source:isManual?'manual':'classroom'});
+}
 localProgress=await getOfflineProgress(id).catch(()=>null);
 }catch(err){ console.warn('Offline class prepare failed',err); }
 const driveCalled=driveCalledFor(id);
@@ -2072,7 +2198,14 @@ $('undo').style.display='none';
 const si=$('srch'); if(si) si.value='';
 renderChips();
 }
-function chgClass(){ show(isManual?'s-manual':'s-courses'); }
+async function chgClass(){
+if(isManual){
+show('s-manual');
+return;
+}
+await renderCourses(classroomCoursesCache);
+show('s-courses');
+}
 
 /* ════════════════════════════════
 ✅ ANIM TOGGLE
@@ -2270,6 +2403,7 @@ INIT
 ════════════════════════════════ */
 loadConfig();
 initializeOfflineStorage();
+maybeOpenOfflineOnStartup();
 registerServiceWorker();
 </script>
 
