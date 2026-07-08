@@ -4,7 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080808">
 <title>生徒セレクター</title>
+<link rel="manifest" href="./manifest.webmanifest">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -394,6 +396,17 @@ background:none;color:var(--t2);flex-shrink:0;transition:all .15s;-webkit-appear
 }
 .set-act-btn:active{background:var(--s2)}
 .set-act-btn.done-flash{color:var(--grn);border-color:var(--grn)}
+.set-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.offline-panel{
+background:var(--s1);border:1px solid var(--bd);border-radius:12px;
+padding:12px 14px;margin-bottom:14px;width:100%;
+}
+.offline-panel-title{font-size:13px;font-weight:700;margin-bottom:7px}
+.offline-panel-row{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--t2);line-height:1.55}
+.offline-panel-note{font-size:11px;color:var(--t3);line-height:1.55;margin-top:8px}
+.offline-course-heading{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;margin:16px 0 8px}
+.cc.offline-saved{border-color:rgba(52,211,153,.35)}
+.cc.offline-saved .ci{background:rgba(52,211,153,.12)}
 .set-row-danger .set-row-title{color:var(--red)}
 .set-row-signout .set-row-title{color:var(--t2)}
 .chevron{color:var(--t3);flex-shrink:0}
@@ -661,6 +674,13 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
       <h2 style="font-size:21px;font-weight:700;letter-spacing:-.4px">クラスを選択</h2>
       <p style="color:var(--t2);font-size:13px;margin-top:4px">今日の授業のクラスを選んでください</p>
     </div>
+    <div class="offline-panel" id="offline-course-status">
+      <div class="offline-panel-title">オフライン保存</div>
+      <div class="offline-panel-row"><span>保存方式</span><strong id="oc-storage-method">IndexedDB</strong></div>
+      <div class="offline-panel-row"><span>永続保存</span><strong id="oc-persistent">確認中</strong></div>
+      <div class="offline-panel-row" id="oc-usage-row" style="display:none"><span>使用容量</span><strong id="oc-usage"></strong></div>
+      <div class="offline-panel-note">この端末に保存されています。消えにくい保存方式を使用しますが、端末の空き容量不足やブラウザ設定により、まれに削除される場合があります。</div>
+    </div>
     <div id="cg"></div>
     <p id="no-c" style="color:var(--t2);display:none;margin-top:16px;font-size:13px">クラスが見つかりませんでした</p>
   </div>
@@ -763,7 +783,6 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
   </div>
   <div id="set-body">
 
-```
 <!-- 操作設定 -->
 <div class="set-section">
   <div class="set-label">操作</div>
@@ -806,6 +825,34 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
   </div>
 </div>
 
+<!-- オフライン -->
+<div class="set-section">
+  <div class="set-label">オフライン</div>
+  <div class="set-row">
+    <div class="set-row-l">
+      <div class="set-row-title">保存状態</div>
+      <div class="set-row-desc">
+        保存方式：<span id="set-storage-method">IndexedDB</span><br>
+        永続保存：<span id="set-persistent">確認中</span><br>
+        保存済みクラス：<span id="set-offline-course-count">0件</span><br>
+        未同期データ：<span id="set-unsynced-count">0件</span><br>
+        <span id="set-storage-usage-row" style="display:none">使用容量：約 <span id="set-storage-usage"></span></span>
+      </div>
+    </div>
+  </div>
+  <div class="set-row">
+    <div class="set-row-l">
+      <div class="set-row-title">端末内の保存データ</div>
+      <div class="set-row-desc">保存済みクラスと同期状態を確認します</div>
+    </div>
+    <div class="set-actions">
+      <button class="set-act-btn" onclick="manageOfflineCourses()">オフライン用クラスを管理</button>
+      <button class="set-act-btn" onclick="syncUnsyncedOfflineProgress()">未同期データを同期</button>
+      <button class="set-act-btn" onclick="refreshOfflineStorageStatus(true)">保存状態を確認</button>
+    </div>
+  </div>
+</div>
+
 <!-- その他 -->
 <div class="set-section">
   <div class="set-label">その他</div>
@@ -841,8 +888,6 @@ cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opaci
     <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
   </div>
 </div>
-```
-
   </div>
 </div>
 
@@ -1042,6 +1087,14 @@ const DISC   = 'https://classroom.googleapis.com/$discovery/rest?version=v1';
 const DF     = 'sel_data_v2.json';
 const LS_KEY = 'sel_data_v2';
 const LS_CFG = 'sel_config_v1';
+const DB_NAME = 'student_selector_offline_db';
+const DB_VERSION = 1;
+const STORE_COURSES = 'offlineCourses';
+const STORE_PROGRESS = 'offlineProgress';
+const STORE_META = 'offlineMeta';
+const OFFLINE_COURSES_KEY = 'OFFLINE_COURSES_KEY';
+const OFFLINE_PROGRESS_KEY = 'OFFLINE_PROGRESS_KEY';
+const OFFLINE_META_KEY = 'OFFLINE_META_KEY';
 const FRM_SECS = 5;
 const SPEED_MULT = { fast:0.7, normal:1.0, slow:1.6 };
 
@@ -1055,6 +1108,9 @@ let cid='', cname='', isManual=false;
 let dfid=null, allData={};
 let slotSpeedKey='fast', chipSort='default', themeKey='dark';
 let frmTimer=null, frmCountdown=FRM_SECS;
+let offlineDBPromise=null, offlineInitPromise=null;
+let offlineStorageInfo={supported:false,persisted:false,estimate:null,dbReady:false,error:null};
+let offlineDeviceId=null;
 
 const $ = id => document.getElementById(id);
 
@@ -1109,6 +1165,386 @@ applyTheme(val,true);
 }
 
 /* ════════════════════════════════
+OFFLINE INDEXEDDB STORAGE
+════════════════════════════════ */
+function openOfflineDB(){
+if(offlineDBPromise) return offlineDBPromise;
+offlineDBPromise=new Promise((resolve,reject)=>{
+if(!('indexedDB' in window)){ reject(new Error('IndexedDB is not supported')); return; }
+const req=indexedDB.open(DB_NAME,DB_VERSION);
+req.onupgradeneeded=()=>{
+const db=req.result;
+if(!db.objectStoreNames.contains(STORE_COURSES)){
+db.createObjectStore(STORE_COURSES,{keyPath:'courseId'});
+}
+if(!db.objectStoreNames.contains(STORE_PROGRESS)){
+const st=db.createObjectStore(STORE_PROGRESS,{keyPath:'courseId'});
+st.createIndex('unsynced','unsynced',{unique:false});
+}
+if(!db.objectStoreNames.contains(STORE_META)){
+db.createObjectStore(STORE_META,{keyPath:'key'});
+}
+};
+req.onsuccess=()=>resolve(req.result);
+req.onerror=()=>reject(req.error||new Error('IndexedDB open failed'));
+req.onblocked=()=>console.warn('IndexedDB upgrade is blocked by another tab');
+});
+return offlineDBPromise;
+}
+
+function idbRequest(req){
+return new Promise((resolve,reject)=>{
+req.onsuccess=()=>resolve(req.result);
+req.onerror=()=>reject(req.error||new Error('IndexedDB request failed'));
+});
+}
+
+async function idbPut(storeName,value){
+const db=await openOfflineDB();
+return idbRequest(db.transaction(storeName,'readwrite').objectStore(storeName).put(value));
+}
+
+async function idbGet(storeName,key){
+const db=await openOfflineDB();
+return idbRequest(db.transaction(storeName,'readonly').objectStore(storeName).get(key));
+}
+
+async function idbGetAll(storeName){
+const db=await openOfflineDB();
+return idbRequest(db.transaction(storeName,'readonly').objectStore(storeName).getAll());
+}
+
+async function idbDelete(storeName,key){
+const db=await openOfflineDB();
+return idbRequest(db.transaction(storeName,'readwrite').objectStore(storeName).delete(key));
+}
+
+async function idbClear(storeName){
+const db=await openOfflineDB();
+return idbRequest(db.transaction(storeName,'readwrite').objectStore(storeName).clear());
+}
+
+function normalizeOfflineStudent(s){
+return {id:String(s.id||s.userId||''),name:s.name||s.fullName||'',photoUrl:s.photoUrl||s.photo||null};
+}
+
+async function saveOfflineCourse(course){
+const now=Date.now();
+const courseId=String(course.courseId||course.id||cid||'');
+if(!courseId) return null;
+const existing=await getOfflineCourse(courseId).catch(()=>null);
+const record={
+courseId,
+courseName:course.courseName||course.name||cname||'クラス',
+students:(course.students||students||[]).map(normalizeOfflineStudent).filter(s=>s.id&&s.name),
+savedAt:existing?.savedAt||now,
+updatedAt:course.updatedAt||now,
+source:course.source||(isManual?'manual':'classroom'),
+version:1
+};
+await idbPut(STORE_COURSES,record);
+return record;
+}
+
+async function getOfflineCourse(courseId){
+return idbGet(STORE_COURSES,String(courseId));
+}
+
+async function getAllOfflineCourses(){
+const list=await idbGetAll(STORE_COURSES);
+return list.sort((a,b)=>(b.lastUsedAt||b.updatedAt||b.savedAt||0)-(a.lastUsedAt||a.updatedAt||a.savedAt||0));
+}
+
+async function deleteOfflineCourse(courseId){
+await idbDelete(STORE_COURSES,String(courseId));
+await idbDelete(STORE_PROGRESS,String(courseId));
+await refreshOfflineStorageStatus();
+}
+
+async function putOfflineProgressRecord(progress){
+const now=Date.now();
+const courseId=String(progress.courseId||cid||'');
+if(!courseId) return null;
+const existing=await getOfflineProgress(courseId).catch(()=>null);
+const record={
+courseId,
+called:[...(progress.called||[])].map(String),
+absent:[...(progress.absent||[])].map(String),
+lastUsedAt:progress.lastUsedAt||now,
+updatedAt:progress.updatedAt||now,
+lastSyncedAt:progress.lastSyncedAt??existing?.lastSyncedAt??null,
+unsynced:Boolean(progress.unsynced),
+version:1
+};
+await idbPut(STORE_PROGRESS,record);
+return record;
+}
+
+async function saveOfflineProgress(courseId){
+const now=Date.now();
+return putOfflineProgressRecord({
+courseId,
+called:[...called],
+absent:[...absent],
+lastUsedAt:now,
+updatedAt:now,
+unsynced:true
+});
+}
+
+async function getOfflineProgress(courseId){
+return idbGet(STORE_PROGRESS,String(courseId));
+}
+
+async function getUnsyncedOfflineProgress(){
+const db=await openOfflineDB();
+const store=db.transaction(STORE_PROGRESS,'readonly').objectStore(STORE_PROGRESS);
+if(store.indexNames.contains('unsynced')){
+return idbRequest(store.index('unsynced').getAll(true));
+}
+const all=await idbRequest(store.getAll());
+return all.filter(p=>p.unsynced);
+}
+
+async function markOfflineProgressSynced(courseId){
+const existing=await getOfflineProgress(courseId);
+if(!existing) return null;
+const now=Date.now();
+const record={...existing,unsynced:false,lastSyncedAt:now,updatedAt:now,version:1};
+await idbPut(STORE_PROGRESS,record);
+return record;
+}
+
+async function requestPersistentStorage(){
+if(!navigator.storage||!navigator.storage.persist){
+return {supported:false,persisted:false};
+}
+try{
+const alreadyPersisted=await navigator.storage.persisted();
+if(alreadyPersisted){
+return {supported:true,persisted:true};
+}
+const persisted=await navigator.storage.persist();
+return {supported:true,persisted};
+}catch(err){
+console.warn('Persistent storage request failed',err);
+return {supported:true,persisted:false,error:String(err)};
+}
+}
+
+async function getStorageEstimate(){
+if(!navigator.storage||!navigator.storage.estimate){
+return null;
+}
+try{
+return await navigator.storage.estimate();
+}catch(err){
+console.warn('Storage estimate failed',err);
+return null;
+}
+}
+
+async function getOrCreateOfflineDeviceId(){
+const existing=await idbGet(STORE_META,'device').catch(()=>null);
+if(existing?.deviceId) return existing.deviceId;
+const raw=(window.crypto?.randomUUID?.()||String(Date.now())+'_'+Math.random().toString(36).slice(2));
+const deviceId='device_'+raw;
+await idbPut(STORE_META,{key:'device',deviceId,createdAt:Date.now()});
+return deviceId;
+}
+
+async function migrateOfflineLocalStorageToIndexedDB(){
+try{
+await openOfflineDB();
+const migrations=[];
+const migrateJson=key=>{
+const raw=localStorage.getItem(key);
+if(!raw) return null;
+try{ return JSON.parse(raw); }catch(err){ console.warn('Offline migration parse failed:',key,err); return undefined; }
+};
+const oldCourses=migrateJson(OFFLINE_COURSES_KEY);
+if(oldCourses!==null&&oldCourses!==undefined){
+migrations.push((async()=>{
+const list=Array.isArray(oldCourses)?oldCourses:Object.values(oldCourses);
+for(const course of list){ await saveOfflineCourse(course); }
+localStorage.removeItem(OFFLINE_COURSES_KEY);
+})());
+}
+const oldProgress=migrateJson(OFFLINE_PROGRESS_KEY);
+if(oldProgress!==null&&oldProgress!==undefined){
+migrations.push((async()=>{
+const list=Array.isArray(oldProgress)?oldProgress:Object.values(oldProgress);
+for(const p of list){ await putOfflineProgressRecord({...p,unsynced:Boolean(p.unsynced)}); }
+localStorage.removeItem(OFFLINE_PROGRESS_KEY);
+})());
+}
+const oldMeta=migrateJson(OFFLINE_META_KEY);
+if(oldMeta!==null&&oldMeta!==undefined){
+migrations.push((async()=>{
+const list=Array.isArray(oldMeta)?oldMeta:Object.values(oldMeta);
+for(const m of list){ if(m?.key) await idbPut(STORE_META,m); }
+localStorage.removeItem(OFFLINE_META_KEY);
+})());
+}
+const oldDriveData=migrateJson(LS_KEY);
+if(oldDriveData&&typeof oldDriveData==='object'&&!Array.isArray(oldDriveData)){
+migrations.push((async()=>{
+for(const [courseId,value] of Object.entries(oldDriveData)){
+const calledList=Array.isArray(value)?value:(value?.called||[]);
+const absentList=Array.isArray(value)?[]:(value?.absent||[]);
+await putOfflineProgressRecord({courseId,called:calledList,absent:absentList,unsynced:true,updatedAt:value?.updatedAt||Date.now()});
+}
+localStorage.removeItem(LS_KEY);
+})());
+}
+await Promise.all(migrations);
+}catch(err){
+console.warn('Offline localStorage migration failed',err);
+}
+}
+
+async function initializeOfflineStorage(){
+if(offlineInitPromise) return offlineInitPromise;
+offlineInitPromise=(async()=>{
+try{
+await openOfflineDB();
+offlineStorageInfo.dbReady=true;
+await migrateOfflineLocalStorageToIndexedDB();
+offlineDeviceId=await getOrCreateOfflineDeviceId();
+const persistence=await requestPersistentStorage();
+offlineStorageInfo={...offlineStorageInfo,...persistence,dbReady:true,error:null};
+await idbPut(STORE_META,{key:'storage',persistent:offlineStorageInfo.persisted,checkedAt:Date.now()});
+offlineStorageInfo.estimate=await getStorageEstimate();
+await refreshOfflineStorageStatus();
+}catch(err){
+console.warn('Offline storage init failed',err);
+offlineStorageInfo={...offlineStorageInfo,dbReady:false,error:String(err)};
+await refreshOfflineStorageStatus();
+}
+return offlineStorageInfo;
+})();
+return offlineInitPromise;
+}
+
+function formatBytes(bytes){
+if(!Number.isFinite(bytes)) return '';
+if(bytes<1024) return bytes+'B';
+if(bytes<1024*1024) return (bytes/1024).toFixed(1)+'KB';
+return (bytes/1024/1024).toFixed(1)+'MB';
+}
+
+function persistentLabel(){
+if(!offlineStorageInfo.supported) return '未対応';
+return offlineStorageInfo.persisted?'有効':'未許可';
+}
+
+async function refreshOfflineStorageStatus(showMessage=false){
+try{
+const courses=offlineStorageInfo.dbReady?await getAllOfflineCourses().catch(()=>[]):[];
+const unsynced=offlineStorageInfo.dbReady?await getUnsyncedOfflineProgress().catch(()=>[]):[];
+offlineStorageInfo.estimate=await getStorageEstimate();
+const usage=offlineStorageInfo.estimate?.usage;
+const usageText=formatBytes(usage);
+const persistent=persistentLabel();
+if($('oc-storage-method')) $('oc-storage-method').textContent='IndexedDB';
+if($('oc-persistent')) $('oc-persistent').textContent=offlineStorageInfo.persisted?'有効':'この端末では未対応または未許可';
+if($('oc-usage-row')) $('oc-usage-row').style.display=usageText?'flex':'none';
+if($('oc-usage')) $('oc-usage').textContent=usageText?'約 '+usageText:'';
+if($('set-storage-method')) $('set-storage-method').textContent='IndexedDB';
+if($('set-persistent')) $('set-persistent').textContent=persistent;
+if($('set-offline-course-count')) $('set-offline-course-count').textContent=courses.length+'件';
+if($('set-unsynced-count')) $('set-unsynced-count').textContent=unsynced.length+'件';
+if($('set-storage-usage-row')) $('set-storage-usage-row').style.display=usageText?'inline':'none';
+if($('set-storage-usage')) $('set-storage-usage').textContent=usageText;
+if(showMessage) alert(`保存方式：IndexedDB\n永続保存：${persistent}\n保存済みクラス：${courses.length}件\n未同期データ：${unsynced.length}件${usageText?`\n使用容量：約 ${usageText}`:''}`);
+}catch(err){
+console.warn('Offline status refresh failed',err);
+if(showMessage) alert('保存状態を確認できませんでした。');
+}
+}
+
+function isPwaMode(){
+return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+}
+
+function showPwaOfflineNotice(){
+alert('オフライン利用では、クラス名簿や指名状況をこの端末に保存します。\nホーム画面に追加したアプリ版で開くことで、圏外でもアプリ本体を起動しやすくなります。\n\nアプリ版では、保存済みクラスを端末内に保存します。\n対応端末では、保存データが自動削除されにくい設定を使用します。');
+}
+
+async function manageOfflineCourses(){
+await initializeOfflineStorage();
+if(!isPwaMode()){
+showPwaOfflineNotice();
+return;
+}
+await renderCourses([]);
+show('s-courses');
+}
+
+async function syncUnsyncedOfflineProgress(){
+if(!navigator.onLine){
+alert('現在オフラインです。オンラインになってから再試行してください。');
+return false;
+}
+let items=[];
+try{
+await initializeOfflineStorage();
+items=await getUnsyncedOfflineProgress();
+}catch(err){
+console.warn('Unsynced progress load failed',err);
+return false;
+}
+if(!items.length){
+await refreshOfflineStorageStatus();
+return true;
+}
+let ok=true;
+for(const progress of items){
+allData[progress.courseId]=[...progress.called];
+const saved=await saveToDrive();
+if(saved){
+await markOfflineProgressSynced(progress.courseId);
+}else{
+ok=false;
+}
+}
+await refreshOfflineStorageStatus();
+return ok;
+}
+
+async function persistCurrentProgress(syncDrive=true){
+if(!cid) return;
+allData[cid]=[...called];
+try{ await saveOfflineProgress(cid); }catch(err){ console.warn('Offline progress save failed',err); }
+if(syncDrive){
+const saved=await saveToDrive();
+if(saved){
+try{ await markOfflineProgressSynced(cid); }catch(err){ console.warn('Offline synced mark failed',err); }
+}
+}
+await refreshOfflineStorageStatus();
+}
+
+async function loadSavedOfflineCourse(courseId){
+await initializeOfflineStorage();
+if(!isPwaMode()){
+showPwaOfflineNotice();
+return;
+}
+const course=await getOfflineCourse(courseId);
+if(!course){ alert('保存済みクラスが見つかりませんでした。'); return; }
+isManual=course.source==='manual';
+await openClass(course.courseId,course.courseName,course.students.map(s=>({id:s.id,name:s.name,photo:s.photoUrl||null})),{fromOffline:true});
+}
+
+function registerServiceWorker(){
+if(!('serviceWorker' in navigator)) return;
+window.addEventListener('load',()=>{
+navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('Service worker registration failed',err));
+});
+}
+
+/* ════════════════════════════════
 GOOGLE AUTH
 ════════════════════════════════ */
 function onGapiLoad(){ window.gapi.load('client',()=>{ gapiOk=true; tryInit(); }); }
@@ -1152,8 +1588,9 @@ const pr=await window.gapi.client.request({path:'https://www.googleapis.com/oaut
 prof=pr.result;
 localStorage.setItem('sel_autologin','1');
 await loadFromDrive();
+await syncUnsyncedOfflineProgress();
 const r=await window.gapi.client.classroom.courses.list({courseStates:['ACTIVE'],pageSize:30});
-renderCourses(r.result.courses||[]);
+await renderCourses(r.result.courses||[]);
 show('s-courses');
 }catch(e){ loginErr('エラー: '+e.message); }
 }
@@ -1191,7 +1628,7 @@ function tok(){ try{ return window.gapi?.client?.getToken()?.access_token; }catc
 function setSyn(s){ $('sync-dot').className=s; }
 
 async function loadFromDrive(){
-const t=tok(); if(!t){ allData=lsGet(); return; }
+const t=tok(); if(!t){ allData={}; return; }
 setSyn('sync');
 try{
 const r=await fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27${DF}%27%20and%20trashed%3Dfalse&fields=files(id)`,{headers:{Authorization:'Bearer '+t}});
@@ -1200,42 +1637,67 @@ const d=await r.json();
 if(d.files?.length){
 dfid=d.files[0].id;
 const r2=await fetch(`https://www.googleapis.com/drive/v3/files/${dfid}?alt=media`,{headers:{Authorization:'Bearer '+t}});
-if(r2.ok) allData=await r2.json(); else allData=lsGet();
-}else{ allData=lsGet(); dfid=null; }
+if(r2.ok) allData=await r2.json(); else allData={};
+}else{ allData={}; dfid=null; }
 setSyn('ok'); setTimeout(()=>setSyn(''),2500);
-}catch(e){ console.warn('Drive load:',e); allData=lsGet(); setSyn(''); }
+}catch(e){ console.warn('Drive load:',e); allData={}; setSyn(''); }
 }
 
 async function saveToDrive(){
-lsSet(allData); const t=tok(); if(!t||isManual) return;
+const t=tok(); if(!t||isManual) return false;
 setSyn('sync'); const body=JSON.stringify(allData);
 try{
 if(dfid){
-await fetch(`https://www.googleapis.com/upload/drive/v3/files/${dfid}?uploadType=media`,{method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body});
+const r=await fetch(`https://www.googleapis.com/upload/drive/v3/files/${dfid}?uploadType=media`,{method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body});
+if(!r.ok) throw new Error(r.status);
 }else{
 const b='**sel_b**', meta=JSON.stringify({name:DF,parents:['appDataFolder']});
 const mb=`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${b}--`;
 const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':`multipart/related; boundary="${b}"`},body:mb});
-if(r.ok) dfid=(await r.json()).id;
+if(r.ok) dfid=(await r.json()).id; else throw new Error(r.status);
 }
 setSyn('ok'); setTimeout(()=>setSyn(''),2500);
-}catch(e){ console.warn('Drive save:',e); setSyn(''); }
+return true;
+}catch(e){ console.warn('Drive save:',e); setSyn(''); return false; }
 }
 
-function lsGet(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch{ return {}; } }
-function lsSet(d){ try{ localStorage.setItem(LS_KEY,JSON.stringify(d)); }catch{} }
+function driveCalledFor(courseId){
+const value=allData?.[courseId];
+if(Array.isArray(value)) return value;
+return value?.called||[];
+}
 
 /* ════════════════════════════════
 COURSES
 ════════════════════════════════ */
-function renderCourses(list){
+async function renderCourses(list){
+await initializeOfflineStorage();
 const g=$('cg'); g.innerHTML='';
-$('no-c').style.display=list.length?'none':'block';
+const offlineCourses=await getAllOfflineCourses().catch(()=>[]);
+$('no-c').style.display=(list.length||offlineCourses.length)?'none':'block';
+if(list.length){
+const onlineHead=document.createElement('div');
+onlineHead.className='offline-course-heading';
+onlineHead.textContent='Google Classroom';
+g.appendChild(onlineHead);
+}
 list.forEach(c=>{
 const b=document.createElement('button'); b.className='cc';
 b.innerHTML=`<div class="ci">📋</div><div class="cn">${esc(c.name)}</div>${c.section?`<div class="cs">${esc(c.section)}</div>`:''}`;
 b.onclick=()=>loadCourse(c); g.appendChild(b);
 });
+if(offlineCourses.length){
+const offlineHead=document.createElement('div');
+offlineHead.className='offline-course-heading';
+offlineHead.textContent='この端末に保存済み';
+g.appendChild(offlineHead);
+offlineCourses.forEach(c=>{
+const b=document.createElement('button'); b.className='cc offline-saved';
+b.innerHTML=`<div class="ci">💾</div><div class="cn">${esc(c.courseName)}</div><div class="cs">端末内に保存済み</div>`;
+b.onclick=()=>loadSavedOfflineCourse(c.courseId); g.appendChild(b);
+});
+}
+await refreshOfflineStorageStatus();
 }
 
 async function loadCourse(c){
@@ -1247,28 +1709,40 @@ const r=await window.gapi.client.classroom.courses.students.list(params);
 (r.result.students||[]).forEach(s=>list.push({id:s.userId,name:s.profile.name.fullName,photo:s.profile.photoUrl||null}));
 pt=r.result.nextPageToken;
 }while(pt);
-isManual=false; openClass(c.id,c.name,list);
+isManual=false; await openClass(c.id,c.name,list);
 }catch(e){ alert('生徒取得エラー: '+e.message); }
 }
 
 /* ════════════════════════════════
 MANUAL
 ════════════════════════════════ */
-function startManual(){
+async function startManual(){
 const names=$('m-nm').value.split('\n').map(n=>n.trim()).filter(Boolean);
 if(!names.length){ alert('生徒名を入力してください'); return; }
 const cn=$('m-cn').value.trim()||'クラス';
 isManual=true;
-openClass('manual_'+Date.now(),cn,names.map((n,i)=>({id:'m'+i,name:n,photo:null})));
+await openClass('manual_'+Date.now(),cn,names.map((n,i)=>({id:'m'+i,name:n,photo:null})));
 }
 
 /* ════════════════════════════════
 OPEN CLASS
 ════════════════════════════════ */
-function openClass(id,name,list){
+async function openClass(id,name,list,opts={}){
 cid=id; cname=name; students=list;
 absent=new Set(); curr=null; busy=false;
-called=new Set(allData[id]||[]);
+let localProgress=null;
+try{
+await initializeOfflineStorage();
+await saveOfflineCourse({courseId:id,courseName:name,students:list,source:isManual?'manual':'classroom'});
+localProgress=await getOfflineProgress(id).catch(()=>null);
+}catch(err){ console.warn('Offline class prepare failed',err); }
+const driveCalled=driveCalledFor(id);
+if(localProgress?.unsynced||!driveCalled.length){
+called=new Set(localProgress?.called||driveCalled);
+}else{
+called=new Set(driveCalled);
+}
+absent=new Set(localProgress?.absent||[]);
 if(!isManual&&prof){
 $('strip').style.display='flex';
 $('strip-nm').textContent=prof.name;
@@ -1280,6 +1754,9 @@ $('set-account').style.display='none';
 }
 $('pick').onclick=pickStudent;
 renderMain(); show('s-main');
+if(localProgress){
+putOfflineProgressRecord({...localProgress,lastUsedAt:Date.now(),unsynced:Boolean(localProgress.unsynced)}).catch(err=>console.warn('Offline lastUsed update failed',err));
+}
 if(!localStorage.getItem('sel_tut')) setTimeout(showTut,700);
 }
 
@@ -1353,7 +1830,7 @@ else done(av[Math.floor(Math.random()*av.length)]);
 
 function done(s){
 busy=false; curr=s; showStudent(s,true);
-called.add(s.id); allData[cid]=[...called]; saveToDrive();
+called.add(s.id); persistCurrentProgress();
 const av=avail(), tot=students.length-absent.size;
 const allDone=av.length===0, pct=tot>0?Math.round(called.size/tot*100):0;
 $('prog-f').style.width=pct+'%';
@@ -1391,7 +1868,7 @@ UNDO
 ════════════════════════════════ */
 function undoLast(){
 if(!curr||busy) return;
-called.delete(curr.id); allData[cid]=[...called]; saveToDrive();
+called.delete(curr.id); persistCurrentProgress();
 curr=null; $('undo').style.display='none'; renderMain();
 }
 
@@ -1422,22 +1899,22 @@ const area = $('cm-actions'); area.innerHTML = '';
 if(isAb){
 // 欠席中 → 出席に戻す
 area.appendChild(makeCmBtn('ico-restore','↩','出席に戻す','欠席を解除します',()=>{
-absent.delete(id); closeChipMenu(); refreshAll();
+absent.delete(id); persistCurrentProgress(); closeChipMenu(); refreshAll();
 }));
 } else if(!isCl){
 // 通常 → 欠席にする
 area.appendChild(makeCmBtn('ico-absent','🚫','欠席にする','指名対象から外します',()=>{
-absent.add(id); closeChipMenu(); refreshAll();
+absent.add(id); persistCurrentProgress(); closeChipMenu(); refreshAll();
 }));
 } else {
 // 指名済み → 欠席 or 指名記録解除
 area.appendChild(makeCmBtn('ico-absent','🚫','欠席にする','指名記録はそのまま残します',()=>{
-absent.add(id); closeChipMenu(); refreshAll();
+absent.add(id); persistCurrentProgress(); closeChipMenu(); refreshAll();
 }));
 area.appendChild(makeCmBtn('ico-undo','↩','指名記録を解除する','次回の指名対象に戻します',()=>{
 called.delete(id);
 if(curr?.id===id){ curr=null; $('undo').style.display='none'; setIdle(false); }
-allData[cid]=[...called]; saveToDrive();
+persistCurrentProgress();
 closeChipMenu(); refreshAll();
 }));
 }
@@ -1446,12 +1923,12 @@ closeChipMenu(); refreshAll();
 if(isAb && isCl){
 area.innerHTML = ''; // 作り直し
 area.appendChild(makeCmBtn('ico-restore','↩','欠席を解除する','指名記録はそのまま残します',()=>{
-absent.delete(id); closeChipMenu(); refreshAll();
+absent.delete(id); persistCurrentProgress(); closeChipMenu(); refreshAll();
 }));
 area.appendChild(makeCmBtn('ico-undo','🔄','指名記録も解除する','出席・未指名の状態に戻します',()=>{
 absent.delete(id); called.delete(id);
 if(curr?.id===id){ curr=null; $('undo').style.display='none'; setIdle(false); }
-allData[cid]=[...called]; saveToDrive();
+persistCurrentProgress();
 closeChipMenu(); refreshAll();
 }));
 }
@@ -1499,6 +1976,7 @@ function chipTap(id){
     } else {
       absent.add(id);
     }
+    persistCurrentProgress();
     refreshAll();
   } else {
     openChipMenu(id);
@@ -1588,7 +2066,7 @@ function confirmRst(){ $('btm-bar').classList.remove('on'); $('rst-bar').classLi
 function cancelRst(){ $('rst-bar').classList.remove('on'); $('btm-bar').classList.add('on'); }
 function doReset(){
 called=new Set(); absent=new Set(); curr=null; busy=false;
-allData[cid]=[]; saveToDrive();
+persistCurrentProgress();
 cancelRst(); renderMain(); setIdle(false);
 $('undo').style.display='none';
 const si=$('srch'); if(si) si.value='';
@@ -1633,7 +2111,7 @@ $('bb-foc').classList.toggle('foc-on',focMode);
 /* ════════════════════════════════
 SETTINGS
 ════════════════════════════════ */
-function openSettings(){ show('s-settings'); }
+function openSettings(){ refreshOfflineStorageStatus(); show('s-settings'); }
 function setSlotSpeed(val,btn){
 slotSpeedKey=val;
 $('speed-seg').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('seg-on'));
@@ -1693,11 +2171,12 @@ if(delBtn.disabled) return;
 clearInterval(frmTimer);
 $('frm-confirm').style.display='none';
 $('frm-loading').style.display='flex'; $('frm-loading').classList.add('on');
-allData={}; lsSet({});
+allData={};
+try{ await idbClear(STORE_PROGRESS); }catch(err){ console.warn('Offline progress clear failed',err); }
 const t=tok();
 if(t&&!isManual&&dfid){
 setSyn('sync');
-try{ await fetch(`https://www.googleapis.com/upload/drive/v3/files/${dfid}?uploadType=media`,{method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:'{}'}); setSyn('ok'); setTimeout(()=>setSyn(''),2000); }catch(e){ console.warn(e); setSyn(''); }
+try{ const r=await fetch(`https://www.googleapis.com/upload/drive/v3/files/${dfid}?uploadType=media`,{method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:'{}'}); if(!r.ok) throw new Error(r.status); setSyn('ok'); setTimeout(()=>setSyn(''),2000); }catch(e){ console.warn(e); setSyn(''); }
 }
 await new Promise(r=>setTimeout(r,1500));
 $('frm-loading').style.display='none';
@@ -1790,6 +2269,8 @@ function esc(s){ return s.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').
 INIT
 ════════════════════════════════ */
 loadConfig();
+initializeOfflineStorage();
+registerServiceWorker();
 </script>
 
 </body>
