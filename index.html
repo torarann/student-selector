@@ -439,6 +439,7 @@ box-shadow:0 8px 28px rgba(99,102,241,.35);cursor:pointer;
 .offline-pill.warn{color:var(--gld);border-color:rgba(251,191,36,.35)}
 .offline-empty{color:var(--t2);font-size:13px;line-height:1.7;text-align:center;padding:24px 8px;width:100%;justify-self:stretch;max-width:none}
 .offline-install-note{font-size:14px;line-height:1.9;padding:36px 12px;text-align:center;max-width:100%;word-break:normal;overflow-wrap:normal}
+.install-guide-btn{margin:0 auto 8px;max-width:320px;border:1px solid var(--bd);background:var(--s2);color:var(--t1)}
 .courses-page{justify-content:flex-start;align-items:stretch;padding-top:max(28px,env(safe-area-inset-top,0px));padding-bottom:48px}
 .courses-top{position:sticky;top:0;z-index:5;background:var(--bg);padding-top:8px;padding-bottom:14px;width:100%}
 .set-row-danger .set-row-title{color:var(--red)}
@@ -654,6 +655,24 @@ border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bo
 .offline-delete-row span{flex:1;font-size:13px;color:var(--t1)}
 .offline-delete-row button{flex-shrink:0}
 
+#install-guide-overlay{
+position:fixed;inset:0;z-index:780;background:var(--overlay-bg);backdrop-filter:blur(7px);
+display:none;align-items:flex-end;justify-content:center;
+}
+#install-guide-overlay.on{display:flex;animation:fadeIn .22s ease}
+#install-guide-card{
+width:100%;max-width:440px;background:var(--s2);border:1px solid var(--bd2);
+border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));
+max-height:86dvh;overflow-y:auto;
+}
+#install-guide-title{font-size:17px;font-weight:700;margin-bottom:6px}
+#install-guide-lead{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:14px}
+.install-guide-section{border-top:1px solid var(--bd);padding-top:14px;margin-top:14px}
+.install-guide-section h3{font-size:14px;font-weight:700;margin-bottom:8px;color:var(--t1)}
+.install-guide-section ol{padding-left:20px;color:var(--t2);font-size:13px;line-height:1.8}
+.install-guide-section li{margin:3px 0}
+.install-guide-note{font-size:12px;color:var(--t3);line-height:1.7;margin-top:12px}
+
 /* ════════════════════════════════
 規約・テキスト用モーダル
 ════════════════════════════════ */
@@ -680,6 +699,20 @@ border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bo
   cursor:pointer;border:none;background:var(--s3);color:var(--t1);transition:opacity .15s;-webkit-appearance:none;
 }
 #txt-close-btn:active{opacity:.8}
+
+#txt-card{max-width:430px;padding:24px 20px 20px}
+#txt-title{text-align:left;font-size:19px;margin-bottom:14px}
+#txt-body{white-space:normal;font-size:13px;line-height:1.75;padding-right:6px}
+.policy-doc{display:flex;flex-direction:column;gap:14px}
+.policy-lead{color:var(--t2);font-size:13px;line-height:1.75;margin:0}
+.policy-section{border-top:1px solid var(--bd);padding-top:13px}
+.policy-section:first-child{border-top:none;padding-top:0}
+.policy-section h3{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:7px;letter-spacing:-.2px}
+.policy-section p{font-size:13px;color:var(--t2);line-height:1.75;margin:0}
+.policy-section ul{margin:0;padding-left:18px;color:var(--t2);font-size:13px;line-height:1.75}
+.policy-section li{margin:3px 0}
+.policy-note{background:var(--s3);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;color:var(--t2);font-size:12px;line-height:1.7}
+.policy-muted{color:var(--t3)}
 
 @media(max-width:360px){
 #stage{padding:22px 18px}
@@ -1122,6 +1155,42 @@ border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bo
       <div id="offline-delete-list"></div>
       <button class="btn btn-pri btn-w" onclick="closeOfflineSettings()">閉じる</button>
     </div>
+  </div>
+</div>
+
+<div id="install-guide-overlay">
+  <div id="install-guide-card">
+    <div id="install-guide-title">アプリ化する方法</div>
+    <div id="install-guide-lead">
+      ホーム画面に追加したアプリ版で開くと、圏外でもアプリ本体を起動しやすくなります。
+      対応端末では、保存データが自動削除されにくい設定を使用します。
+    </div>
+    <div class="install-guide-section">
+      <h3>iPhone / iPad</h3>
+      <ol>
+        <li>Safariでこのページを開きます。</li>
+        <li>画面下の共有ボタンを押します。</li>
+        <li>「ホーム画面に追加」を選びます。</li>
+        <li>右上の「追加」を押します。</li>
+        <li>ホーム画面のアイコンから開きます。</li>
+      </ol>
+      <div class="install-guide-note">iPhoneでは、Safariで開いた場合に「ホーム画面に追加」が使えます。</div>
+    </div>
+    <div class="install-guide-section">
+      <h3>Android</h3>
+      <ol>
+        <li>Chromeでこのページを開きます。</li>
+        <li>右上のメニューを押します。</li>
+        <li>「ホーム画面に追加」または「アプリをインストール」を選びます。</li>
+        <li>「追加」または「インストール」を押します。</li>
+        <li>ホーム画面のアイコンから開きます。</li>
+      </ol>
+      <div class="install-guide-note">表示名は端末やChromeのバージョンにより少し異なる場合があります。</div>
+    </div>
+    <div class="install-guide-note">
+      保存済みクラスはこの端末に保存されます。端末の空き容量不足やブラウザ設定により、まれに削除される場合があります。
+    </div>
+    <button class="btn btn-pri btn-w" onclick="closeInstallGuide()" style="margin-top:16px">閉じる</button>
   </div>
 </div>
 
@@ -2083,6 +2152,11 @@ note.classList.add('offline-install-note');
 note.style.marginTop='28px';
 note.innerHTML='ホーム画面に追加したアプリ版で開くと、圏外でもアプリ本体を起動しやすくなります。対応端末では、保存データが自動削除されにくい設定を使用します。';
 g.appendChild(note);
+const guide=document.createElement('button');
+guide.className='btn btn-gst btn-w install-guide-btn';
+guide.textContent='？ アプリ化する方法';
+guide.onclick=openInstallGuide;
+g.appendChild(guide);
 return;
 }
 const tools=document.createElement('div');
@@ -2212,6 +2286,14 @@ $('offline-settings-overlay').classList.add('on');
 
 function closeOfflineSettings(){
 $('offline-settings-overlay').classList.remove('on');
+}
+
+function openInstallGuide(){
+$('install-guide-overlay').classList.add('on');
+}
+
+function closeInstallGuide(){
+$('install-guide-overlay').classList.remove('on');
 }
 
 async function deleteOfflineCourseWithChoice(courseId){
@@ -2803,9 +2885,11 @@ function tutClose(){ $('tut').classList.remove('on'); localStorage.setItem('sel_
 /* ════════════════════════════════
 利用規約 / プライバシーポリシー (モーダル版)
 ════════════════════════════════ */
-function openTxtModal(title, text){
+function openTxtModal(title, text, asHtml=false){
   $('txt-title').textContent = title;
-  $('txt-body').textContent = text;
+  const body=$('txt-body');
+  if(asHtml) body.innerHTML = text;
+  else body.textContent = text;
   const ov=$('txt-overlay');
   ov.classList.remove('closing'); ov.classList.add('on');
 }
@@ -2818,12 +2902,111 @@ function closeTxtModal(){
 
 function openTos(e){
   if(e) e.preventDefault();
-  openTxtModal('利用規約', '本サービスは教育目的で提供されます。Google Classroomの生徒データはランダム指名のみに使用し、第三者への提供は行いません。利用者は自己の責任においてサービスを使用するものとします。');
+  openTxtModal('利用規約', `<div class="policy-doc">
+    <p class="policy-lead">本サービスは、授業中に生徒をランダムに指名するための教育目的ツールです。</p>
+
+    <section class="policy-section">
+      <h3>利用にあたって</h3>
+      <ul>
+        <li>所属する学校・組織の規則、Google Workspace / Google Classroom の利用条件、個人情報の取扱い方針に従って利用してください。</li>
+        <li>Google Classroom から取得したクラス情報・生徒名簿は、指名機能とオフライン用クラス保存のために使用します。</li>
+        <li>取得した情報を、ランダム指名以外の目的で使用しないでください。</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h3>オフライン利用</h3>
+      <ul>
+        <li>保存済みクラス名簿、指名状況、欠席状況などをこの端末の IndexedDB に保存します。</li>
+        <li>端末を共有している場合、同じブラウザ・同じアプリ版から保存済みデータを閲覧できる可能性があります。</li>
+        <li>欠席情報はその授業用の端末内データとして扱い、Google Drive には保存しません。</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h3>同期</h3>
+      <p>Google Drive への同期対象は、主に指名済み情報などの進行状況です。同期前に通信が切れた場合、未同期データはこの端末に残り、次回以降の同期対象になります。</p>
+    </section>
+
+    <div class="policy-note">保存済みデータはこの端末に保存されますが、端末の空き容量不足やブラウザ設定により、まれに削除される場合があります。</div>
+
+    <section class="policy-section">
+      <h3>免責</h3>
+      <p>本サービスは、データの完全性、常時利用、すべての端末での完全な動作を保証するものではありません。重要な授業データを扱う場合は、同期状態や保存状態を確認して利用してください。</p>
+    </section>
+
+    <section class="policy-section">
+      <h3>不具合・仕様変更</h3>
+      <p>利用者の操作、端末設定、通信環境、Google側の仕様変更などにより発生した不具合・データ不整合について、管理者は可能な範囲で改善に努めますが、損害を保証するものではありません。</p>
+    </section>
+  </div>`, true);
 }
 
 function openPp(e){
   if(e) e.preventDefault();
-  openTxtModal('プライバシーポリシー', '取得する情報: Googleアカウント情報・クラスルームのクラス・生徒名\n利用目的: 指名ランダム選択機能の提供\n保存先: お使いのGoogleドライブ（アプリ専用フォルダ）\n第三者提供: 一切行いません\nお問い合わせ: 管理者までご連絡ください。');
+  openTxtModal('プライバシーポリシー', `<div class="policy-doc">
+    <section class="policy-section">
+      <h3>取得する情報</h3>
+      <ul>
+        <li>Googleアカウントの基本情報（表示名、プロフィール画像など）</li>
+        <li>Google Classroom のクラス情報</li>
+        <li>Google Classroom の生徒名簿（生徒名、ID、取得できる場合は写真URL）</li>
+        <li>指名済み情報、欠席情報</li>
+        <li>オフライン保存状態、未同期状態、最終更新日時、最終使用日時、最終同期日時、端末ID、保存バージョン</li>
+        <li>テーマ、スロット速度、名簿並び順などのUI設定</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h3>利用目的</h3>
+      <ul>
+        <li>授業中のランダム指名機能を提供するため</li>
+        <li>Google Classroom のクラス・名簿を表示するため</li>
+        <li>保存済みクラスをアプリ版でオフライン利用できるようにするため</li>
+        <li>指名済み情報をGoogle Driveと同期するため</li>
+        <li>未同期データや保存状態を利用者に表示するため</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h3>保存先</h3>
+      <ul>
+        <li>重要なオフラインデータは、この端末の IndexedDB に保存します。</li>
+        <li>UI設定などの軽い設定は localStorage に保存する場合があります。</li>
+        <li>Google Drive には、アプリ専用フォルダ（appDataFolder）へ指名済み情報などの進行状況を保存します。</li>
+        <li>欠席情報はその授業用の端末内データとして扱い、Google Drive には保存しません。</li>
+        <li>Service Worker の Cache Storage は、アプリ本体の表示に必要な静的ファイルのみを保存します。</li>
+      </ul>
+      <p class="policy-muted">Google API、Google Classroom、Google Drive、Googleログイン関連のレスポンスはキャッシュしません。</p>
+    </section>
+
+    <section class="policy-section">
+      <h3>端末内保存</h3>
+      <p>保存済みクラス名簿、指名状況、欠席状況などは、この端末に保存されます。対応端末では、保存データが自動削除されにくい設定を使用します。</p>
+    </section>
+
+    <div class="policy-note">端末の空き容量不足やブラウザ設定により、保存データがまれに削除される場合があります。</div>
+
+    <section class="policy-section">
+      <h3>同期</h3>
+      <p>オンラインでGoogleログインしている場合、指名済み情報はGoogle Driveと同期されます。同期成功前に未同期データは削除しません。同期に失敗した場合は、この端末に未同期データとして残ります。</p>
+    </section>
+
+    <section class="policy-section">
+      <h3>第三者提供</h3>
+      <p>取得した情報を第三者へ販売・提供することはありません。ただし、Google Classroom、Google Drive、Googleログインなど、機能提供に必要な範囲でGoogleのサービスを利用します。</p>
+    </section>
+
+    <section class="policy-section">
+      <h3>削除</h3>
+      <p>アプリ内のリセット、オフラインクラス削除、ブラウザのサイトデータ削除、またはGoogle Driveのアプリデータ削除により、保存データを削除できます。端末を共有する場合は、利用後の保存データ管理に注意してください。</p>
+    </section>
+
+    <section class="policy-section">
+      <h3>お問い合わせ</h3>
+      <p>本サービスの管理者までご連絡ください。</p>
+    </section>
+  </div>`, true);
 }
 
 /* ════════════════════════════════
