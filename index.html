@@ -496,6 +496,7 @@ cursor:pointer;border:none;background:none;color:var(--t3);transition:color .15s
 
 /* ── Course grid ── */
 #cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;width:100%}
+#cg>.offline-panel,#cg>.offline-empty,#cg>.offline-course-heading,#cg>.btn{grid-column:1/-1}
 .cc{background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center;font-family:'DM Sans','Noto Sans JP',sans-serif;color:var(--t1);transition:border-color .15s,background .25s;-webkit-tap-highlight-color:transparent}
 .cc:active{background:var(--s3)}
 .cc .ci{font-size:26px;margin-bottom:7px}
