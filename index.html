@@ -1174,7 +1174,7 @@ let gapiOk=false, gisOk=false, tc=null, prof=null;
 let students=[], absent=new Set(), called=new Set();
 let curr=null, busy=false, animOn=true, focMode=false;
 let cid='', cname='', isManual=false;
-let dfid=null, allData={};
+let dfid=null, allData={}, driveReady=false;
 let slotSpeedKey='fast', chipSort='default', themeKey='dark';
 let frmTimer=null, frmCountdown=FRM_SECS;
 let offlineDBPromise=null, offlineInitPromise=null;
@@ -1360,15 +1360,14 @@ await idbPut(STORE_PROGRESS,record);
 return record;
 }
 
-async function saveOfflineProgress(courseId){
-const now=Date.now();
+async function saveOfflineProgress(courseId,updatedAt=Date.now(),unsynced=true){
 return putOfflineProgressRecord({
 courseId,
 called:[...called],
 absent:[...absent],
-lastUsedAt:now,
-updatedAt:now,
-unsynced:true
+lastUsedAt:updatedAt,
+updatedAt,
+unsynced
 });
 }
 
@@ -1390,7 +1389,7 @@ async function markOfflineProgressSynced(courseId){
 const existing=await getOfflineProgress(courseId);
 if(!existing) return null;
 const now=Date.now();
-const record={...existing,unsynced:false,lastSyncedAt:now,updatedAt:now,version:1};
+const record={...existing,unsynced:false,lastSyncedAt:now,updatedAt:existing.updatedAt||now,version:1};
 await idbPut(STORE_PROGRESS,record);
 return record;
 }
@@ -1436,48 +1435,61 @@ return deviceId;
 async function migrateOfflineLocalStorageToIndexedDB(){
 try{
 await openOfflineDB();
-const migrations=[];
 const migrateJson=key=>{
 const raw=localStorage.getItem(key);
 if(!raw) return null;
 try{ return JSON.parse(raw); }catch(err){ console.warn('Offline migration parse failed:',key,err); return undefined; }
 };
+const migrateEntries=value=>{
+if(Array.isArray(value)) return value.map(item=>[item?.courseId||item?.id,item]);
+return Object.entries(value||{});
+};
+const saveMigratedProgress=async(courseId,value,defaultUnsynced=true)=>{
+const id=String(value?.courseId||value?.id||courseId||'');
+if(!id) return;
+const existing=await getOfflineProgress(id).catch(()=>null);
+const incomingUpdated=Array.isArray(value)?0:(value?.updatedAt||0);
+const existingUpdated=existing?.updatedAt||0;
+if(existing&&existingUpdated&&(!incomingUpdated||existingUpdated>incomingUpdated)) return;
+const hasCalled=Array.isArray(value)||Array.isArray(value?.called);
+const hasAbsent=!Array.isArray(value)&&Array.isArray(value?.absent);
+await putOfflineProgressRecord({
+...existing,
+courseId:id,
+called:hasCalled?(Array.isArray(value)?value:value.called):(existing?.called||[]),
+absent:hasAbsent?value.absent:(existing?.absent||[]),
+unsynced:value?.unsynced??defaultUnsynced,
+updatedAt:incomingUpdated||existingUpdated||Date.now(),
+lastSyncedAt:existing?.lastSyncedAt??value?.lastSyncedAt??null
+});
+};
 const oldCourses=migrateJson(OFFLINE_COURSES_KEY);
 if(oldCourses!==null&&oldCourses!==undefined){
-migrations.push((async()=>{
-const list=Array.isArray(oldCourses)?oldCourses:Object.values(oldCourses);
-for(const course of list){ await saveOfflineCourse(course); }
+for(const [courseId,course] of migrateEntries(oldCourses)){
+await saveOfflineCourse({...course,courseId:course?.courseId||course?.id||courseId});
+}
 localStorage.removeItem(OFFLINE_COURSES_KEY);
-})());
 }
 const oldProgress=migrateJson(OFFLINE_PROGRESS_KEY);
 if(oldProgress!==null&&oldProgress!==undefined){
-migrations.push((async()=>{
-const list=Array.isArray(oldProgress)?oldProgress:Object.values(oldProgress);
-for(const p of list){ await putOfflineProgressRecord({...p,unsynced:Boolean(p.unsynced)}); }
+for(const [courseId,p] of migrateEntries(oldProgress)){
+await saveMigratedProgress(courseId,p,p?.unsynced!==false);
+}
 localStorage.removeItem(OFFLINE_PROGRESS_KEY);
-})());
 }
 const oldMeta=migrateJson(OFFLINE_META_KEY);
 if(oldMeta!==null&&oldMeta!==undefined){
-migrations.push((async()=>{
 const list=Array.isArray(oldMeta)?oldMeta:Object.values(oldMeta);
 for(const m of list){ if(m?.key) await idbPut(STORE_META,m); }
 localStorage.removeItem(OFFLINE_META_KEY);
-})());
 }
 const oldDriveData=migrateJson(LS_KEY);
 if(oldDriveData&&typeof oldDriveData==='object'&&!Array.isArray(oldDriveData)){
-migrations.push((async()=>{
 for(const [courseId,value] of Object.entries(oldDriveData)){
-const calledList=Array.isArray(value)?value:(value?.called||[]);
-const absentList=Array.isArray(value)?[]:(value?.absent||[]);
-await putOfflineProgressRecord({courseId,called:calledList,absent:absentList,unsynced:true,updatedAt:value?.updatedAt||Date.now()});
+await saveMigratedProgress(courseId,value,true);
 }
 localStorage.removeItem(LS_KEY);
-})());
 }
-await Promise.all(migrations);
 }catch(err){
 console.warn('Offline localStorage migration failed',err);
 }
@@ -1629,35 +1641,78 @@ return aa.length===bb.length&&aa.every((v,i)=>v===bb[i]);
 }
 
 async function reconcileDriveAndLocalProgress(){
-if(!navigator.onLine||!tok()) return;
+if(!navigator.onLine||!tok()||!driveReady) return;
 await initializeOfflineStorage();
 const progressList=await idbGetAll(STORE_PROGRESS).catch(()=>[]);
 let changedDrive=false;
+const driveSnapshots=new Map();
+const markSyncedAfterSave=new Set();
+const markUnsyncedOnSaveFailure=new Set();
+function queueDriveProgress(courseId,calledList,updatedAt,markUnsyncedIfSaveFails=false){
+if(!driveSnapshots.has(courseId)) driveSnapshots.set(courseId,snapshotDriveProgress(courseId));
+setDriveProgress(courseId,calledList,updatedAt);
+changedDrive=true;
+markSyncedAfterSave.add(courseId);
+if(markUnsyncedIfSaveFails) markUnsyncedOnSaveFailure.add(courseId);
+}
 for(const local of progressList){
 const courseId=local.courseId;
+const course=await getOfflineCourse(courseId).catch(()=>null);
+if(course?.source==='manual'||String(courseId).startsWith('manual_')){
+if(local.unsynced) await markOfflineProgressSynced(courseId).catch(()=>{});
+continue;
+}
 const localCalled=local.called||[];
 const driveCalled=driveCalledFor(courseId);
 const localUpdated=local.updatedAt||0;
 const driveUpdated=driveUpdatedAtFor(courseId);
-if(sameIdList(localCalled,driveCalled)&&!local.unsynced) continue;
-if(localUpdated>driveUpdated||(!driveUpdated&&local.unsynced)){
-const ok=await askSyncChoice('データを同期します','この端末のデータがDriveより新しいため、Driveへ同期します。','同期する','あとで');
-if(!ok) continue;
-setDriveProgress(courseId,localCalled,localUpdated||Date.now());
-changedDrive=true;
+if(sameIdList(localCalled,driveCalled)){
+if(local.unsynced){
 await markOfflineProgressSynced(courseId);
+}
 continue;
 }
-const useDrive=await askSyncChoice('進行状況に差があります','Driveとこの端末の進行状況が異なります。どちらのデータを使いますか？','Driveを使う','この端末を使う');
+if(!local.unsynced){
+if(driveUpdated&&driveUpdated>=localUpdated){
+await putOfflineProgressRecord({...local,called:driveCalled,updatedAt:driveUpdated,unsynced:false,lastSyncedAt:Date.now()});
+continue;
+}
+const useDrive=await askSyncChoice('進行状況を確認します','この端末の同期済みデータとDriveの内容が異なります。通常はDriveの内容を使用します。','Driveを使う','この端末を使う');
 if(useDrive){
 await putOfflineProgressRecord({...local,called:driveCalled,updatedAt:driveUpdated||Date.now(),unsynced:false,lastSyncedAt:Date.now()});
 }else{
-setDriveProgress(courseId,localCalled,localUpdated||Date.now());
-changedDrive=true;
-await markOfflineProgressSynced(courseId);
+queueDriveProgress(courseId,localCalled,localUpdated||Date.now(),true);
+}
+continue;
+}
+const driveChangedSinceLastSync=driveUpdated&&local.lastSyncedAt&&driveUpdated>local.lastSyncedAt;
+if(!driveChangedSinceLastSync&&(localUpdated>driveUpdated||!driveUpdated)){
+const ok=await askSyncChoice('データを同期します','この端末のデータがDriveより新しいため、Driveへ同期します。','同期する','あとで');
+if(!ok) continue;
+queueDriveProgress(courseId,localCalled,localUpdated||Date.now());
+continue;
+}
+const useDrive=await askSyncChoice('未同期の変更があります','この端末の未同期データとDriveの進行状況がどちらも更新されています。どちらを使いますか？','Driveを使う','この端末を使う');
+if(useDrive){
+await putOfflineProgressRecord({...local,called:driveCalled,updatedAt:driveUpdated||Date.now(),unsynced:false,lastSyncedAt:Date.now()});
+}else{
+queueDriveProgress(courseId,localCalled,localUpdated||Date.now());
 }
 }
-if(changedDrive) await saveToDrive();
+if(changedDrive){
+const saved=await saveToDrive();
+if(saved){
+for(const courseId of markSyncedAfterSave){
+try{ await markOfflineProgressSynced(courseId); }catch(err){ console.warn('Offline synced mark failed',err); }
+}
+}else{
+for(const [courseId,snapshot] of driveSnapshots) restoreDriveProgress(courseId,snapshot);
+for(const courseId of markUnsyncedOnSaveFailure){
+const existing=await getOfflineProgress(courseId).catch(()=>null);
+if(existing) await putOfflineProgressRecord({...existing,unsynced:true});
+}
+}
+}
 }
 
 async function syncUnsyncedOfflineProgress(){
@@ -1668,6 +1723,13 @@ return false;
 if(!tok()){
 alert('未同期データをDriveへ同期するには、オンラインでGoogleログインしてください。保存済みデータはこの端末に残ります。');
 return false;
+}
+if(!driveReady){
+const loaded=await loadFromDrive();
+if(!loaded){
+alert('Driveの進行状況を確認できませんでした。同期は行わず、未同期データはこの端末に残します。');
+return false;
+}
 }
 let items=[];
 try{
@@ -1683,11 +1745,18 @@ return true;
 }
 let ok=true;
 for(const progress of items){
+const course=await getOfflineCourse(progress.courseId).catch(()=>null);
+if(course?.source==='manual'||String(progress.courseId).startsWith('manual_')){
+await markOfflineProgressSynced(progress.courseId).catch(()=>{});
+continue;
+}
+const snapshot=snapshotDriveProgress(progress.courseId);
 setDriveProgress(progress.courseId,progress.called,progress.updatedAt||Date.now());
 const saved=await saveToDrive();
 if(saved){
 await markOfflineProgressSynced(progress.courseId);
 }else{
+restoreDriveProgress(progress.courseId,snapshot);
 ok=false;
 }
 }
@@ -1697,12 +1766,33 @@ return ok;
 
 async function persistCurrentProgress(syncDrive=true){
 if(!cid) return;
-setDriveProgress(cid,[...called]);
-try{ await saveOfflineProgress(cid); }catch(err){ console.warn('Offline progress save failed',err); }
-if(syncDrive){
+const updatedAt=Date.now();
+if(!syncDrive){
+const existing=await getOfflineProgress(cid).catch(()=>null);
+try{
+await putOfflineProgressRecord({
+courseId:cid,
+called:[...called],
+absent:[...absent],
+lastUsedAt:updatedAt,
+updatedAt:existing?.updatedAt||updatedAt,
+lastSyncedAt:existing?.lastSyncedAt??null,
+unsynced:!isManual&&Boolean(existing?.unsynced)
+});
+}catch(err){ console.warn('Offline progress save failed',err); }
+await refreshOfflineStorageStatus();
+return;
+}
+const shouldSyncToDrive=syncDrive&&tok()&&!isManual&&driveReady;
+try{ await saveOfflineProgress(cid,updatedAt,!isManual); }catch(err){ console.warn('Offline progress save failed',err); }
+if(shouldSyncToDrive){
+const snapshot=snapshotDriveProgress(cid);
+setDriveProgress(cid,[...called],updatedAt);
 const saved=await saveToDrive();
 if(saved){
 try{ await markOfflineProgressSynced(cid); }catch(err){ console.warn('Offline synced mark failed',err); }
+}else{
+restoreDriveProgress(cid,snapshot);
 }
 }
 await refreshOfflineStorageStatus();
@@ -1822,8 +1912,9 @@ const pr=await window.gapi.client.request({path:'https://www.googleapis.com/oaut
 prof=pr.result;
 updateLoginButton();
 localStorage.setItem('sel_autologin','1');
-await loadFromDrive();
-await reconcileDriveAndLocalProgress();
+const driveLoaded=await loadFromDrive();
+if(driveLoaded) await reconcileDriveAndLocalProgress();
+else loginErr('Driveの進行状況を確認できませんでした。保存済みデータはこの端末に残ります。通信状態を確認してください。');
 const r=await window.gapi.client.classroom.courses.list({courseStates:['ACTIVE'],pageSize:30});
 classroomCoursesCache=r.result.courses||[];
 activeCourseTab='classroom';
@@ -1867,7 +1958,8 @@ function tok(){ try{ return window.gapi?.client?.getToken()?.access_token; }catc
 function setSyn(s){ $('sync-dot').className=s; }
 
 async function loadFromDrive(){
-const t=tok(); if(!t){ allData={}; return; }
+const t=tok(); if(!t){ allData={}; driveReady=false; return false; }
+driveReady=false;
 setSyn('sync');
 try{
 const r=await fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27${DF}%27%20and%20trashed%3Dfalse&fields=files(id)`,{headers:{Authorization:'Bearer '+t}});
@@ -1876,14 +1968,18 @@ const d=await r.json();
 if(d.files?.length){
 dfid=d.files[0].id;
 const r2=await fetch(`https://www.googleapis.com/drive/v3/files/${dfid}?alt=media`,{headers:{Authorization:'Bearer '+t}});
-if(r2.ok) allData=await r2.json(); else allData={};
+if(!r2.ok) throw new Error(r2.status);
+allData=normalizeDriveData(await r2.json());
 }else{ allData={}; dfid=null; }
+driveReady=true;
 setSyn('ok'); setTimeout(()=>setSyn(''),2500);
-}catch(e){ console.warn('Drive load:',e); allData={}; setSyn(''); }
+return true;
+}catch(e){ console.warn('Drive load:',e); driveReady=false; setSyn(''); return false; }
 }
 
 async function saveToDrive(){
-const t=tok(); if(!t||isManual) return false;
+const t=tok(); if(!t||!driveReady) return false;
+allData=normalizeDriveData(allData);
 setSyn('sync'); const body=JSON.stringify(allData);
 try{
 if(dfid){
@@ -1900,18 +1996,44 @@ return true;
 }catch(e){ console.warn('Drive save:',e); setSyn(''); return false; }
 }
 
+function normalizeDriveData(value){
+if(!value||typeof value!=='object'||Array.isArray(value)) return {};
+return value;
+}
+
+function cloneDriveValue(value){
+return value===undefined?undefined:JSON.parse(JSON.stringify(value));
+}
+
+function snapshotDriveProgress(courseId){
+allData=normalizeDriveData(allData);
+if(Object.prototype.hasOwnProperty.call(allData,courseId)){
+return {exists:true,value:cloneDriveValue(allData[courseId])};
+}
+return {exists:false,value:undefined};
+}
+
+function restoreDriveProgress(courseId,snapshot){
+allData=normalizeDriveData(allData);
+if(snapshot?.exists) allData[courseId]=cloneDriveValue(snapshot.value);
+else delete allData[courseId];
+}
+
 function driveCalledFor(courseId){
+allData=normalizeDriveData(allData);
 const value=allData?.[courseId];
 if(Array.isArray(value)) return value;
 return value?.called||[];
 }
 
 function driveUpdatedAtFor(courseId){
+allData=normalizeDriveData(allData);
 const value=allData?.[courseId];
 return Array.isArray(value)?0:(value?.updatedAt||0);
 }
 
 function setDriveProgress(courseId,calledList,updatedAt=Date.now()){
+allData=normalizeDriveData(allData);
 allData[courseId]={called:[...calledList],updatedAt,version:2};
 }
 
@@ -2075,7 +2197,13 @@ list.appendChild(label);
 courses.forEach(c=>{
 const row=document.createElement('div');
 row.className='offline-delete-row';
-row.innerHTML=`<span>${esc(c.courseName)}</span><button class="set-act-btn" onclick="deleteOfflineCourseWithChoice('${escAttr(c.courseId)}')">削除</button>`;
+const name=document.createElement('span');
+name.textContent=c.courseName;
+const del=document.createElement('button');
+del.className='set-act-btn';
+del.textContent='削除';
+del.onclick=()=>deleteOfflineCourseWithChoice(c.courseId);
+row.append(name,del);
 list.appendChild(row);
 });
 }
@@ -2167,7 +2295,7 @@ await updateOfflineCourseLastUsed(id);
 }
 localProgress=await getOfflineProgress(id).catch(()=>null);
 }catch(err){ console.warn('Offline class prepare failed',err); }
-const driveCalled=driveCalledFor(id);
+const driveCalled=driveReady?driveCalledFor(id):[];
 if(localProgress?.unsynced||!driveCalled.length){
 called=new Set(localProgress?.called||driveCalled);
 }else{
@@ -2330,17 +2458,17 @@ const area = $('cm-actions'); area.innerHTML = '';
 if(isAb){
 // 欠席中 → 出席に戻す
 area.appendChild(makeCmBtn('ico-restore','↩','出席に戻す','欠席を解除します',()=>{
-absent.delete(id); persistCurrentProgress(); closeChipMenu(); refreshAll();
+absent.delete(id); persistCurrentProgress(false); closeChipMenu(); refreshAll();
 }));
 } else if(!isCl){
 // 通常 → 欠席にする
 area.appendChild(makeCmBtn('ico-absent','🚫','欠席にする','指名対象から外します',()=>{
-absent.add(id); persistCurrentProgress(); closeChipMenu(); refreshAll();
+absent.add(id); persistCurrentProgress(false); closeChipMenu(); refreshAll();
 }));
 } else {
 // 指名済み → 欠席 or 指名記録解除
 area.appendChild(makeCmBtn('ico-absent','🚫','欠席にする','指名記録はそのまま残します',()=>{
-absent.add(id); persistCurrentProgress(); closeChipMenu(); refreshAll();
+absent.add(id); persistCurrentProgress(false); closeChipMenu(); refreshAll();
 }));
 area.appendChild(makeCmBtn('ico-undo','↩','指名記録を解除する','次回の指名対象に戻します',()=>{
 called.delete(id);
@@ -2354,7 +2482,7 @@ closeChipMenu(); refreshAll();
 if(isAb && isCl){
 area.innerHTML = ''; // 作り直し
 area.appendChild(makeCmBtn('ico-restore','↩','欠席を解除する','指名記録はそのまま残します',()=>{
-absent.delete(id); persistCurrentProgress(); closeChipMenu(); refreshAll();
+absent.delete(id); persistCurrentProgress(false); closeChipMenu(); refreshAll();
 }));
 area.appendChild(makeCmBtn('ico-undo','🔄','指名記録も解除する','出席・未指名の状態に戻します',()=>{
 absent.delete(id); called.delete(id);
@@ -2407,7 +2535,7 @@ function chipTap(id){
     } else {
       absent.add(id);
     }
-    persistCurrentProgress();
+    persistCurrentProgress(false);
     refreshAll();
   } else {
     openChipMenu(id);
@@ -2701,7 +2829,14 @@ function openPp(e){
 /* ════════════════════════════════
 UTIL
 ════════════════════════════════ */
-function esc(s){ return s.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"'); }
+function esc(s){
+return String(s??'')
+.replace(/&/g,'&amp;')
+.replace(/</g,'&lt;')
+.replace(/>/g,'&gt;')
+.replace(/"/g,'&quot;')
+.replace(/'/g,'&#39;');
+}
 function escAttr(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,''); }
 
 /* ════════════════════════════════
