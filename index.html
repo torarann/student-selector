@@ -2236,10 +2236,45 @@ offlineAddMode=true;
 await refreshOfflineCourseTab();
 }
 
+async function saveOfflineProgressSnapshot(courseId){
+const id=String(courseId);
+const local=await getOfflineProgress(id).catch(()=>null);
+if(local?.unsynced) return local;
+if(!driveReady&&tok()) await loadFromDrive();
+const driveCalled=driveReady?driveCalledFor(id):[];
+const driveUpdated=driveReady?driveUpdatedAtFor(id):0;
+const localUpdated=local?.updatedAt||0;
+const useDrive=driveReady&&(driveUpdated||driveCalled.length)&&(!local||driveUpdated>=localUpdated||!local.called?.length);
+if(useDrive){
+const now=Date.now();
+return putOfflineProgressRecord({
+courseId:id,
+called:driveCalled,
+absent:local?.absent||[],
+lastUsedAt:local?.lastUsedAt||now,
+updatedAt:driveUpdated||localUpdated||now,
+lastSyncedAt:now,
+unsynced:false
+});
+}
+if(local) return local;
+const now=Date.now();
+return putOfflineProgressRecord({
+courseId:id,
+called:[],
+absent:[],
+lastUsedAt:now,
+updatedAt:now,
+lastSyncedAt:now,
+unsynced:false
+});
+}
+
 async function addOfflineCourse(c){
 try{
 const list=await fetchCourseStudents(c);
 await saveOfflineCourse({courseId:c.id,courseName:c.name,students:list,source:'classroom',updatedAt:Date.now()});
+await saveOfflineProgressSnapshot(c.id);
 offlineAddMode=false;
 await refreshOfflineCourseTab();
 alert('オフライン用クラスに追加しました。');
